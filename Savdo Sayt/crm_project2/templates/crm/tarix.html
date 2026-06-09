@@ -1,0 +1,125 @@
+{% extends 'crm/base.html' %}
+{% block title %}Savdo Tarixi — CRM{% endblock %}
+{% block page_title %}Savdo Tarixi{% endblock %}
+{% block page_subtitle %}Barcha savdolar ro'yxati{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="padding:16px">
+        <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+            <div>
+                <label class="form-label">Dan</label>
+                <input type="date" name="sana_dan" value="{{ sana_dan }}" class="form-control" style="width:160px">
+            </div>
+            <div>
+                <label class="form-label">Gacha</label>
+                <input type="date" name="sana_gacha" value="{{ sana_gacha }}" class="form-control" style="width:160px">
+            </div>
+            <div>
+                <label class="form-label">To'lov turi</label>
+                <select name="tolov" class="form-control" style="width:150px">
+                    <option value="">— Barchasi —</option>
+                    <option value="naqd" {% if tolov_filter == 'naqd' %}selected{% endif %}>Naqd</option>
+                    <option value="plastik" {% if tolov_filter == 'plastik' %}selected{% endif %}>Plastik</option>
+                    <option value="nasiya" {% if tolov_filter == 'nasiya' %}selected{% endif %}>Nasiya</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+            <a href="{% url 'savdo_tarixi' %}" class="btn btn-outline btn-sm"><i class="fas fa-xmark"></i> Tozalash</a>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-history" style="color:var(--primary)"></i>
+        <span class="card-title">Savdolar Tarixi</span>
+        <span style="margin-left:8px;background:#eff6ff;color:var(--primary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
+            {{ page_obj.paginator.count }} ta
+        </span>
+        <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--success)">
+            Jami: {{ jami_summa|floatformat:0 }} so'm
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Sana</th>
+                    <th>Mijoz</th>
+                    <th>To'lov turi</th>
+                    <th>Mahsulotlar</th>
+                    <th>Jami Summa</th>
+                    <th>Holat</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in savdolar %}
+                <tr>
+                    <td style="color:var(--text-muted)">#{{ s.pk }}</td>
+                    <td>{{ s.sana }}</td>
+                    <td>{{ s.mijoz.ism_familiya|default:"—" }}</td>
+                    <td>
+                        {% if s.tolov_turi == 'naqd' %}
+                        <span class="badge-status badge-success"><i class="fas fa-money-bill"></i> Naqd</span>
+                        {% elif s.tolov_turi == 'plastik' %}
+                        <span class="badge-status" style="background:#eff6ff;color:var(--primary)"><i class="fas fa-credit-card"></i> Plastik</span>
+                        {% else %}
+                        <span class="badge-status badge-warning"><i class="fas fa-clock"></i> Nasiya</span>
+                        {% endif %}
+                    </td>
+                    <td style="max-width:250px">
+                        {% for item in s.savdo_itemlar.all %}
+                        <span style="display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11.5px;margin:2px">
+                            {{ item.mahsulot.nomi }} ×{{ item.soni }}
+                        </span>
+                        {% endfor %}
+                    </td>
+                    <td style="font-weight:700;color:var(--primary)">{{ s.jami_summa|floatformat:0 }} so'm</td>
+                    <td>
+                        {% if s.to_langan %}
+                        <span class="badge-status badge-success"><i class="fas fa-check"></i> To'langan</span>
+                        {% else %}
+                        <span class="badge-status badge-danger"><i class="fas fa-clock"></i> Nasiya</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if request.user.is_superuser %}
+                        <form method="POST" action="{% url 'savdo_ochirish' s.pk %}" style="display:inline"
+                              onsubmit="return confirm('Savdo #{{ s.pk }} ni o\'chirasizmi? Mahsulot qoldig\'i tiklanadi.')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm btn-icon" title="O'chirish">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">
+                    Savdo topilmadi
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="padding:16px 22px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&tolov={{ tolov_filter }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></a>
+        {% endif %}
+        <span style="font-size:13px;color:var(--text-muted)">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&tolov={{ tolov_filter }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

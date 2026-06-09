@@ -1,0 +1,76 @@
+{% extends 'crm/base.html' %}
+{% block title %}Kirim Tarixi — CRM{% endblock %}
+{% block page_title %}Kirim Tarixi{% endblock %}
+{% block page_subtitle %}Barcha kirimlar{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="padding:16px">
+        <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+            <div>
+                <label class="form-label">Dan</label>
+                <input type="date" name="sana_dan" value="{{ sana_dan }}" class="form-control" style="width:160px">
+            </div>
+            <div>
+                <label class="form-label">Gacha</label>
+                <input type="date" name="sana_gacha" value="{{ sana_gacha }}" class="form-control" style="width:160px">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+            <a href="{% url 'kirim_tarixi' %}" class="btn btn-outline btn-sm"><i class="fas fa-xmark"></i> Tozalash</a>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-truck" style="color:var(--primary)"></i>
+        <span class="card-title">Kirimlar Tarixi</span>
+        <span style="margin-left:8px;background:#eff6ff;color:var(--primary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
+            {{ page_obj.paginator.count }} ta
+        </span>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sana</th>
+                    <th>Mahsulot</th>
+                    <th>Miqdor</th>
+                    <th>Narxi</th>
+                    <th>Izoh</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in kirimlar %}
+                <tr>
+                    <td>{{ k.sana }}</td>
+                    <td><strong>{{ k.mahsulot.nomi }}</strong></td>
+                    <td>
+                        <span class="badge-status badge-success">+{{ k.soni }} ta</span>
+                    </td>
+                    <td>{% if k.narxi %}{{ k.narxi|floatformat:0 }} so'm{% else %}<span style="color:var(--text-muted)">—</span>{% endif %}</td>
+                    <td style="color:var(--text-muted)">{{ k.izoh|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">
+                    Kirim topilmadi
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div style="padding:16px 22px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></a>
+        {% endif %}
+        <span style="font-size:13px;color:var(--text-muted)">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
