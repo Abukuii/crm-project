@@ -1,10 +1,15 @@
-import sqlite3
+import psycopg2
+import os
 from datetime import date
-from config import DB_PATH
-
 
 def get_connection():
-    return sqlite3.connect(DB_PATH)
+    return psycopg2.connect(
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT"),
+    )
 
 
 def get_daily_report() -> dict:
@@ -19,7 +24,7 @@ def get_daily_report() -> dict:
             COALESCE(SUM(CASE WHEN tolov_turi='plastik' THEN jami_summa ELSE 0 END), 0),
             COALESCE(SUM(CASE WHEN tolov_turi='nasiya' THEN jami_summa ELSE 0 END), 0),
             COALESCE(SUM(jami_summa), 0)
-        FROM crm_savdo WHERE sana = ?
+        FROM crm_savdo WHERE sana = %s
     """, (bugun,))
     row = cur.fetchone()
 
@@ -32,12 +37,12 @@ def get_daily_report() -> dict:
         FROM crm_savdoitem si
         JOIN crm_mahsulot m ON si.mahsulot_id = m.id
         JOIN crm_savdo s ON si.savdo_id = s.id
-        WHERE s.sana = ?
+        WHERE s.sana = %s
         GROUP BY m.id ORDER BY jami_son DESC LIMIT 3
     """, (bugun,))
     top = [{"nomi": r[0], "soni": r[1]} for r in cur.fetchall()]
 
-    cur.execute("SELECT COUNT(*) FROM crm_savdo WHERE sana=? AND tolov_turi='nasiya'", (bugun,))
+    cur.execute("SELECT COUNT(*) FROM crm_savdo WHERE sana=%s AND tolov_turi='nasiya'", (bugun,))
     yangi_nasiya = cur.fetchone()[0]
     conn.close()
 
@@ -63,11 +68,11 @@ def get_monthly_stats() -> dict:
         SELECT COUNT(*),
             COALESCE(SUM(jami_summa), 0),
             COALESCE(SUM(CASE WHEN tolov_turi='nasiya' THEN jami_summa ELSE 0 END), 0)
-        FROM crm_savdo WHERE sana >= ?
+        FROM crm_savdo WHERE sana >= %s
     """, (oy_boshi,))
     row = cur.fetchone()
 
-    cur.execute("SELECT COUNT(*) FROM crm_mijoz WHERE DATE(yaratilgan) >= ?", (oy_boshi,))
+    cur.execute("SELECT COUNT(*) FROM crm_mijoz WHERE DATE(yaratilgan) >= %s", (oy_boshi,))
     yangi_mijozlar = cur.fetchone()[0]
 
     cur.execute("""
@@ -75,7 +80,7 @@ def get_monthly_stats() -> dict:
         FROM crm_savdoitem si
         JOIN crm_mahsulot m ON si.mahsulot_id = m.id
         JOIN crm_savdo s ON si.savdo_id = s.id
-        WHERE s.sana >= ?
+        WHERE s.sana >= %s
         GROUP BY m.id ORDER BY jami_son DESC LIMIT 1
     """, (oy_boshi,))
     top = cur.fetchone()
@@ -110,7 +115,7 @@ def get_qarzdorlar() -> list:
 def get_kam_qolganlar(chegara: int = 20) -> list:
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT nomi, qoldi FROM crm_mahsulot WHERE qoldi <= ? ORDER BY qoldi", (chegara,))
+    cur.execute("SELECT nomi, qoldi FROM crm_mahsulot WHERE qoldi <= %s ORDER BY qoldi", (chegara,))
     rows = cur.fetchall()
     conn.close()
     return [{"nomi": r[0], "qoldi": r[1]} for r in rows]
