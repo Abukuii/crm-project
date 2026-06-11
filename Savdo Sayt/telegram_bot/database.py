@@ -104,7 +104,7 @@ def get_qarzdorlar() -> list:
             COALESCE(SUM(s.jami_summa), 0) as jami_qarz
         FROM crm_mijoz mj
         JOIN crm_savdo s ON s.mijoz_id = mj.id
-        WHERE s.to_langan = 0
+        WHERE s.to_langan = False
         GROUP BY mj.id ORDER BY jami_qarz DESC
     """)
     rows = cur.fetchall()
