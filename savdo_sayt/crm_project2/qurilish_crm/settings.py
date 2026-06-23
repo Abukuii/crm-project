@@ -15,7 +15,7 @@ DEBUG = config('DEBUG', cast=bool)
 # Production'da o'z domeningizni kiriting, masalan: ['yourdomain.com', 'www.yourdomain.com']
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
