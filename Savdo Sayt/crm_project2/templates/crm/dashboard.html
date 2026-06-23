@@ -3,7 +3,141 @@
 {% block page_title %}Dashboard{% endblock %}
 {% block page_subtitle %}Bugungi ko'rsatkichlar{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Dollar kursi bloki */
+    .dollar-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        padding: 16px 20px 18px;
+    }
+    .dollar-block {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 15px 17px;
+    }
+    .dollar-block-label {
+        font-size: 11.5px; font-weight: 600;
+        color: var(--text-muted); margin-bottom: 9px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .dollar-value {
+        font-size: 28px; font-weight: 800;
+        color: #16a34a; line-height: 1;
+        letter-spacing: -0.5px;
+    }
+    .dollar-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .dollar-input-row { display: flex; gap: 8px; align-items: center; }
+
+    /* Dashboard asosiy grid */
+    .dash-grid {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 18px;
+    }
+    .chart-container {
+        position: relative;
+        height: 230px;
+    }
+
+    /* Oxirgi savdolar */
+    .savdo-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 11px 18px;
+        border-bottom: 1px solid var(--border);
+        transition: background .15s;
+    }
+    .savdo-row:last-child { border-bottom: none; }
+    .savdo-row:hover { background: var(--surface2); }
+    .savdo-icon {
+        width: 35px; height: 35px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; font-size: 13px;
+    }
+    .savdo-icon.naqd   { background:#ecfdf5; color:var(--success); }
+    .savdo-icon.nasiya { background:#fef2f2; color:var(--danger);  }
+    .savdo-name  { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .savdo-sana  { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .savdo-summa { font-size: 13px; font-weight: 700; color: var(--primary); white-space: nowrap; margin-left: auto; }
+
+    /* Tablet */
+    @media (max-width:1024px) {
+        .dash-grid { grid-template-columns:1fr; gap:16px; }
+        .chart-container { height:200px; }
+    }
+    /* Mobil */
+    @media (max-width:768px) {
+        .dollar-grid { grid-template-columns:1fr; gap:10px; padding:13px; }
+        .dollar-value { font-size:24px; }
+        .dash-grid { grid-template-columns:1fr; gap:13px; }
+        .chart-container { height:180px; }
+        .savdo-row { padding:10px 14px; }
+    }
+    @media (max-width:480px) {
+        .dollar-value { font-size:22px; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+
+<!-- ── Dollar Kursi ── -->
+<div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+        <i class="fas fa-dollar-sign" style="color:#16a34a"></i>
+        <span class="card-title">Dollar Kursi</span>
+        <div class="card-actions">
+            <span style="font-size:11.5px;color:var(--text-muted)" id="kursVaqti">Yuklanmoqda...</span>
+            <button class="btn btn-outline btn-sm" onclick="kursniYangilash()" id="kursBtn">
+                <i class="fas fa-rotate"></i>
+                <span class="btn-text">Yangilash</span>
+            </button>
+        </div>
+    </div>
+    <div class="dollar-grid">
+        <!-- CBU rasmiy -->
+        <div class="dollar-block">
+            <div class="dollar-block-label">
+                <i class="fas fa-landmark"></i> CBU rasmiy kurs
+            </div>
+            <div class="dollar-value" id="cbuKurs">—</div>
+            <div class="dollar-sub">so'm / 1 USD</div>
+        </div>
+        <!-- Qo'lda bozor kursi -->
+        <div class="dollar-block">
+            <div class="dollar-block-label">
+                <i class="fas fa-pen-to-square"></i> Bozor kursi (qo'lda)
+            </div>
+            <form method="POST" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="dollar_kursi_saqlash">
+                <div class="dollar-input-row">
+                    <input type="number"
+                        name="dollar_kursi"
+                        class="form-control"
+                        placeholder="Masalan: 12800"
+                        value="{{ saqlangan_kurs|default:'' }}"
+                        min="1" max="999999"
+                        style="flex:1">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </form>
+            {% if saqlangan_kurs %}
+            <div class="dollar-sub" style="margin-top:6px">
+                <i class="fas fa-clock"></i>
+                Saqlangan: <strong style="color:var(--primary)">{{ saqlangan_kurs|floatformat:0 }} so'm</strong>
+                {% if saqlangan_sana %} · {{ saqlangan_sana }}{% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ── Statistika ── -->
 <div class="stat-grid">
     <div class="stat-card">
         <div class="stat-icon blue"><i class="fas fa-boxes-stacked"></i></div>
@@ -25,7 +159,7 @@
         <div class="stat-icon cyan"><i class="fas fa-money-bill-wave"></i></div>
         <div class="stat-info">
             <div class="stat-label">Bugungi Daromad</div>
-            <div class="stat-value" style="font-size:17px">{{ bugungi_daromad|floatformat:0 }}</div>
+            <div class="stat-value" style="font-size:clamp(13px,2.5vw,19px)">{{ bugungi_daromad|floatformat:0 }}</div>
             <div class="stat-sub">So'm</div>
         </div>
     </div>
@@ -33,8 +167,28 @@
         <div class="stat-icon blue"><i class="fas fa-calendar-check"></i></div>
         <div class="stat-info">
             <div class="stat-label">Oylik Daromad</div>
-            <div class="stat-value" style="font-size:17px">{{ oylik_daromad|floatformat:0 }}</div>
+            <div class="stat-value" style="font-size:clamp(13px,2.5vw,19px)">{{ oylik_daromad|floatformat:0 }}</div>
             <div class="stat-sub">So'm</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-money-bill-transfer"></i></div>
+        <div class="stat-info">
+            <div class="stat-label">Oylik Xarajat</div>
+            <div class="stat-value" style="font-size:clamp(13px,2.5vw,19px)">{{ oylik_xarajat|floatformat:0 }}</div>
+            <div class="stat-sub">So'm</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon {% if sof_foyda >= 0 %}green{% else %}red{% endif %}">
+            <i class="fas fa-scale-balanced"></i>
+        </div>
+        <div class="stat-info">
+            <div class="stat-label">Oylik Sof Foyda</div>
+            <div class="stat-value" style="font-size:clamp(13px,2.5vw,19px);color:{% if sof_foyda >= 0 %}var(--success){% else %}var(--danger){% endif %}">
+                {{ sof_foyda|floatformat:0 }}
+            </div>
+            <div class="stat-sub">Daromad − Xarajat</div>
         </div>
     </div>
     <div class="stat-card">
@@ -55,93 +209,115 @@
     </div>
 </div>
 
-<div style="display:grid; grid-template-columns: 1fr 360px; gap:20px;" class="dashboard-grid">
-    <!-- Chart -->
+<!-- ── Grafik + Oxirgi savdolar ── -->
+<div class="dash-grid">
+
     <div class="card">
         <div class="card-header">
             <i class="fas fa-chart-line" style="color:var(--primary)"></i>
             <span class="card-title">Haftalik Savdo Grafigi</span>
         </div>
         <div class="card-body">
-            <canvas id="savdoChart" height="120"></canvas>
+            <div class="chart-container">
+                <canvas id="savdoChart"></canvas>
+            </div>
         </div>
     </div>
 
-    <!-- Oxirgi savdolar -->
     <div class="card">
         <div class="card-header">
             <i class="fas fa-clock-rotate-left" style="color:var(--primary)"></i>
             <span class="card-title">Oxirgi Savdolar</span>
         </div>
-        <div style="padding:0 6px 6px">
-            {% for s in oxirgi_savdolar %}
-            <div style="display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--border); transition:background 0.2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
-                <div style="width:36px;height:36px;border-radius:8px;background:{% if s.tolov_turi == 'nasiya' %}#fef2f2{% else %}#ecfdf5{% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                    <i class="fas fa-{% if s.tolov_turi == 'nasiya' %}clock{% else %}check{% endif %}" style="color:{% if s.tolov_turi == 'nasiya' %}var(--danger){% else %}var(--success){% endif %};font-size:13px"></i>
-                </div>
-                <div style="flex:1;min-width:0">
-                    <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                        {{ s.mijoz.ism_familiya|default:"Naqd savdo" }}
-                    </div>
-                    <div style="font-size:11px;color:var(--text-muted)">{{ s.sana }}</div>
-                </div>
-                <div style="font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap">
-                    {{ s.jami_summa|floatformat:0 }}
-                </div>
+        {% for s in oxirgi_savdolar %}
+        <div class="savdo-row">
+            <div class="savdo-icon {% if s.tolov_turi == 'nasiya' %}nasiya{% else %}naqd{% endif %}">
+                <i class="fas fa-{% if s.tolov_turi == 'nasiya' %}clock{% else %}check{% endif %}"></i>
             </div>
-            {% empty %}
-            <div style="padding:30px;text-align:center;color:var(--text-muted)">
-                <i class="fas fa-inbox" style="font-size:28px;margin-bottom:8px;display:block;opacity:0.4"></i>
-                Hali savdo yo'q
+            <div style="flex:1;min-width:0">
+                <div class="savdo-name">{{ s.mijoz.ism_familiya|default:"Naqd savdo" }}</div>
+                <div class="savdo-sana">{{ s.sana }}</div>
             </div>
-            {% endfor %}
+            <div class="savdo-summa">{{ s.jami_summa|floatformat:0 }}</div>
         </div>
+        {% empty %}
+        <div style="padding:32px;text-align:center;color:var(--text-muted)">
+            <i class="fas fa-inbox" style="font-size:28px;opacity:.35;display:block;margin-bottom:8px"></i>
+            Hali savdo yo'q
+        </div>
+        {% endfor %}
     </div>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const haftalikData = {{ haftalik_data|safe }};
-const ctx = document.getElementById('savdoChart').getContext('2d');
-
-const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-gradient.addColorStop(0, 'rgba(26,86,219,0.2)');
-gradient.addColorStop(1, 'rgba(26,86,219,0)');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: haftalikData.map(d => d.kun),
-        datasets: [{
-            label: "Savdo (so'm)",
-            data: haftalikData.map(d => d.summa),
-            borderColor: '#1a56db',
-            backgroundColor: gradient,
-            borderWidth: 2.5,
-            pointBackgroundColor: '#1a56db',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            tension: 0.4,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: ctx => `${ctx.parsed.y.toLocaleString()} so'm`
-                }
-            }
+// ── Haftalik grafik ──
+(function() {
+    const data = {{ haftalik_data|safe }};
+    const ctx  = document.getElementById('savdoChart').getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 260);
+    grad.addColorStop(0, 'rgba(26,86,219,0.18)');
+    grad.addColorStop(1, 'rgba(26,86,219,0)');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.kun),
+            datasets: [{
+                label: "Savdo (so'm)",
+                data: data.map(d => d.summa),
+                borderColor: '#1a56db',
+                backgroundColor: grad,
+                borderWidth: 2.5,
+                pointBackgroundColor: '#1a56db',
+                pointRadius: 4, pointHoverRadius: 6,
+                tension: 0.4, fill: true
+            }]
         },
-        scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 12 } } },
-            y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, callback: v => v.toLocaleString() } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,   /* ← height CSS dan keladi */
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: c => c.parsed.y.toLocaleString('uz-UZ') + " so'm" } }
+            },
+            scales: {
+                x: { grid:{ display:false }, ticks:{ font:{ size:11 }, maxRotation:0 } },
+                y: { grid:{ color:'#f1f5f9' }, ticks:{ font:{ size:11 }, callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v.toLocaleString() } }
+            }
         }
-    }
-});
+    });
+})();
+
+// ── CBU Dollar kursi ──
+function kursniYangilash() {
+    const btn  = document.getElementById('kursBtn');
+    const text = btn.querySelector('.btn-text');
+    btn.disabled = true;
+    if (text) text.textContent = '...';
+
+    fetch('https://cbu.uz/uz/arkhiv-kursov-valyut/json/')
+        .then(r => r.json())
+        .then(data => {
+            const usd = data.find(v => v.Ccy === 'USD');
+            if (usd) {
+                document.getElementById('cbuKurs').textContent =
+                    parseFloat(usd.Rate).toLocaleString('uz-UZ', { minimumFractionDigits:2, maximumFractionDigits:2 });
+                document.getElementById('kursVaqti').textContent =
+                    'Yangilandi: ' + new Date().toLocaleTimeString('uz-UZ');
+            }
+        })
+        .catch(() => {
+            document.getElementById('cbuKurs').textContent = 'Xatolik';
+            document.getElementById('kursVaqti').textContent = 'Internet yo\'q';
+        })
+        .finally(() => {
+            btn.disabled = false;
+            if (text) text.textContent = 'Yangilash';
+        });
+}
+kursniYangilash();
 </script>
 {% endblock %}

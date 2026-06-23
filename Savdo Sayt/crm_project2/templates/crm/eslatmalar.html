@@ -1,0 +1,181 @@
+{% extends 'crm/base.html' %}
+{% block title %}Eslatmalar — CRM{% endblock %}
+{% block page_title %}Eslatmalar{% endblock %}
+{% block page_subtitle %}Muhim eslatmalar{% endblock %}
+
+{% block content %}
+<div class="side-grid">
+
+    <!-- Eslatmalar ro'yxati -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-bell" style="color:var(--warning)"></i>
+            <span class="card-title">Eslatmalar</span>
+            <span style="margin-left:8px;background:#fffbeb;color:var(--warning);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
+                {{ eslatmalar.count }} ta
+            </span>
+        </div>
+        <div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px">
+            {% for e in eslatmalar %}
+            <div style="padding:14px 16px;border-radius:10px;border:1px solid {% if e.bajarildi %}var(--border){% elif e.daraja == 'shoshilinch' %}#fca5a5{% elif e.daraja == 'muhim' %}#fde68a{% else %}var(--border){% endif %};background:{% if e.bajarildi %}var(--surface2){% elif e.daraja == 'shoshilinch' %}#fef2f2{% elif e.daraja == 'muhim' %}#fffbeb{% else %}var(--surface){% endif %};opacity:{% if e.bajarildi %}0.6{% else %}1{% endif %}">
+                <div style="display:flex;align-items:flex-start;gap:10px">
+                    <div style="flex:1">
+                        <div style="font-size:14px;font-weight:600;{% if e.bajarildi %}text-decoration:line-through;color:var(--text-muted){% endif %}">
+                            {{ e.matn }}
+                        </div>
+                        <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+                            {% if e.daraja == 'shoshilinch' %}
+                            <span class="badge-status badge-danger"><i class="fas fa-fire"></i> Shoshilinch</span>
+                            {% elif e.daraja == 'muhim' %}
+                            <span class="badge-status badge-warning"><i class="fas fa-star"></i> Muhim</span>
+                            {% else %}
+                            <span class="badge-status" style="background:var(--surface2);color:var(--text-muted)"><i class="fas fa-circle"></i> Oddiy</span>
+                            {% endif %}
+                            <span style="font-size:11px;color:var(--text-muted)">{{ e.yaratilgan|date:"d.m.Y H:i" }}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-shrink:0">
+                        <!-- Bajarildi toggle -->
+                        <form method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="bajarildi">
+                            <input type="hidden" name="eslatma_id" value="{{ e.pk }}">
+                            <button type="submit" class="btn btn-sm btn-icon {% if e.bajarildi %}btn-outline{% else %}btn-success{% endif %}" title="{% if e.bajarildi %}Bajarilmadi{% else %}Bajarildi{% endif %}">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        <button class="btn btn-warning btn-sm btn-icon"
+                            onclick="openEdit({{ e.pk }}, '{{ e.matn|escapejs }}', '{{ e.daraja }}')"
+                            title="Tahrirlash"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-danger btn-sm btn-icon"
+                            onclick="openDelete({{ e.pk }})"
+                            title="O'chirish"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="text-align:center;padding:40px;color:var(--text-muted)">
+                <i class="fas fa-bell-slash" style="font-size:32px;opacity:0.3;display:block;margin-bottom:10px"></i>
+                Hozircha eslatma yo'q
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Yangi eslatma qo'shish -->
+    <div style="position:sticky;top:80px">
+        <div class="card">
+            <div class="card-header" style="background:linear-gradient(135deg,#f59e0b,#f97316)">
+                <i class="fas fa-plus" style="color:white"></i>
+                <span class="card-title" style="color:white">Yangi Eslatma</span>
+            </div>
+            <div class="card-body" style="padding:16px">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="qoshish">
+                    <div class="form-group">
+                        <label class="form-label">Eslatma matni *</label>
+                        <textarea class="form-control" name="matn" rows="4" required placeholder="Eslatma yozing..." style="resize:vertical"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">Muhimlik darajasi</label>
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2)">
+                                <input type="radio" name="daraja" value="oddiy" checked> <i class="fas fa-circle" style="color:var(--text-muted)"></i> Oddiy
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #fde68a;background:#fffbeb">
+                                <input type="radio" name="daraja" value="muhim"> <i class="fas fa-star" style="color:var(--warning)"></i> Muhim
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 12px;border-radius:8px;border:1px solid #fca5a5;background:#fef2f2">
+                                <input type="radio" name="daraja" value="shoshilinch"> <i class="fas fa-fire" style="color:var(--danger)"></i> Shoshilinch
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning" style="width:100%;justify-content:center;margin-top:16px">
+                        <i class="fas fa-plus"></i> Qo'shish
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TAHRIRLASH MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal" style="max-width:480px">
+        <div class="modal-header">
+            <span class="modal-title"><i class="fas fa-pen" style="color:var(--warning);margin-right:8px"></i>Tahrirlash</span>
+            <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="tahrirlash">
+            <input type="hidden" name="eslatma_id" id="editId">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Eslatma matni</label>
+                    <textarea class="form-control" name="matn" id="editMatn" rows="4" style="resize:vertical"></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Muhimlik darajasi</label>
+                    <select class="form-control" name="daraja" id="editDaraja">
+                        <option value="oddiy">Oddiy</option>
+                        <option value="muhim">Muhim</option>
+                        <option value="shoshilinch">Shoshilinch</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">Bekor</button>
+                <button type="submit" class="btn btn-warning"><i class="fas fa-check"></i> Yangilash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- O'CHIRISH MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" style="color:var(--danger)"><i class="fas fa-trash" style="margin-right:8px"></i>O'chirish</span>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="ochirish">
+            <input type="hidden" name="eslatma_id" id="deleteId">
+            <div class="modal-body" style="text-align:center;padding:20px">
+                <i class="fas fa-circle-exclamation" style="font-size:48px;color:var(--danger);opacity:0.8;display:block;margin-bottom:14px"></i>
+                <p style="font-size:14px;color:var(--text-muted)">Bu eslatmani o'chirasizmi?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('deleteModal')">Bekor</button>
+                <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> O'chirish</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openEdit(id, matn, daraja) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editMatn').value = matn;
+    document.getElementById('editDaraja').value = daraja;
+    openModal('editModal');
+}
+
+function openDelete(id) {
+    document.getElementById('deleteId').value = id;
+    openModal('deleteModal');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+</script>
+{% endblock %}

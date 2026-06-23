@@ -25,6 +25,15 @@
                     <option value="nasiya" {% if tolov_filter == 'nasiya' %}selected{% endif %}>Nasiya</option>
                 </select>
             </div>
+            <div>
+                <label class="form-label">Ko'rsatish</label>
+                <select name="limit" class="form-control" style="width:100px">
+                    <option value="5" {% if limit == '5' %}selected{% endif %}>5 ta</option>
+                    <option value="10" {% if limit == '10' or not limit %}selected{% endif %}>10 ta</option>
+                    <option value="20" {% if limit == '20' %}selected{% endif %}>20 ta</option>
+                    <option value="50" {% if limit == '50' %}selected{% endif %}>50 ta</option>
+                </select>
+            </div>
             <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filter</button>
             <a href="{% url 'savdo_tarixi' %}" class="btn btn-outline btn-sm"><i class="fas fa-xmark"></i> Tozalash</a>
         </form>
@@ -36,10 +45,22 @@
         <i class="fas fa-history" style="color:var(--primary)"></i>
         <span class="card-title">Savdolar Tarixi</span>
         <span style="margin-left:8px;background:#eff6ff;color:var(--primary);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
-            {{ page_obj.paginator.count }} ta
+            {% if has_filter %}{{ page_obj.paginator.count }} ta{% else %}oxirgi {{ limit }} ta{% endif %}
         </span>
-        <div style="margin-left:auto;font-size:13px;font-weight:700;color:var(--success)">
-            Jami: {{ jami_summa|floatformat:0 }} so'm
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+            <span style="font-size:13px;font-weight:700;color:var(--success)">
+                Jami: {{ jami_summa|floatformat:0 }} so'm
+            </span>
+            {% if request.user.is_superuser or request.user.groups.all|length %}
+            <form method="POST" style="display:inline"
+                  onsubmit="return confirm('⚠️ Barcha savdo tarixi o\'chiriladi! Davom etasizmi?')">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="tarix_tozalash">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash-can"></i> Tarixni tozalash
+                </button>
+            </form>
+            {% endif %}
         </div>
     </div>
     <div class="table-wrap">
@@ -107,17 +128,17 @@
         </table>
     </div>
 
-    <!-- Pagination -->
-    {% if page_obj.has_other_pages %}
+    <!-- Pagination (faqat filter bo'lsa) -->
+    {% if has_filter and page_obj.has_other_pages %}
     <div style="padding:16px 22px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)">
         {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&tolov={{ tolov_filter }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></a>
+        <a href="?page={{ page_obj.previous_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&tolov={{ tolov_filter }}&limit={{ limit }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></a>
         {% endif %}
         <span style="font-size:13px;color:var(--text-muted)">
             {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
         </span>
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&tolov={{ tolov_filter }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></a>
+        <a href="?page={{ page_obj.next_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&tolov={{ tolov_filter }}&limit={{ limit }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></a>
         {% endif %}
     </div>
     {% endif %}

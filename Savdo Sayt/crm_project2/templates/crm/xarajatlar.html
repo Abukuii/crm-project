@@ -1,0 +1,246 @@
+{% extends 'crm/base.html' %}
+{% block title %}Xarajatlar — CRM{% endblock %}
+{% block page_title %}Xarajatlar{% endblock %}
+{% block page_subtitle %}Barcha xarajatlar ro'yxati{% endblock %}
+
+{% block content %}
+<!-- Filter -->
+<div class="card" style="margin-bottom:20px">
+    <div class="card-body" style="padding:16px">
+        <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+            <div>
+                <label class="form-label">Dan</label>
+                <input type="date" name="sana_dan" value="{{ sana_dan }}" class="form-control" style="width:160px">
+            </div>
+            <div>
+                <label class="form-label">Gacha</label>
+                <input type="date" name="sana_gacha" value="{{ sana_gacha }}" class="form-control" style="width:160px">
+            </div>
+            <div>
+                <label class="form-label">Kategoriya</label>
+                <select name="kategoriya" class="form-control" style="width:160px">
+                    <option value="">— Barchasi —</option>
+                    {% for val, nom in kategoriyalar %}
+                    <option value="{{ val }}" {% if kategoriya_filter == val %}selected{% endif %}>{{ nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+            <a href="{% url 'xarajatlar' %}" class="btn btn-outline btn-sm"><i class="fas fa-xmark"></i> Tozalash</a>
+            <button type="button" class="btn btn-primary btn-sm" onclick="openModal('addModal')" style="margin-left:auto">
+                <i class="fas fa-plus"></i> Xarajat qo'shish
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-money-bill-transfer" style="color:var(--danger)"></i>
+        <span class="card-title">Xarajatlar</span>
+        <span style="margin-left:8px;background:#fef2f2;color:var(--danger);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700">
+            {{ page_obj.paginator.count }} ta
+        </span>
+        <div class="card-actions" style="font-size:13px;font-weight:700;color:var(--danger)">
+            Jami: {{ jami_summa|floatformat:0 }} so'm
+        </div>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Sana</th>
+                    <th>Nomi</th>
+                    <th>Kategoriya</th>
+                    <th>Summa</th>
+                    <th>Izoh</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for x in xarajatlar %}
+                <tr>
+                    <td style="color:var(--text-muted)">{{ forloop.counter }}</td>
+                    <td>{{ x.sana }}</td>
+                    <td><strong>{{ x.nomi }}</strong></td>
+                    <td>
+                        <span class="badge-status" style="background:#fef2f2;color:var(--danger)">
+                            {{ x.get_kategoriya_display }}
+                        </span>
+                    </td>
+                    <td style="font-weight:700;color:var(--danger)">{{ x.summa|floatformat:0 }} so'm</td>
+                    <td style="color:var(--text-muted)">{{ x.izoh|default:"—" }}</td>
+                    <td>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn btn-warning btn-sm btn-icon"
+                                onclick="openEdit({{ x.pk }}, '{{ x.nomi|escapejs }}', {{ x.summa }}, '{{ x.kategoriya }}', '{{ x.sana }}', '{{ x.izoh|escapejs }}')"
+                                title="Tahrirlash"><i class="fas fa-pen"></i></button>
+                            <button class="btn btn-danger btn-sm btn-icon"
+                                onclick="openDelete({{ x.pk }}, '{{ x.nomi|escapejs }}')"
+                                title="O'chirish"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">
+                    <i class="fas fa-inbox" style="font-size:32px;opacity:0.3;display:block;margin-bottom:10px"></i>
+                    Xarajat topilmadi
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page_obj.has_other_pages %}
+    <div style="padding:16px 22px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&kategoriya={{ kategoriya_filter }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-left"></i></a>
+        {% endif %}
+        <span style="font-size:13px;color:var(--text-muted)">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&sana_dan={{ sana_dan }}&sana_gacha={{ sana_gacha }}&kategoriya={{ kategoriya_filter }}" class="btn btn-outline btn-sm"><i class="fas fa-chevron-right"></i></a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- QO'SHISH MODAL -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal" style="max-width:480px">
+        <div class="modal-header">
+            <span class="modal-title"><i class="fas fa-plus" style="color:var(--danger);margin-right:8px"></i>Xarajat Qo'shish</span>
+            <button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="qoshish">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Xarajat nomi *</label>
+                    <input type="text" class="form-control" name="nomi" required placeholder="Masalan: Elektr to'lovi">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Summa (so'm) *</label>
+                    <input type="number" class="form-control" name="summa" required min="0" placeholder="Masalan: 500000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kategoriya</label>
+                    <select class="form-control" name="kategoriya">
+                        {% for val, nom in kategoriyalar %}
+                        <option value="{{ val }}">{{ nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sana</label>
+                    <input type="date" class="form-control" name="sana" value="{% now 'Y-m-d' %}">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Izoh</label>
+                    <input type="text" class="form-control" name="izoh" placeholder="Ixtiyoriy">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('addModal')">Bekor</button>
+                <button type="submit" class="btn btn-danger"><i class="fas fa-check"></i> Saqlash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TAHRIRLASH MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal" style="max-width:480px">
+        <div class="modal-header">
+            <span class="modal-title"><i class="fas fa-pen" style="color:var(--warning);margin-right:8px"></i>Tahrirlash</span>
+            <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="tahrirlash">
+            <input type="hidden" name="xarajat_id" id="editId">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Xarajat nomi</label>
+                    <input type="text" class="form-control" name="nomi" id="editNomi">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Summa (so'm)</label>
+                    <input type="number" class="form-control" name="summa" id="editSumma" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kategoriya</label>
+                    <select class="form-control" name="kategoriya" id="editKategoriya">
+                        {% for val, nom in kategoriyalar %}
+                        <option value="{{ val }}">{{ nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sana</label>
+                    <input type="date" class="form-control" name="sana" id="editSana">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Izoh</label>
+                    <input type="text" class="form-control" name="izoh" id="editIzoh">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('editModal')">Bekor</button>
+                <button type="submit" class="btn btn-warning"><i class="fas fa-check"></i> Yangilash</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- O'CHIRISH MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" style="color:var(--danger)"><i class="fas fa-trash" style="margin-right:8px"></i>O'chirish</span>
+            <button class="modal-close" onclick="closeModal('deleteModal')"><i class="fas fa-xmark"></i></button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="ochirish">
+            <input type="hidden" name="xarajat_id" id="deleteId">
+            <div class="modal-body" style="text-align:center;padding:20px">
+                <i class="fas fa-circle-exclamation" style="font-size:48px;color:var(--danger);opacity:0.8;display:block;margin-bottom:14px"></i>
+                <p style="font-size:15px;font-weight:600"><span id="deleteNomi"></span></p>
+                <p style="font-size:13px;color:var(--text-muted);margin-top:6px">xarajatini o'chirasizmi?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('deleteModal')">Bekor</button>
+                <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> O'chirish</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openEdit(id, nomi, summa, kategoriya, sana, izoh) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editNomi').value = nomi;
+    document.getElementById('editSumma').value = summa;
+    document.getElementById('editKategoriya').value = kategoriya;
+    document.getElementById('editSana').value = sana;
+    document.getElementById('editIzoh').value = izoh;
+    openModal('editModal');
+}
+
+function openDelete(id, nomi) {
+    document.getElementById('deleteId').value = id;
+    document.getElementById('deleteNomi').textContent = '"' + nomi + '"';
+    openModal('deleteModal');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+</script>
+{% endblock %}

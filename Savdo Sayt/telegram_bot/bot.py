@@ -195,14 +195,24 @@ async def send_savdo_to_channel(savdo_data: dict):
         f"💰 Jami: <b>{savdo_data['jami_summa']:,} so'm</b>",
     ]
 
-    # Nasiya bo'lsa mijoz ma'lumotlari qo'shiladi
-    if savdo_data['tolov_turi'] == 'nasiya' and savdo_data.get('mijoz_ism'):
-        lines += [
-            "",
-            "👤 <b>Haridor ma'lumotlari:</b>",
-            f"   Ismi: <b>{savdo_data['mijoz_ism']}</b>",
-            f"   📞 Tel: {savdo_data['mijoz_tel']}",
-        ]
+    # Nasiya bo'lsa bosh tolov va qolgan qarz ko'rsatiladi
+    if savdo_data['tolov_turi'] == 'nasiya':
+        bosh_tolov = savdo_data.get('bosh_tolov', 0)
+        qolgan_qarz = savdo_data.get('qolgan_qarz', savdo_data['jami_summa'])
+        if bosh_tolov and int(bosh_tolov) > 0:
+            lines += [
+                f"✅ Bosh to'lov: <b>{int(bosh_tolov):,} so'm</b>",
+                f"⚠️ Qolgan qarz: <b>{int(qolgan_qarz):,} so'm</b>",
+            ]
+        else:
+            lines.append(f"⚠️ Nasiya qarz: <b>{int(qolgan_qarz):,} so'm</b>")
+        if savdo_data.get('mijoz_ism'):
+            lines += [
+                "",
+                "👤 <b>Haridor ma'lumotlari:</b>",
+                f"   Ismi: <b>{savdo_data['mijoz_ism']}</b>",
+                f"   📞 Tel: {savdo_data['mijoz_tel']}",
+            ]
 
     text = "\n".join(lines)
     try:

@@ -39,14 +39,20 @@
                 <tr>
                     <td style="color:var(--text-muted)">{{ forloop.counter }}</td>
                     <td><strong>{{ m.nomi }}</strong></td>
-                    <td>{{ m.soni }}</td>
-                    <td>{{ m.sotildi }}</td>
+                    <td>{{ m.jami_kirim }}</td>
+                    <td>{{ m.jami_sotildi }}</td>
                     <td>
                         <span style="font-size:18px;font-weight:800;color:{% if m.qoldi == 0 %}var(--danger){% else %}var(--warning){% endif %}">
                             {{ m.qoldi }}
                         </span>
                     </td>
-                    <td style="font-weight:600;color:var(--primary)">{{ m.narxi|floatformat:0 }} so'm</td>
+                    <td style="font-weight:600;color:var(--primary)">
+                        {% if m.valyuta == 'usd' %}
+                            {{ m.narxi }} $
+                        {% else %}
+                            {{ m.narxi|floatformat:0 }} so'm
+                        {% endif %}
+                    </td>
                     <td>
                         {% if m.qoldi == 0 %}
                             <span class="badge-status badge-danger"><i class="fas fa-xmark"></i> Tugagan</span>

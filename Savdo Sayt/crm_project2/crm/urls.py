@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import xarajatlar, eslatmalar
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -12,4 +13,7 @@ urlpatterns = [
     path('tarix/<int:pk>/ochirish/', views.savdo_ochirish, name='savdo_ochirish'),
     path('kirimlar/', views.kirim_tarixi, name='kirim_tarixi'),
     path('foydalanuvchilar/', views.foydalanuvchilar, name='foydalanuvchilar'),
+    path('xarajatlar/', xarajatlar, name='xarajatlar'),
+    path('eslatmalar/', eslatmalar, name='eslatmalar'),
+    path('tun-rejimi/', views.toggle_dark_mode, name='toggle_dark_mode'),
 ]

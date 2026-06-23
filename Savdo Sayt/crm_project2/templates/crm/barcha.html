@@ -8,7 +8,7 @@
     <div class="card-header">
         <i class="fas fa-boxes-stacked" style="color:var(--primary)"></i>
         <span class="card-title">Mahsulotlar Ro'yxati</span>
-        <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+        <div class="card-actions">
             <form method="GET" style="display:flex;gap:8px">
                 <input type="text" name="q" value="{{ search }}" class="form-control" placeholder="Qidirish..." style="width:180px">
                 <button type="submit" class="btn btn-outline btn-sm"><i class="fas fa-search"></i></button>
@@ -40,7 +40,16 @@
                     <td style="color:var(--text-muted)">{{ forloop.counter }}</td>
                     <td><strong>{{ m.nomi }}</strong></td>
                     <td><strong style="font-size:16px">{{ m.qoldi }}</strong> ta</td>
-                    <td style="font-weight:600;color:var(--primary)">{{ m.narxi|floatformat:0 }} so'm</td>
+                    <td style="font-weight:600;color:var(--primary)">
+                        {% if m.valyuta == 'usd' %}
+                            {{ m.narxi }} $
+                            {% if m.narxi_somda %}
+                                <span>(≈ {{ m.narxi_somda }} so'm)</span>
+                            {% endif %}
+                        {% else %}
+                            {{ m.narxi|floatformat:0 }} so'm
+                        {% endif %}
+                    </td>
                     <td style="color:var(--text-muted)">{{ m.jami_sotildi }} ta</td>
                     <td>
                         {% if m.qoldi <= 0 %}
@@ -59,7 +68,7 @@
                                 <i class="fas fa-plus"></i> Kirim
                             </button>
                             <button class="btn btn-warning btn-sm btn-icon"
-                                onclick="openEdit({{ m.pk }}, '{{ m.nomi|escapejs }}', {{ m.narxi }})"
+                                onclick="openEdit({{ m.pk }}, '{{ m.nomi|escapejs }}', {{ m.narxi|floatformat:-2 }}, '{{ m.valyuta }}')"
                                 title="Tahrirlash">
                                 <i class="fas fa-pen"></i>
                             </button>
@@ -81,7 +90,6 @@
         </table>
     </div>
 
-    <!-- Pagination -->
     {% if page_obj.has_other_pages %}
     <div style="padding:16px 22px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--border)">
         {% if page_obj.has_previous %}
@@ -95,9 +103,9 @@
     {% endif %}
 </div>
 
-<!-- Kirim Modal -->
+<!-- ==================== KIRIM MODAL ==================== -->
 <div class="modal-overlay" id="kirimModal">
-    <div class="modal">
+    <div class="modal" style="max-width:520px">
         <div class="modal-header">
             <span class="modal-title"><i class="fas fa-plus" style="color:var(--success);margin-right:8px"></i>Kirim Qo'shish</span>
             <button class="modal-close" onclick="closeModal('kirimModal')"><i class="fas fa-xmark"></i></button>
@@ -114,17 +122,20 @@
                         Joriy qoldi: <strong id="kirimQoldi" style="color:var(--primary)"></strong> ta
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Kirim soni (nechta olib kelindi) *</label>
+                    <label class="form-label">Kirim soni *</label>
                     <input type="number" class="form-control" name="kirim_soni" min="1" required placeholder="Masalan: 10">
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Kirim narxi (ixtiyoriy)</label>
-                    <input type="number" class="form-control" name="kirim_narxi" placeholder="Sotib olish narxi">
+                    <label class="form-label">Kelgan narxi</label>
+                    <input type="number" class="form-control" name="kelgan_narx" placeholder="Ixtiyoriy">
                 </div>
+
                 <div class="form-group" style="margin-bottom:0">
-                    <label class="form-label">Izoh</label>
-                    <input type="text" class="form-control" name="izoh" placeholder="Masalan: Toshkentdan keldi">
+                    <label class="form-label">Manzil (qayerdan keldi)</label>
+                    <input type="text" class="form-control" name="manzil" placeholder="Masalan: Toshkent ombori">
                 </div>
             </div>
             <div class="modal-footer">
@@ -135,9 +146,9 @@
     </div>
 </div>
 
-<!-- Add Modal -->
+<!-- ==================== QO'SHISH MODAL ==================== -->
 <div class="modal-overlay" id="addModal">
-    <div class="modal">
+    <div class="modal" style="max-width:520px">
         <div class="modal-header">
             <span class="modal-title"><i class="fas fa-plus" style="color:var(--primary);margin-right:8px"></i>Yangi Mahsulot</span>
             <button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-xmark"></i></button>
@@ -150,15 +161,45 @@
                     <label class="form-label">Mahsulot Nomi *</label>
                     <input type="text" class="form-control" name="nomi" required placeholder="Masalan: Sement 50kg">
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-                    <div class="form-group">
-                        <label class="form-label">Boshlang'ich qoldi</label>
-                        <input type="number" class="form-control" name="qoldi" min="0" placeholder="0">
+
+                <div class="form-group">
+                    <label class="form-label">Soni</label>
+                    <input type="number" class="form-control" name="qoldi" min="0" value="0" placeholder="0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Valyuta *</label>
+                    <div style="display:flex;gap:10px">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" name="valyuta" value="uzs" checked onchange="addNarxUI()"> So'mda
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" name="valyuta" value="usd" onchange="addNarxUI()"> Dollarda
+                        </label>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Narxi (so'm) *</label>
-                        <input type="number" class="form-control" name="narxi" required min="0" placeholder="0">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Narx turi *</label>
+                    <div style="display:flex;gap:10px">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" name="narx_turi" value="aniq" checked onchange="addNarxUI()"> To'liq narxi
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" name="narx_turi" value="foizli" onchange="addNarxUI()"> Foiz qo'shib
+                        </label>
                     </div>
+                </div>
+
+                <!-- Narx inputlari (JS boshqaradi) -->
+                <div id="add_aslNarxBlock" class="form-group">
+                    <label class="form-label" id="add_aslNarxLabel">Narxi (so'mda) *</label>
+                    <input type="number" class="form-control" name="asl_narx" id="add_aslNarx" placeholder="Masalan: 50000" min="0">
+                </div>
+
+                <div id="add_foizBlock" class="form-group" style="display:none">
+                    <label class="form-label">Ustama foizi (%) *</label>
+                    <input type="number" class="form-control" name="foiz" id="add_foiz" placeholder="Masalan: 20" min="0">
                 </div>
             </div>
             <div class="modal-footer">
@@ -169,9 +210,9 @@
     </div>
 </div>
 
-<!-- Edit Modal (faqat nomi va narxi) -->
+<!-- ==================== TAHRIRLASH MODAL ==================== -->
 <div class="modal-overlay" id="editModal">
-    <div class="modal">
+    <div class="modal" style="max-width:520px">
         <div class="modal-header">
             <span class="modal-title"><i class="fas fa-pen" style="color:var(--warning);margin-right:8px"></i>Tahrirlash</span>
             <button class="modal-close" onclick="closeModal('editModal')"><i class="fas fa-xmark"></i></button>
@@ -185,10 +226,41 @@
                     <label class="form-label">Mahsulot Nomi</label>
                     <input type="text" class="form-control" name="nomi" id="editNomi" required>
                 </div>
+
                 <div class="form-group">
-                    <label class="form-label">Narxi (so'm)</label>
-                    <input type="number" class="form-control" name="narxi" id="editNarxi" min="0">
+                    <label class="form-label">Valyuta</label>
+                    <div style="display:flex;gap:10px">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" id="editUzs" name="valyuta" value="uzs" checked onchange="editNarxUI()"> So'mda
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" id="editUsd" name="valyuta" value="usd" onchange="editNarxUI()"> Dollarda
+                        </label>
+                    </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="form-label">Narx turi</label>
+                    <div style="display:flex;gap:10px">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" name="narx_turi" value="aniq" checked onchange="editNarxUI()"> To'liq narxi
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px">
+                            <input type="radio" name="narx_turi" value="foizli" onchange="editNarxUI()"> Foiz qo'shib
+                        </label>
+                    </div>
+                </div>
+
+                <div id="edit_aslNarxBlock" class="form-group">
+                    <label class="form-label" id="edit_aslNarxLabel">Narxi (so'mda)</label>
+                    <input type="number" class="form-control" name="asl_narx" id="edit_aslNarx" placeholder="Masalan: 50000" min="0">
+                </div>
+
+                <div id="edit_foizBlock" class="form-group" style="display:none">
+                    <label class="form-label">Ustama foizi (%)</label>
+                    <input type="number" class="form-control" name="foiz" id="editFoiz" placeholder="Masalan: 20" min="0">
+                </div>
+
                 <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12.5px;color:#92400e">
                     <i class="fas fa-info-circle"></i> Qoldiqni o'zgartirish uchun "Kirim" tugmasidan foydalaning
                 </div>
@@ -201,7 +273,7 @@
     </div>
 </div>
 
-<!-- Delete Modal -->
+<!-- ==================== O'CHIRISH MODAL ==================== -->
 <div class="modal-overlay" id="deleteModal">
     <div class="modal">
         <div class="modal-header">
@@ -228,6 +300,37 @@
 
 {% block extra_js %}
 <script>
+// ========== QO'SHISH MODAL ==========
+function addNarxUI() {
+    var valyuta = document.querySelector(' #addModal input[name="valyuta"]:checked').value;
+    var narxTuri = document.querySelector('#addModal input[name="narx_turi"]:checked').value;
+    var label = document.getElementById('add_aslNarxLabel');
+    var foizBlock = document.getElementById('add_foizBlock');
+
+    if (valyuta === 'usd') {
+        label.textContent = narxTuri === 'foizli' ? 'Narxi (dollarda) *' : 'Narxi (dollarda) *';
+    } else {
+        label.textContent = narxTuri === 'foizli' ? 'Asl narxi (so\'mda) *' : 'Narxi (so\'mda) *';
+    }
+    foizBlock.style.display = narxTuri === 'foizli' ? 'block' : 'none';
+}
+
+// ========== TAHRIRLASH MODAL ==========
+function editNarxUI() {
+    var valyuta = document.querySelector('#editModal input[name="valyuta"]:checked').value;
+    var narxTuri = document.querySelector('#editModal input[name="narx_turi"]:checked').value;
+    var label = document.getElementById('edit_aslNarxLabel');
+    var foizBlock = document.getElementById('edit_foizBlock');
+
+    if (valyuta === 'usd') {
+        label.textContent = narxTuri === 'foizli' ? 'Narxi (dollarda)' : 'Narxi (dollarda)';
+    } else {
+        label.textContent = narxTuri === 'foizli' ? 'Asl narxi (so\'mda)' : 'Narxi (so\'mda)';
+    }
+    foizBlock.style.display = narxTuri === 'foizli' ? 'block' : 'none';
+}
+
+// ========== MODAL OCHISH/YOPISH ==========
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -235,13 +338,26 @@ function openKirim(id, nomi, qoldi) {
     document.getElementById('kirimId').value = id;
     document.getElementById('kirimNomi').textContent = nomi;
     document.getElementById('kirimQoldi').textContent = qoldi;
+    document.querySelector('#kirimModal input[name="kirim_soni"]').value = '';
+    document.querySelector('#kirimModal input[name="kelgan_narx"]').value = '';
+    document.querySelector('#kirimModal input[name="manzil"]').value = '';
     openModal('kirimModal');
 }
 
-function openEdit(id, nomi, narxi) {
+function openEdit(id, nomi, narxi, valyuta) {
     document.getElementById('editId').value = id;
     document.getElementById('editNomi').value = nomi;
-    document.getElementById('editNarxi').value = narxi;
+    document.getElementById('edit_aslNarx').value = narxi;
+    document.getElementById('editFoiz').value = '';
+    // Valyutani to'g'ri o'rnatish
+    if (valyuta === 'usd') {
+        document.getElementById('editUsd').checked = true;
+    } else {
+        document.getElementById('editUzs').checked = true;
+    }
+    document.querySelector('#editModal input[name="narx_turi"][value="aniq"]').checked = true;
+    document.getElementById('edit_foizBlock').style.display = 'none';
+    editNarxUI();
     openModal('editModal');
 }
 

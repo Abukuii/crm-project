@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Mahsulot, Kirim, Mijoz, Savdo, SavdoItem
+from .models import Mahsulot, Kirim, Mijoz, Savdo, SavdoItem, TolovTarixi
 
 
 class SavdoItemInline(admin.TabularInline):
@@ -57,22 +57,41 @@ class MijozAdmin(admin.ModelAdmin):
     qarz_display.short_description = "Qarz"
 
 
+class TolovTarixiInline(admin.TabularInline):
+    model = TolovTarixi
+    extra = 0
+    readonly_fields = ('yaratilgan',)
+
+
 @admin.register(Savdo)
 class SavdoAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'mijoz', 'sana', 'tolov_turi', 'jami_summa_display', 'to_langan_display']
+    list_display = ['pk', 'mijoz', 'sana', 'tolov_turi', 'jami_summa_display', 'bosh_tolov_display', 'qolgan_qarz_display', 'to_langan_display']
     list_filter = ['tolov_turi', 'to_langan', 'sana']
     search_fields = ['mijoz__ism_familiya']
     ordering = ['-yaratilgan']
-    inlines = [SavdoItemInline]
+    inlines = [SavdoItemInline, TolovTarixiInline]
     date_hierarchy = 'sana'
 
     def jami_summa_display(self, obj):
         return f"{obj.jami_summa:,.0f} so'm"
     jami_summa_display.short_description = "Jami summa"
 
+    def bosh_tolov_display(self, obj):
+        if obj.bosh_tolov > 0:
+            return format_html('<span style="color:green">{} so\'m</span>', f"{obj.bosh_tolov:,.0f}")
+        return "—"
+    bosh_tolov_display.short_description = "Bosh to'lov"
+
+    def qolgan_qarz_display(self, obj):
+        qarz = obj.qolgan_qarz
+        if qarz > 0:
+            return format_html('<span style="color:red;font-weight:bold">{} so\'m</span>', f"{qarz:,.0f}")
+        return format_html('<span style="color:green">✓</span>')
+    qolgan_qarz_display.short_description = "Qolgan qarz"
+
     def to_langan_display(self, obj):
         if obj.to_langan:
-            return format_html('<span style="color:green;font-weight:bold">Tolangan</span>')
+            return format_html('<span style="color:green;font-weight:bold">To\'langan</span>')
         return format_html('<span style="color:red;font-weight:bold">Nasiya</span>')
     to_langan_display.short_description = "Holat"
 
@@ -80,3 +99,10 @@ class SavdoAdmin(admin.ModelAdmin):
 admin.site.site_header = "Qurilish Mollari CRM"
 admin.site.site_title = "Qurilish CRM Admin"
 admin.site.index_title = "Boshqaruv paneli"
+
+
+@admin.register(TolovTarixi)
+class TolovTarixiAdmin(admin.ModelAdmin):
+    list_display = ('savdo', 'summa', 'sana', 'izoh', 'yaratilgan')
+    list_filter = ('sana',)
+    search_fields = ('savdo__mijoz__ism_familiya',)

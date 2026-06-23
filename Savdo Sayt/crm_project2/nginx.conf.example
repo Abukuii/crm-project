@@ -1,0 +1,44 @@
+# =============================================
+# NGINX CONFIG — Har bir mijoz uchun
+# Fayl: /etc/nginx/sites-available/crm_mijoz1
+# =============================================
+
+server {
+    listen 80;
+    server_name mijoz1.sizningsayt.com;
+
+    # SSL (Certbot o'zi qo'shadi)
+    # listen 443 ssl;
+    # ssl_certificate ...
+
+    location / {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static/ {
+        # Docker volume dan static fayllar
+        proxy_pass http://127.0.0.1:8001/static/;
+    }
+}
+
+# =============================================
+# NGINX CONFIG — Ikkinchi mijoz uchun
+# Fayl: /etc/nginx/sites-available/crm_mijoz2
+# =============================================
+
+server {
+    listen 80;
+    server_name mijoz2.sizningsayt.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:8002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

@@ -4,7 +4,6 @@ from decouple import config
 from dotenv import load_dotenv
 
 load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Xavfsizlik: SECRET_KEY ni .env fayldan o'qing yoki o'zingiz kiriting
@@ -20,8 +19,6 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 
-# print("SECRET_KEY:", config('SECRET_KEY'))
-# print("DEBUG:", config('DEBUG'))
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -58,6 +55,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'crm.context_processors.tun_rejimi',  # ← TUN REJIMI
             ],
         },
     },

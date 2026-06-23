@@ -3,16 +3,171 @@
 {% block page_title %}Yangi Savdo{% endblock %}
 {% block page_subtitle %}Mahsulot sotish{% endblock %}
 
-{% block content %}
-<div style="display:grid; grid-template-columns:1fr 340px; gap:20px; align-items:start;">
+{% block extra_css %}
+<style>
+    /* ── Asosiy layout ── */
+    .savdo-layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 18px;
+        align-items: start;
+    }
 
-    <!-- Mahsulotlar jadvali -->
+    /* ── Mahsulot qidiruv ── */
+    .search-wrap {
+        position: relative;
+        flex: 1;
+    }
+    .search-wrap i {
+        position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+        color: var(--text-muted); font-size: 13px; pointer-events: none;
+    }
+    .search-wrap input { padding-left: 33px; }
+
+    /* ── Jadval ── */
+    #mahsulotTable .qoldi-badge { font-size: 12px; padding: 3px 9px; }
+
+    /* ── Buyurtma paneli (desktop sticky) ── */
+    .order-panel { position: sticky; top: calc(var(--topbar-h) + 16px); }
+    .order-header {
+        padding: 14px 18px;
+        background: linear-gradient(135deg, #1a56db, #0ea5e9);
+        border-radius: var(--radius) var(--radius) 0 0;
+        display: flex; align-items: center; gap: 9px;
+    }
+    .order-header-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .order-body { padding: 14px; }
+
+    .order-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 10px 11px;
+        margin-bottom: 7px;
+    }
+    .order-item-top { display: flex; align-items: center; gap: 8px; }
+    .order-item-name { font-size: 13px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .order-item-remove { background:none; border:none; cursor:pointer; color:var(--danger); font-size:14px; padding:4px; flex-shrink:0; }
+    .order-item-detail { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+    .order-item-kelishilgan {
+        display: flex; align-items: center; gap: 6px;
+        margin-top: 7px;
+    }
+    .order-item-kelishilgan span { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .order-item-kelishilgan input {
+        flex: 1; padding: 5px 8px;
+        border: 1.5px solid var(--border); border-radius: 6px;
+        font-size: 13px; font-family: inherit;
+        background: var(--surface);
+        min-height: 34px;
+    }
+    .order-item-kelishilgan input:focus { outline:none; border-color:var(--primary); }
+
+    .order-total {
+        border-top: 2px solid var(--border);
+        padding-top: 12px; margin: 12px 0;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .order-total-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; }
+    .order-total-sum   { font-size: 20px; font-weight: 800; color: var(--primary); }
+
+    /* ── Mobil: Buyurtma tugmasi (ekran pastida floating) ── */
+    .order-fab {
+        display: none;
+        position: fixed; bottom: 20px; right: 16px;
+        z-index: 150;
+        background: var(--primary);
+        color: #fff;
+        border: none; border-radius: 50px;
+        padding: 12px 20px;
+        font-size: 14px; font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(26,86,219,.45);
+        align-items: center; gap: 8px;
+        touch-action: manipulation;
+        transition: transform .2s;
+    }
+    .order-fab:active { transform: scale(.96); }
+    .order-fab .fab-count {
+        background: #fff; color: var(--primary);
+        border-radius: 20px; padding: 2px 8px;
+        font-size: 12px; font-weight: 800;
+        min-width: 22px; text-align: center;
+    }
+
+    /* ── Mobil: Buyurtma bottom sheet ── */
+    .order-sheet {
+        display: none;
+        position: fixed; inset: 0;
+        z-index: 250;
+    }
+    .order-sheet.open { display: block; }
+    .order-sheet-backdrop {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,.45);
+        backdrop-filter: blur(3px);
+    }
+    .order-sheet-panel {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        background: #fff;
+        border-radius: 20px 20px 0 0;
+        max-height: 88vh;
+        display: flex; flex-direction: column;
+        animation: sheetUp .25s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes sheetUp {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+    }
+    .order-sheet-handle {
+        width: 40px; height: 4px;
+        background: #e2e8f0; border-radius: 4px;
+        margin: 10px auto 0;
+        flex-shrink: 0;
+    }
+    .order-sheet-header {
+        padding: 12px 18px 10px;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; justify-content: space-between;
+        flex-shrink: 0;
+    }
+    .order-sheet-title { font-size: 15px; font-weight: 700; }
+    .order-sheet-close {
+        background: var(--surface2); border: none; cursor: pointer;
+        width: 32px; height: 32px; border-radius: 8px;
+        font-size: 16px; color: var(--text-muted);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .order-sheet-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+    .order-sheet-footer { padding: 12px 14px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+    /* ── Responsive ── */
+    @media (max-width:1024px) {
+        .savdo-layout { grid-template-columns: 1fr 300px; }
+    }
+    @media (max-width:768px) {
+        .savdo-layout { grid-template-columns: 1fr; }
+        .order-panel  { display: none; }   /* Desktop panel — mobilda yashiriladi */
+        .order-fab    { display: flex; }   /* FAB — faqat mobilda ko'rinadi */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="savdo-layout">
+
+    <!-- ── Mahsulotlar jadvali ── -->
     <div class="card">
         <div class="card-header">
             <i class="fas fa-list" style="color:var(--primary)"></i>
             <span class="card-title">Mavjud Mahsulotlar</span>
-            <div style="margin-left:auto">
-                <input type="text" id="searchInput" class="form-control" placeholder="Qidirish..." style="width:200px;padding:7px 12px;font-size:13px">
+            <div class="card-actions">
+                <div class="search-wrap" style="min-width:180px">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="form-control"
+                        placeholder="Qidirish..." style="height:38px">
+                </div>
             </div>
         </div>
         <div class="table-wrap">
@@ -20,64 +175,74 @@
                 <thead>
                     <tr>
                         <th>№</th>
-                        <th>Nomi</th>
+                        <th>Mahsulot</th>
                         <th>Qoldi</th>
                         <th>Narxi</th>
-                        <th>Miqdor</th>
-                        <th>Qo'shish</th>
+                        <th style="width:80px">Miqdor</th>
+                        <th style="width:56px">+</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for m in mahsulotlar %}
                     <tr>
-                        <td style="color:var(--text-muted)">{{ forloop.counter }}</td>
+                        <td style="color:var(--text-muted);font-size:12px">{{ forloop.counter }}</td>
                         <td><strong>{{ m.nomi }}</strong></td>
                         <td>
-                            <span class="badge-status {% if m.qoldi <= 5 %}badge-danger{% elif m.qoldi <= 20 %}badge-warning{% else %}badge-success{% endif %}">
+                            <span class="badge-status qoldi-badge {% if m.qoldi <= 5 %}badge-danger{% elif m.qoldi <= 20 %}badge-warning{% else %}badge-success{% endif %}">
                                 {{ m.qoldi }} ta
                             </span>
                         </td>
-                        <td style="font-weight:600;color:var(--primary)">{{ m.narxi|floatformat:0 }} so'm</td>
-                        <td>
-                            <input type="number" min="1" max="{{ m.qoldi }}" value="1"
-                                class="form-control" style="width:70px;padding:6px 8px"
-                                id="son_{{ m.pk }}">
+                        <td style="font-weight:600;color:var(--primary)">
+                            {% if m.valyuta == 'usd' %}
+                                {% if m.narxi_somda %}{{ m.narxi_somda|floatformat:0 }} so'm{% else %}{{ m.narxi }} ${% endif %}
+                            {% else %}
+                                {{ m.narxi|floatformat:0 }} so'm
+                            {% endif %}
                         </td>
                         <td>
-                            <button class="btn btn-primary btn-sm"
-                                onclick="savdoQosh({{ m.pk }}, '{{ m.nomi }}', {{ m.narxi }}, {{ m.qoldi }})">
+                            <input type="number" min="1" max="{{ m.qoldi }}" value="1"
+                                class="form-control" id="son_{{ m.pk }}"
+                                style="width:68px;padding:6px 8px;font-size:14px;min-height:36px">
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm btn-icon"
+                                onclick="savdoQosh({{ m.pk }}, '{{ m.nomi|escapejs }}', {% if m.valyuta == 'usd' and m.narxi_somda %}{{ m.narxi_somda }}{% else %}{{ m.narxi|floatformat:0 }}{% endif %}, {{ m.qoldi }})"
+                                title="Qo'shish">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Mahsulot topilmadi</td></tr>
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">
+                            Mahsulot topilmadi
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Savdo formasi -->
-    <div style="position:sticky;top:80px">
+    <!-- ── Desktop: Buyurtma paneli ── -->
+    <div class="order-panel">
         <div class="card">
-            <div class="card-header" style="background:linear-gradient(135deg,#1a56db,#0ea5e9)">
-                <i class="fas fa-receipt" style="color:white"></i>
-                <span class="card-title" style="color:white">Buyurtma</span>
+            <div class="order-header">
+                <i class="fas fa-receipt" style="color:#fff;font-size:15px"></i>
+                <span class="order-header-title">Buyurtma</span>
+                <span id="itemCount" style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;display:none">0</span>
             </div>
-            <div class="card-body" style="padding:16px">
-                <div id="savdoList" style="min-height:80px;margin-bottom:14px">
-                    <div id="emptyMsg" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">
-                        <i class="fas fa-cart-shopping" style="font-size:24px;opacity:0.3;display:block;margin-bottom:8px"></i>
-                        Mahsulot qo'shing
+            <div class="order-body">
+                <div id="savdoList">
+                    <div id="emptyMsg" style="text-align:center;padding:22px 0;color:var(--text-muted)">
+                        <i class="fas fa-cart-shopping" style="font-size:26px;opacity:.3;display:block;margin-bottom:8px"></i>
+                        <span style="font-size:13px">Mahsulot qo'shing</span>
                     </div>
                 </div>
 
-                <div style="border-top:2px solid var(--border);padding-top:12px;margin-bottom:14px">
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:13px;font-weight:600;color:var(--text-muted)">JAMI SUMMA</span>
-                        <span id="jamiSumma" style="font-size:20px;font-weight:800;color:var(--primary)">0 so'm</span>
-                    </div>
+                <div class="order-total">
+                    <span class="order-total-label">Jami</span>
+                    <span class="order-total-sum" id="jamiSumma">0 so'm</span>
                 </div>
 
                 <form method="POST" id="savdoForm">
@@ -93,11 +258,11 @@
                         </select>
                     </div>
 
-                    <div id="nasiyaSection" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--border)">
-                        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Mijoz Ma'lumotlari</div>
+                    <div id="nasiyaSection" style="display:none;background:var(--surface2);border-radius:9px;padding:13px;margin-bottom:12px;border:1px solid var(--border)">
+                        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Mijoz Ma'lumotlari</div>
                         <div class="form-group">
                             <label class="form-label">Mavjud mijoz</label>
-                            <select class="form-control" name="mijoz_id" style="font-size:13px">
+                            <select class="form-control" name="mijoz_id">
                                 <option value="">— Yangi mijoz —</option>
                                 {% for m in mijozlar %}
                                 <option value="{{ m.pk }}">{{ m.ism_familiya }} ({{ m.telefon }})</option>
@@ -108,96 +273,382 @@
                             <label class="form-label">Ism Familiya</label>
                             <input type="text" class="form-control" name="mijoz_ism" placeholder="Yangi mijoz ismi">
                         </div>
-                        <div class="form-group" style="margin-bottom:0">
+                        <div class="form-group">
                             <label class="form-label">Telefon</label>
-                            <input type="text" class="form-control" name="mijoz_tel" placeholder="+998 90 000 00 00">
+                            <input type="tel" class="form-control" name="mijoz_tel" placeholder="+998 90 000 00 00">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label" style="display:flex;align-items:center;gap:6px">
+                                <i class="fas fa-hand-holding-dollar" style="color:var(--success)"></i>
+                                Boshlang'ich to'lov (ixtiyoriy)
+                            </label>
+                            <div style="position:relative">
+                                <input type="number" class="form-control" name="bosh_tolov" id="boshTolov"
+                                    placeholder="0" min="0" oninput="boshTolovYangilash()"
+                                    style="padding-right:50px">
+                                <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text-muted);pointer-events:none">so'm</span>
+                            </div>
+                            <div id="boshTolovInfo" style="margin-top:5px;font-size:12px;display:none">
+                                <span id="boshTolovQoldi" style="color:var(--danger);font-weight:600"></span>
+                            </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="submitBtn" disabled>
+                    <button type="submit" class="btn btn-primary" id="submitBtn"
+                        style="width:100%;justify-content:center;padding:13px" disabled>
                         <i class="fas fa-check"></i> Savdoni Tasdiqlash
                     </button>
                 </form>
             </div>
         </div>
     </div>
+
 </div>
+
+<!-- ── Mobil: Floating action button ── -->
+<button class="order-fab" id="orderFab" onclick="openOrderSheet()">
+    <i class="fas fa-shopping-cart"></i>
+    Buyurtma
+    <span class="fab-count" id="fabCount">0</span>
+</button>
+
+<!-- ── Mobil: Bottom sheet ── -->
+<div class="order-sheet" id="orderSheet">
+    <div class="order-sheet-backdrop" onclick="closeOrderSheet()"></div>
+    <div class="order-sheet-panel">
+        <div class="order-sheet-handle"></div>
+        <div class="order-sheet-header">
+            <span class="order-sheet-title">Buyurtma</span>
+            <button class="order-sheet-close" onclick="closeOrderSheet()">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+        <div class="order-sheet-body" id="sheetBody">
+            <!-- JS tomonidan to'ldiriladi -->
+        </div>
+        <div class="order-sheet-footer">
+            <!-- To'lov turi -->
+            <div class="form-group">
+                <label class="form-label">To'lov turi</label>
+                <select class="form-control" id="tolovTuriSheet" onchange="toggleNasiyaSheet()">
+                    <option value="naqd">💵 Naqd pul</option>
+                    <option value="plastik">💳 Plastik karta</option>
+                    <option value="nasiya">📋 Nasiya</option>
+                </select>
+            </div>
+
+            <!-- Nasiya bo'limi -->
+            <div id="nasiyaSectionSheet" style="display:none;background:var(--surface2);border-radius:9px;padding:13px;margin-bottom:12px;border:1px solid var(--border)">
+                <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Mijoz Ma'lumotlari</div>
+                <div class="form-group">
+                    <label class="form-label">Mavjud mijoz</label>
+                    <select class="form-control" id="sheetMijozId">
+                        <option value="">— Yangi mijoz —</option>
+                        {% for m in mijozlar %}
+                        <option value="{{ m.pk }}">{{ m.ism_familiya }} ({{ m.telefon }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ism Familiya</label>
+                    <input type="text" class="form-control" id="sheetMijozIsm" placeholder="Yangi mijoz ismi">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefon</label>
+                    <input type="tel" class="form-control" id="sheetMijozTel" placeholder="+998 90 000 00 00">
+                </div>
+                <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" style="display:flex;align-items:center;gap:6px">
+                        <i class="fas fa-hand-holding-dollar" style="color:var(--success)"></i>
+                        Boshlang'ich to'lov (ixtiyoriy)
+                    </label>
+                    <div style="position:relative">
+                        <input type="number" class="form-control" id="sheetBoshTolov"
+                            placeholder="0" min="0" oninput="sheetBoshTolovYangilash()"
+                            style="padding-right:50px">
+                        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text-muted);pointer-events:none">so'm</span>
+                    </div>
+                    <div id="sheetBoshTolovInfo" style="margin-top:5px;font-size:12px;display:none">
+                        <span id="sheetBoshTolovQoldi" style="color:var(--danger);font-weight:600"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jami -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <span style="font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase">Jami</span>
+                <span class="order-total-sum" id="jamiSummaSheet">0 so'm</span>
+            </div>
+            <button class="btn btn-primary" id="submitBtnSheet"
+                style="width:100%;justify-content:center;padding:13px" disabled
+                onclick="sheetSubmit()">
+                <i class="fas fa-check"></i> Savdoni Tasdiqlash
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-let savdoItems = {};
+let savdoItems = {};   // { id: { nomi, narxi, son, kelishilgan, max } }
 
+/* ── Mahsulot qo'shish ── */
 function savdoQosh(id, nomi, narxi, max) {
-    const sonInput = document.getElementById(`son_${id}`);
-    const son = parseInt(sonInput.value) || 1;
-    if (son < 1 || son > max) { alert(`Miqdor 1 dan ${max} gacha bo'lishi kerak!`); return; }
-
+    const inp = document.getElementById('son_' + id);
+    const son = parseInt(inp.value) || 1;
+    if (son < 1 || son > max) { alert('Miqdor 1 dan ' + max + ' gacha!'); return; }
     if (savdoItems[id]) {
-        savdoItems[id].son += son;
-        if (savdoItems[id].son > max) savdoItems[id].son = max;
+        savdoItems[id].son = Math.min(savdoItems[id].son + son, max);
     } else {
-        savdoItems[id] = { nomi, narxi, son };
+        savdoItems[id] = { nomi, narxi, son, kelishilgan: null, max };
     }
-    renderSavdo();
+    inp.value = 1;
+    render();
 }
 
+/* ── O'chirish ── */
 function ochirishItem(id) {
     delete savdoItems[id];
-    renderSavdo();
+    render();
 }
 
-function renderSavdo() {
-    const list = document.getElementById('savdoList');
-    const empty = document.getElementById('emptyMsg');
-    const hidden = document.getElementById('hiddenInputs');
-    const submitBtn = document.getElementById('submitBtn');
+/* ── Kelishilgan narx o'zgartirish ── */
+function kelishilganOzgartir(id) {
+    const item = savdoItems[id];
+    if (!item) return;
+    // Ikkala input (desktop va sheet) ni sinxronlaymiz
+    ['k_' + id, 'sk_' + id].forEach(function(elId) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        const val = parseInt(el.value) || 0;
+        if (val > 0 && val <= item.narxi) {
+            item.kelishilgan = val;
+            el.style.borderColor = '';
+        } else if (val > item.narxi) {
+            item.kelishilgan = null;
+            el.style.borderColor = 'var(--danger)';
+        } else {
+            item.kelishilgan = null;
+            el.style.borderColor = '';
+        }
+    });
+    updateTotals();
+}
 
+/* ── Jami va hidden inputlarni yangilash (DOM qayta yaratmasdan) ── */
+function updateTotals() {
+    let jami = 0;
+    const hidden = document.getElementById('hiddenInputs');
     hidden.innerHTML = '';
+    Object.keys(savdoItems).forEach(function(id) {
+        const item = savdoItems[id];
+        const joriy = item.kelishilgan || item.narxi;
+        const total = joriy * item.son;
+        jami += total;
+        hidden.innerHTML +=
+            '<input type="hidden" name="mahsulot_id" value="' + id + '">' +
+            '<input type="hidden" name="son" value="' + item.son + '">' +
+            '<input type="hidden" name="kelishilgan_narx" value="' + (item.kelishilgan || '') + '">';
+        // DOM elementlarini yangilash
+        ['total_' + id, 'stotal_' + id].forEach(function(elId) {
+            const el = document.getElementById(elId);
+            if (el) el.textContent = total.toLocaleString();
+        });
+        ['reach_' + id, 'sreach_' + id].forEach(function(elId) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            if (item.kelishilgan && item.kelishilgan < item.narxi) {
+                el.innerHTML = '<s style="color:var(--danger);font-size:10px">' + item.narxi.toLocaleString() + '</s> → <span style="color:var(--success)">' + item.kelishilgan.toLocaleString() + '</span>';
+            } else {
+                el.textContent = item.narxi.toLocaleString();
+            }
+        });
+    });
+    const jamiStr = jami.toLocaleString() + " so'm";
+    document.getElementById('jamiSumma').textContent = jamiStr;
+    const sheetSum = document.getElementById('jamiSummaSheet');
+    if (sheetSum) sheetSum.textContent = jamiStr;
+}
+
+/* ── Asosiy render (buyurtma ro'yxati) ── */
+function render() {
     const keys = Object.keys(savdoItems);
+    const submitBtn      = document.getElementById('submitBtn');
+    const submitBtnSheet = document.getElementById('submitBtnSheet');
+    const fabCount = document.getElementById('fabCount');
+    const itemCount = document.getElementById('itemCount');
+
+    // FAB va count
+    if (fabCount) fabCount.textContent = keys.length;
+    if (itemCount) {
+        itemCount.style.display = keys.length ? '' : 'none';
+        itemCount.textContent = keys.length;
+    }
 
     if (keys.length === 0) {
-        list.innerHTML = `<div id="emptyMsg" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px">
-            <i class="fas fa-cart-shopping" style="font-size:24px;opacity:0.3;display:block;margin-bottom:8px"></i>
-            Mahsulot qo'shing</div>`;
+        const emptyHtml = '<div style="text-align:center;padding:22px 0;color:var(--text-muted)"><i class="fas fa-cart-shopping" style="font-size:26px;opacity:.3;display:block;margin-bottom:8px"></i><span style="font-size:13px">Mahsulot qo\'shing</span></div>';
+        document.getElementById('savdoList').innerHTML = emptyHtml;
+        const sheetBody = document.getElementById('sheetBody');
+        if (sheetBody) sheetBody.innerHTML = emptyHtml;
         submitBtn.disabled = true;
-        document.getElementById('jamiSumma').textContent = '0 so\'m';
+        if (submitBtnSheet) submitBtnSheet.disabled = true;
+        document.getElementById('jamiSumma').textContent = "0 so'm";
+        const ss = document.getElementById('jamiSummaSheet');
+        if (ss) ss.textContent = "0 so'm";
+        document.getElementById('hiddenInputs').innerHTML = '';
         return;
     }
 
+    // Har ikkala joyga (desktop list + sheet body) bir xil HTML
     let html = '';
-    let jami = 0;
-    keys.forEach(id => {
+    keys.forEach(function(id) {
         const item = savdoItems[id];
-        const total = item.narxi * item.son;
-        jami += total;
-        html += `<div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:var(--surface2);margin-bottom:6px">
-            <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.nomi}</div>
-                <div style="font-size:11px;color:var(--text-muted)">${item.son} x ${item.narxi.toLocaleString()} = <strong style="color:var(--primary)">${total.toLocaleString()}</strong></div>
-            </div>
-            <button onclick="ochirishItem(${id})" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px">
-                <i class="fas fa-xmark"></i>
-            </button>
-        </div>`;
-        hidden.innerHTML += `<input type="hidden" name="mahsulot_id" value="${id}">
-            <input type="hidden" name="son" value="${item.son}">`;
+        const joriy = item.kelishilgan || item.narxi;
+        const total = joriy * item.son;
+        const reachHtml = item.kelishilgan && item.kelishilgan < item.narxi
+            ? '<s style="color:var(--danger);font-size:10px">' + item.narxi.toLocaleString() + '</s> → <span style="color:var(--success)">' + item.kelishilgan.toLocaleString() + '</span>'
+            : item.narxi.toLocaleString();
+
+        html += '<div class="order-item">' +
+            '<div class="order-item-top">' +
+                '<div class="order-item-name">' + item.nomi + '</div>' +
+                '<button class="order-item-remove" onclick="ochirishItem(' + id + ')"><i class="fas fa-xmark"></i></button>' +
+            '</div>' +
+            '<div class="order-item-detail">' +
+                item.son + ' × <span id="reach_' + id + '">' + reachHtml + '</span> = ' +
+                '<strong style="color:var(--primary)" id="total_' + id + '">' + total.toLocaleString() + '</strong>' +
+            '</div>' +
+            '<div class="order-item-kelishilgan">' +
+                '<span>Kelishilgan:</span>' +
+                '<input type="number" id="k_' + id + '" placeholder="' + item.narxi.toLocaleString() + '" min="1" max="' + item.narxi + '" value="' + (item.kelishilgan || '') + '" oninput="kelishilganOzgartir(' + id + ')">' +
+                '<span>so\'m</span>' +
+            '</div>' +
+        '</div>';
     });
 
-    list.innerHTML = html;
-    document.getElementById('jamiSumma').textContent = jami.toLocaleString() + ' so\'m';
+    document.getElementById('savdoList').innerHTML = html;
     submitBtn.disabled = false;
+    if (submitBtnSheet) submitBtnSheet.disabled = false;
+
+    // Sheet body — id lar farqli (s-prefix)
+    let sheetHtml = html
+        .replace(/id="k_/g, 'id="sk_')
+        .replace(/id="reach_/g, 'id="sreach_')
+        .replace(/id="total_/g, 'id="stotal_')
+        .replace(/oninput="kelishilganOzgartir\(/g, 'oninput="kelishilganOzgartir(');
+    const sheetBody = document.getElementById('sheetBody');
+    if (sheetBody) sheetBody.innerHTML = sheetHtml;
+
+    updateTotals();
 }
 
+/* ── To'lov nasiya toggle ── */
 function toggleNasiya() {
     const val = document.getElementById('tolovTuri').value;
     document.getElementById('nasiyaSection').style.display = val === 'nasiya' ? 'block' : 'none';
+    if (val !== 'nasiya') {
+        document.getElementById('boshTolov').value = '';
+        document.getElementById('boshTolovInfo').style.display = 'none';
+    }
 }
 
-// Search filter
+/* Sheet to'lov turi toggle */
+function toggleNasiyaSheet() {
+    const val = document.getElementById('tolovTuriSheet').value;
+    document.getElementById('nasiyaSectionSheet').style.display = val === 'nasiya' ? 'block' : 'none';
+}
+
+/* Boshlang'ich to'lov hisob-kitob (desktop) */
+function boshTolovYangilash() {
+    const inp = document.getElementById('boshTolov');
+    const info = document.getElementById('boshTolovInfo');
+    const qoldiEl = document.getElementById('boshTolovQoldi');
+    const bosh = parseInt(inp.value) || 0;
+    const jami = jamiSumGet();
+    if (bosh > 0 && jami > 0) {
+        info.style.display = 'block';
+        const qoldi = jami - bosh;
+        if (qoldi <= 0) {
+            qoldiEl.style.color = 'var(--success)';
+            qoldiEl.textContent = '✅ To\'liq to\'langan';
+        } else {
+            qoldiEl.style.color = 'var(--danger)';
+            qoldiEl.textContent = 'Nasiya qarz: ' + qoldi.toLocaleString() + ' so\'m';
+        }
+    } else {
+        info.style.display = 'none';
+    }
+}
+
+/* Boshlang'ich to'lov hisob-kitob (sheet/mobil) */
+function sheetBoshTolovYangilash() {
+    const inp = document.getElementById('sheetBoshTolov');
+    const info = document.getElementById('sheetBoshTolovInfo');
+    const qoldiEl = document.getElementById('sheetBoshTolovQoldi');
+    const bosh = parseInt(inp.value) || 0;
+    const jami = jamiSumGet();
+    if (bosh > 0 && jami > 0) {
+        info.style.display = 'block';
+        const qoldi = jami - bosh;
+        if (qoldi <= 0) {
+            qoldiEl.style.color = 'var(--success)';
+            qoldiEl.textContent = '✅ To\'liq to\'langan';
+        } else {
+            qoldiEl.style.color = 'var(--danger)';
+            qoldiEl.textContent = 'Nasiya qarz: ' + qoldi.toLocaleString() + ' so\'m';
+        }
+    } else {
+        info.style.display = 'none';
+    }
+}
+
+/* Jami summani olish yordamchi funksiya */
+function jamiSumGet() {
+    let jami = 0;
+    Object.keys(savdoItems).forEach(function(id) {
+        const item = savdoItems[id];
+        const joriy = item.kelishilgan || item.narxi;
+        jami += joriy * item.son;
+    });
+    return jami;
+}
+
+/* Sheet submit — desktop form ga qiymatlarni ko'chirib yuboradi */
+function sheetSubmit() {
+    document.getElementById('tolovTuri').value =
+        document.getElementById('tolovTuriSheet').value;
+
+    const mijozId  = document.getElementById('sheetMijozId');
+    const mijozIsm = document.getElementById('sheetMijozIsm');
+    const mijozTel = document.getElementById('sheetMijozTel');
+    const sheetBT  = document.getElementById('sheetBoshTolov');
+    if (mijozId)  document.querySelector('[name="mijoz_id"]').value  = mijozId.value;
+    if (mijozIsm) document.querySelector('[name="mijoz_ism"]').value = mijozIsm.value;
+    if (mijozTel) document.querySelector('[name="mijoz_tel"]').value = mijozTel.value;
+    if (sheetBT)  document.getElementById('boshTolov').value = sheetBT.value;
+
+    toggleNasiya();
+    document.getElementById('savdoForm').submit();
+}
+
+/* ── Mobil: Sheet ochish/yopish ── */
+function openOrderSheet() {
+    const sheet = document.getElementById('orderSheet');
+    sheet.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    render(); // sheet ni yangilash
+}
+function closeOrderSheet() {
+    document.getElementById('orderSheet').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+/* ── Qidiruv ── */
 document.getElementById('searchInput').addEventListener('input', function() {
     const q = this.value.toLowerCase();
-    document.querySelectorAll('#mahsulotTable tbody tr').forEach(row => {
+    document.querySelectorAll('#mahsulotTable tbody tr').forEach(function(row) {
         row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
 });

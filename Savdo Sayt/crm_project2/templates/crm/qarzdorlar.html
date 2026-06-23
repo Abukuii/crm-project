@@ -3,6 +3,42 @@
 {% block page_title %}Qarzdorlar{% endblock %}
 {% block page_subtitle %}Nasiya savdolar{% endblock %}
 
+{% block extra_css %}
+<style>
+.tolov-panel {
+    background: var(--surface2);
+    border: 1.5px dashed var(--border);
+    border-radius: 9px;
+    padding: 12px 14px;
+    margin: 8px 32px 12px;
+    display: none;
+}
+.tolov-panel.open { display: block; }
+.progress-bar-wrap {
+    background: var(--border);
+    border-radius: 20px;
+    height: 8px;
+    overflow: hidden;
+    margin: 6px 0 3px;
+}
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    transition: width .4s ease;
+}
+.tolov-tarixi-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+.tolov-tarixi-row:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="card">
     <div class="card-header">
@@ -14,7 +50,7 @@
             </div>
             {% if jami_qarz %}
             <div style="background:#fef2f2;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;color:var(--danger)">
-                Jami: {{ jami_qarz|floatformat:0 }} so'm
+                Jami qarz: {{ jami_qarz|floatformat:0 }} so'm
             </div>
             {% endif %}
         </div>
@@ -22,6 +58,7 @@
 
     {% for mijoz in mijozlar %}
     <div style="border-bottom:1px solid var(--border)">
+        <!-- Mijoz sarlavhasi -->
         <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;background:var(--surface2)">
             <div style="width:40px;height:40px;background:linear-gradient(135deg,#ef4444,#f97316);border-radius:10px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:15px;flex-shrink:0">
                 {{ mijoz.ism_familiya|first|upper }}
@@ -47,43 +84,126 @@
             </form>
         </div>
 
-        <table style="margin:0">
-            <thead>
-                <tr>
-                    <th style="padding-left:32px">Sana</th>
-                    <th>Mahsulotlar</th>
-                    <th>Summa</th>
-                    <th>To'lash</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for savdo in mijoz.savdolar.all %}
-                {% if not savdo.to_langan %}
-                <tr>
-                    <td style="padding-left:32px;color:var(--text-muted)">{{ savdo.sana }}</td>
-                    <td style="max-width:300px">
-                        {% for item in savdo.savdo_itemlar.all %}
-                        <span style="display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11.5px;margin:2px">
-                            {{ item.mahsulot.nomi }} × {{ item.soni }}
-                        </span>
-                        {% endfor %}
-                    </td>
-                    <td style="font-weight:700;color:var(--danger)">{{ savdo.jami_summa|floatformat:0 }} so'm</td>
-                    <td>
-                        <form method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="action" value="tolash">
-                            <input type="hidden" name="savdo_id" value="{{ savdo.pk }}">
-                            <button type="submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-check"></i> To'landi
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+        <!-- Savdolar ro'yxati -->
+        {% for savdo in mijoz.savdolar.all %}
+        {% if not savdo.to_langan %}
+        {% with tolangan=savdo.toʻlangan_jami qolgan=savdo.qolgan_qarz %}
+
+        <div style="padding:14px 22px 0">
+            <!-- Savdo sarlavhasi -->
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <span style="font-size:12px;color:var(--text-muted)">
+                    <i class="fas fa-calendar" style="margin-right:3px"></i>{{ savdo.sana }}
+                </span>
+                <span style="font-size:12px;font-weight:600;color:var(--text)">
+                    Jami: {{ savdo.jami_summa|floatformat:0 }} so'm
+                </span>
+                {% if savdo.bosh_tolov > 0 %}
+                <span style="font-size:12px;color:var(--success)">
+                    <i class="fas fa-hand-holding-dollar"></i> Bosh to'lov: {{ savdo.bosh_tolov|floatformat:0 }} so'm
+                </span>
                 {% endif %}
+                <span style="font-size:13px;font-weight:700;color:var(--danger);margin-left:auto">
+                    Qolgan qarz: {{ qolgan|floatformat:0 }} so'm
+                </span>
+            </div>
+
+            <!-- Mahsulotlar -->
+            <div style="margin:6px 0 8px">
+                {% for item in savdo.savdo_itemlar.all %}
+                <span style="display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-size:11.5px;margin:2px">
+                    {{ item.mahsulot.nomi }} × {{ item.soni }}
+                </span>
                 {% endfor %}
-            </tbody>
-        </table>
+            </div>
+
+            <!-- Progress bar -->
+            {% if savdo.jami_summa > 0 %}
+            {% widthratio tolangan savdo.jami_summa 100 as foiz %}
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">
+                To'langan: {{ tolangan|floatformat:0 }} / {{ savdo.jami_summa|floatformat:0 }} so'm
+                <strong style="color:var(--success)">({{ foiz }}%)</strong>
+            </div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:{{ foiz }}%"></div>
+            </div>
+            {% endif %}
+
+            <!-- To'lov tarixi (agar mavjud bo'lsa) -->
+            {% if savdo.tolov_tarixlari.count > 0 %}
+            <details style="margin:8px 0 4px">
+                <summary style="font-size:12px;color:var(--text-muted);cursor:pointer;user-select:none">
+                    <i class="fas fa-history" style="margin-right:4px"></i>
+                    To'lov tarixi ({{ savdo.tolov_tarixlari.count }} ta)
+                </summary>
+                <div style="margin-top:6px;padding:8px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+                    {% for t in savdo.tolov_tarixlari.all %}
+                    <div class="tolov-tarixi-row">
+                        <i class="fas fa-circle-check" style="color:var(--success);font-size:12px"></i>
+                        <span style="color:var(--text-muted)">{{ t.sana }}</span>
+                        <strong style="color:var(--success)">+{{ t.summa|floatformat:0 }} so'm</strong>
+                        {% if t.izoh %}<span style="color:var(--text-muted);font-size:11px">— {{ t.izoh }}</span>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </details>
+            {% endif %}
+
+            <!-- Tugmalar -->
+            <div style="display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap">
+                <!-- Qisman to'lov tugmasi -->
+                <button class="btn btn-warning btn-sm" onclick="tolovPanelToggle('panel_{{ savdo.pk }}')">
+                    <i class="fas fa-coins"></i> Qisman to'lov
+                </button>
+                <!-- To'liq to'lash -->
+                <form method="POST" style="margin:0">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="toliq_tolash">
+                    <input type="hidden" name="savdo_id" value="{{ savdo.pk }}">
+                    <button type="submit" class="btn btn-success btn-sm"
+                        onclick="return confirm('Qarzni to\'liq to\'landi deb belgilash?')">
+                        <i class="fas fa-check-double"></i> To'liq to'landi
+                    </button>
+                </form>
+            </div>
+
+            <!-- Qisman to'lov panel -->
+            <div class="tolov-panel" id="panel_{{ savdo.pk }}">
+                <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">
+                    <i class="fas fa-coins" style="color:var(--warning);margin-right:5px"></i>
+                    Qisman to'lov kiritish — Qolgan: <span style="color:var(--danger)">{{ qolgan|floatformat:0 }} so'm</span>
+                </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="qisman_tolash">
+                    <input type="hidden" name="savdo_id" value="{{ savdo.pk }}">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+                        <div style="flex:1;min-width:160px">
+                            <label class="form-label">To'lov summasi (so'm)</label>
+                            <input type="number" class="form-control" name="tolov_summa"
+                                placeholder="Masalan: 300000"
+                                min="1" max="{{ qolgan }}" required
+                                id="ts_{{ savdo.pk }}"
+                                oninput="qisman_preview({{ savdo.pk }}, {{ qolgan }})">
+                            <div id="preview_{{ savdo.pk }}" style="font-size:12px;margin-top:4px;display:none"></div>
+                        </div>
+                        <div style="flex:1;min-width:140px">
+                            <label class="form-label">Izoh (ixtiyoriy)</label>
+                            <input type="text" class="form-control" name="izoh" placeholder="Masalan: naqd">
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-success btn-sm" style="height:42px">
+                                <i class="fas fa-save"></i> Saqlash
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% endwith %}
+        {% endif %}
+        {% endfor %}
     </div>
     {% empty %}
     <div style="text-align:center;padding:50px;color:var(--text-muted)">
@@ -93,4 +213,30 @@
     </div>
     {% endfor %}
 </div>
+
+<script>
+function tolovPanelToggle(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+}
+
+function qisman_preview(savdo_id, qolgan) {
+    const inp = document.getElementById('ts_' + savdo_id);
+    const prev = document.getElementById('preview_' + savdo_id);
+    const val = parseInt(inp.value) || 0;
+    if (val > 0) {
+        prev.style.display = 'block';
+        const yangi_qoldi = qolgan - val;
+        if (yangi_qoldi <= 0) {
+            prev.innerHTML = '<span style="color:var(--success);font-weight:700">✅ Qarz to\'liq yopiladi</span>';
+        } else if (val > qolgan) {
+            prev.innerHTML = '<span style="color:var(--danger)">⚠️ To\'lov qarzdan ko\'p!</span>';
+        } else {
+            prev.innerHTML = '<span style="color:var(--warning);font-weight:600">Qoladi: ' + yangi_qoldi.toLocaleString() + ' so\'m</span>';
+        }
+    } else {
+        prev.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}
