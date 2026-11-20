@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Dizayn tokenlari (TZ 10.2). Komponentlar faqat shu nomlardan foydalanadi. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-fg: #0f172a;
+  --color-muted: #64748b;
+
+  --color-brand: #ea580c;
+  --color-brand-hover: #c2410c;
+  --color-brand-soft: #fff7ed;
+  --color-on-brand: #ffffff;
+
+  --color-success: #16a34a;
+  --color-danger: #dc2626;
+  --color-warning: #d97706;
+
+  --radius-card: 12px;
+}
+
+.dark {
+  --color-bg: #0b1220;
+  --color-surface: #111a2e;
+  --color-surface-2: #16213a;
+  --color-border: #1e293b;
+  --color-fg: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-brand: #fb923c;
+  --color-brand-hover: #fdba74;
+  --color-brand-soft: #2a1a10;
+  --color-on-brand: #1a0d05;
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-warning: #fbbf24;
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-bg text-fg font-sans antialiased;
+}
+
+/* Summalar ustunlarda tekis turishi uchun */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}

@@ -1,0 +1,3573 @@
+openapi: 3.0.3
+info:
+  title: Qurilish CRM API
+  version: 2.0.0
+paths:
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          description: ''
+  /api/v1/accounts/permissions/:
+    get:
+      operationId: v1_accounts_permissions_list
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PermissionItem'
+          description: ''
+  /api/v1/accounts/roles/:
+    get:
+      operationId: v1_accounts_roles_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoleList'
+          description: ''
+    post:
+      operationId: v1_accounts_roles_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+  /api/v1/accounts/roles/{id}/:
+    get:
+      operationId: v1_accounts_roles_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    put:
+      operationId: v1_accounts_roles_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    patch:
+      operationId: v1_accounts_roles_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRoleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRoleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRoleRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+    delete:
+      operationId: v1_accounts_roles_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this role.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/accounts/users/:
+    get:
+      operationId: v1_accounts_users_list
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+    post:
+      operationId: v1_accounts_users_create
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/accounts/users/{id}/:
+    get:
+      operationId: v1_accounts_users_retrieve
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: v1_accounts_users_update
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: v1_accounts_users_partial_update
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/accounts/users/{id}/set-password/:
+    post:
+      operationId: v1_accounts_users_set_password_create
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/accounts/users/{id}/set-pin/:
+    post:
+      operationId: v1_accounts_users_set_pin_create
+      description: Xodimlar. O'chirish yo'q — faqat ``is_active=false`` (tarix saqlanadi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: v1_auth_login_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: v1_auth_logout_create
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '204':
+          description: Chiqildi
+  /api/v1/auth/me/:
+    get:
+      operationId: v1_auth_me_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+    patch:
+      operationId: v1_auth_me_partial_update
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMeRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+  /api/v1/auth/pin-login/:
+    post:
+      operationId: v1_auth_pin_login_create
+      description: 'Kassada tez almashish: shu tenant''dagi boshqa xodim PIN bilan
+        kiradi.'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PinLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PinLoginRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+          description: ''
+  /api/v1/auth/pin-users/:
+    get:
+      operationId: v1_auth_pin_users_list
+      description: PIN o'rnatilgan xodimlar ro'yxati (kassada almashish uchun).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PinUser'
+          description: ''
+  /api/v1/auth/refresh/:
+    post:
+      operationId: v1_auth_refresh_create
+      tags:
+      - v1
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Access'
+          description: ''
+  /api/v1/catalog/brands/:
+    get:
+      operationId: v1_catalog_brands_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Brand'
+          description: ''
+    post:
+      operationId: v1_catalog_brands_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BrandRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BrandRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+  /api/v1/catalog/brands/{id}/:
+    get:
+      operationId: v1_catalog_brands_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this brand.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    put:
+      operationId: v1_catalog_brands_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this brand.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BrandRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BrandRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    patch:
+      operationId: v1_catalog_brands_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this brand.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBrandRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBrandRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBrandRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+          description: ''
+    delete:
+      operationId: v1_catalog_brands_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this brand.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/catalog/categories/:
+    get:
+      operationId: v1_catalog_categories_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+    post:
+      operationId: v1_catalog_categories_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/catalog/categories/{id}/:
+    get:
+      operationId: v1_catalog_categories_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: v1_catalog_categories_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: v1_catalog_categories_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategoryRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: v1_catalog_categories_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/catalog/price-types/:
+    get:
+      operationId: v1_catalog_price_types_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PriceType'
+          description: ''
+    post:
+      operationId: v1_catalog_price_types_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceTypeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PriceTypeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriceTypeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceType'
+          description: ''
+  /api/v1/catalog/price-types/{id}/:
+    get:
+      operationId: v1_catalog_price_types_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this price type.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceType'
+          description: ''
+    put:
+      operationId: v1_catalog_price_types_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this price type.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceTypeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PriceTypeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriceTypeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceType'
+          description: ''
+    patch:
+      operationId: v1_catalog_price_types_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this price type.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPriceTypeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPriceTypeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPriceTypeRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceType'
+          description: ''
+    delete:
+      operationId: v1_catalog_price_types_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this price type.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/catalog/products/:
+    get:
+      operationId: v1_catalog_products_list
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      parameters:
+      - in: query
+        name: brand
+        schema:
+          type: integer
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: is_archived
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: price_currency
+        schema:
+          type: string
+      - in: query
+        name: search
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+    post:
+      operationId: v1_catalog_products_create
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/catalog/products/{id}/:
+    get:
+      operationId: v1_catalog_products_retrieve
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    put:
+      operationId: v1_catalog_products_update
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    patch:
+      operationId: v1_catalog_products_partial_update
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    delete:
+      operationId: v1_catalog_products_destroy
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/catalog/products/{id}/price-history/:
+    get:
+      operationId: v1_catalog_products_price_history_retrieve
+      description: Mahsulotlar. DELETE — arxivlash (yozuv o'chirilmaydi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this product.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/catalog/products/by-barcode/:
+    get:
+      operationId: v1_catalog_products_by_barcode_retrieve
+      description: 'Kassa skaneri uchun: shtrix-kod → mahsulot + birlik koeffitsienti.'
+      parameters:
+      - in: query
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/catalog/units/:
+    get:
+      operationId: v1_catalog_units_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Unit'
+          description: ''
+    post:
+      operationId: v1_catalog_units_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UnitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UnitRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unit'
+          description: ''
+  /api/v1/catalog/units/{id}/:
+    get:
+      operationId: v1_catalog_units_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this unit.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unit'
+          description: ''
+    put:
+      operationId: v1_catalog_units_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this unit.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UnitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UnitRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unit'
+          description: ''
+    patch:
+      operationId: v1_catalog_units_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this unit.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUnitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUnitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUnitRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unit'
+          description: ''
+    delete:
+      operationId: v1_catalog_units_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this unit.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/currency/rates/:
+    get:
+      operationId: v1_currency_rates_list
+      description: Kurslar tarixi (CBU + do'konning o'z kurslari), joriy kurs va qo'lda
+        kiritish.
+      parameters:
+      - in: query
+        name: currency
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: source
+        schema:
+          type: string
+          enum:
+          - cbu
+          - manual
+        description: |-
+          * `cbu` - Markaziy bank
+          * `manual` - Qo'lda
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExchangeRateList'
+          description: ''
+    post:
+      operationId: v1_currency_rates_create
+      description: Kurslar tarixi (CBU + do'konning o'z kurslari), joriy kurs va qo'lda
+        kiritish.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManualRateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ManualRateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ManualRateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+  /api/v1/currency/rates/current/:
+    get:
+      operationId: v1_currency_rates_current_retrieve
+      description: Kurslar tarixi (CBU + do'konning o'z kurslari), joriy kurs va qo'lda
+        kiritish.
+      parameters:
+      - in: query
+        name: currency
+        schema:
+          type: string
+          default: USD
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentRate'
+          description: ''
+  /api/v1/inventory/balances/:
+    get:
+      operationId: v1_inventory_balances_list
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: query
+        name: in_stock
+        schema:
+          type: boolean
+      - in: query
+        name: low_stock
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: product
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: warehouse
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockBalanceList'
+          description: ''
+  /api/v1/inventory/balances/{id}/:
+    get:
+      operationId: v1_inventory_balances_retrieve
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stock balance.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockBalance'
+          description: ''
+  /api/v1/inventory/moves/:
+    get:
+      operationId: v1_inventory_moves_list
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: query
+        name: doc_id
+        schema:
+          type: integer
+      - in: query
+        name: doc_type
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: product
+        schema:
+          type: integer
+      - in: query
+        name: warehouse
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStockMoveList'
+          description: ''
+  /api/v1/inventory/moves/{id}/:
+    get:
+      operationId: v1_inventory_moves_retrieve
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this stock move.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockMove'
+          description: ''
+  /api/v1/inventory/warehouses/:
+    get:
+      operationId: v1_inventory_warehouses_list
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: integer
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Warehouse'
+          description: ''
+    post:
+      operationId: v1_inventory_warehouses_create
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WarehouseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WarehouseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+          description: ''
+  /api/v1/inventory/warehouses/{id}/:
+    get:
+      operationId: v1_inventory_warehouses_retrieve
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this warehouse.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+          description: ''
+    put:
+      operationId: v1_inventory_warehouses_update
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this warehouse.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WarehouseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WarehouseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WarehouseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+          description: ''
+    patch:
+      operationId: v1_inventory_warehouses_partial_update
+      description: Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this warehouse.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWarehouseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWarehouseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWarehouseRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+          description: ''
+  /api/v1/tenancy/branches/:
+    get:
+      operationId: v1_tenancy_branches_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBranchList'
+          description: ''
+    post:
+      operationId: v1_tenancy_branches_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/tenancy/branches/{id}/:
+    get:
+      operationId: v1_tenancy_branches_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Filial.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    put:
+      operationId: v1_tenancy_branches_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Filial.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    patch:
+      operationId: v1_tenancy_branches_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Filial.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBranchRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBranchRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBranchRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/v1/tenancy/current/:
+    get:
+      operationId: v1_tenancy_current_retrieve
+      description: GET/PATCH /tenancy/current/ — joriy biznes rekvizitlari va sozlamalari.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+    put:
+      operationId: v1_tenancy_current_update
+      description: GET/PATCH /tenancy/current/ — joriy biznes rekvizitlari va sozlamalari.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TenantRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TenantRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+    patch:
+      operationId: v1_tenancy_current_partial_update
+      description: GET/PATCH /tenancy/current/ — joriy biznes rekvizitlari va sozlamalari.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTenantRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTenantRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTenantRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+components:
+  schemas:
+    Access:
+      type: object
+      properties:
+        access:
+          type: string
+      required:
+      - access
+    AuthResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        user:
+          $ref: '#/components/schemas/Me'
+      required:
+      - access
+      - user
+    Branch:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 200
+        address:
+          type: string
+          maxLength: 300
+        phone:
+          type: string
+          maxLength: 32
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    BranchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 200
+        address:
+          type: string
+          maxLength: 300
+        phone:
+          type: string
+          maxLength: 32
+        is_active:
+          type: boolean
+      required:
+      - name
+    Brand:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 150
+      required:
+      - id
+      - name
+    BrandRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 150
+      required:
+      - name
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 150
+        parent:
+          type: integer
+          nullable: true
+        sort:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - id
+      - name
+    CategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 150
+        parent:
+          type: integer
+          nullable: true
+        sort:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - name
+    CurrencyEnum:
+      enum:
+      - USD
+      type: string
+      description: '* `USD` - USD'
+    CurrentRate:
+      type: object
+      properties:
+        currency:
+          type: string
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+        date:
+          type: string
+          format: date
+        source:
+          type: string
+      required:
+      - currency
+      - date
+      - rate
+      - source
+    ExchangeRate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+          readOnly: true
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+          readOnly: true
+        source:
+          allOf:
+          - $ref: '#/components/schemas/SourceEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - currency
+      - date
+      - id
+      - rate
+      - source
+      - updated_at
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+        db:
+          type: boolean
+      required:
+      - db
+      - status
+    LanguageEnum:
+      enum:
+      - uz
+      - ru
+      type: string
+      description: |-
+        * `uz` - O'zbekcha
+        * `ru` - Русский
+    LoginRequestRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    ManualRateRequest:
+      type: object
+      properties:
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          default: USD
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+        date:
+          type: string
+          format: date
+      required:
+      - rate
+    Me:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 32
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        theme:
+          $ref: '#/components/schemas/ThemeEnum'
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleBrief'
+          readOnly: true
+        permissions:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        tenant:
+          allOf:
+          - $ref: '#/components/schemas/TenantBrief'
+          nullable: true
+          readOnly: true
+        branch_ids:
+          type: array
+          items:
+            type: integer
+          nullable: true
+          readOnly: true
+        max_discount_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+        has_pin:
+          type: boolean
+          readOnly: true
+      required:
+      - branch_ids
+      - has_pin
+      - id
+      - max_discount_percent
+      - permissions
+      - roles
+      - tenant
+      - username
+    PaginatedBranchList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Branch'
+    PaginatedExchangeRateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExchangeRate'
+    PaginatedProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaginatedRoleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    PaginatedStockBalanceList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockBalance'
+    PaginatedStockMoveList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockMove'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PatchedBranchRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 200
+        address:
+          type: string
+          maxLength: 300
+        phone:
+          type: string
+          maxLength: 32
+        is_active:
+          type: boolean
+    PatchedBrandRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 150
+    PatchedCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 150
+        parent:
+          type: integer
+          nullable: true
+        sort:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedMeRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 32
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        theme:
+          $ref: '#/components/schemas/ThemeEnum'
+    PatchedPriceTypeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 50
+        is_default:
+          type: boolean
+        sort:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedProductRequest:
+      type: object
+      properties:
+        sku:
+          type: string
+          maxLength: 64
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 255
+        category:
+          type: integer
+          nullable: true
+        brand:
+          type: integer
+          nullable: true
+        base_unit:
+          type: integer
+        price_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        mxik_code:
+          type: string
+          title: MXIK (IKPU) kodi
+          maxLength: 32
+        description:
+          type: string
+        min_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        is_archived:
+          type: boolean
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductUnitRequest'
+        barcodes:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceRequest'
+    PatchedRoleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        permissions: {}
+        max_discount_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          title: Maksimal chegirma (%)
+    PatchedTenantRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 200
+        inn:
+          type: string
+          maxLength: 20
+        phone:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 300
+        settings: {}
+    PatchedUnitRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 50
+        short:
+          type: string
+          minLength: 1
+          title: Qisqa
+          maxLength: 16
+        allow_fraction:
+          type: boolean
+          title: Kasr miqdor
+        code:
+          type: string
+          title: Soliq birlik kodi
+          maxLength: 16
+    PatchedUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 32
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        roles:
+          type: array
+          items:
+            type: integer
+        branches:
+          type: array
+          items:
+            type: integer
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+    PatchedWarehouseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 150
+        branch:
+          type: integer
+        is_active:
+          type: boolean
+    PermissionItem:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+      required:
+      - code
+      - label
+    PinLoginRequest:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        pin:
+          type: string
+          minLength: 1
+          pattern: ^\d{4,6}$
+      required:
+      - pin
+      - user_id
+    PinUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        full_name:
+          type: string
+      required:
+      - full_name
+      - id
+      - username
+    Price:
+      type: object
+      properties:
+        price_type:
+          type: integer
+        price_type_name:
+          type: string
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+      required:
+      - amount
+      - price_type
+      - price_type_name
+    PriceRequest:
+      type: object
+      properties:
+        price_type:
+          type: integer
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+      required:
+      - amount
+      - price_type
+    PriceType:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 50
+        is_default:
+          type: boolean
+        sort:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - id
+      - name
+    PriceTypeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 50
+        is_default:
+          type: boolean
+        sort:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - name
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sku:
+          type: string
+          maxLength: 64
+        name:
+          type: string
+          title: Nomi
+          maxLength: 255
+        category:
+          type: integer
+          nullable: true
+        category_name:
+          type: string
+          readOnly: true
+          nullable: true
+        brand:
+          type: integer
+          nullable: true
+        base_unit:
+          type: integer
+        base_unit_short:
+          type: string
+          readOnly: true
+        allow_fraction:
+          type: boolean
+          readOnly: true
+        price_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        mxik_code:
+          type: string
+          title: MXIK (IKPU) kodi
+          maxLength: 32
+        description:
+          type: string
+        min_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        is_archived:
+          type: boolean
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductUnit'
+        barcodes:
+          type: array
+          items:
+            type: string
+            maxLength: 64
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Price'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - allow_fraction
+      - base_unit
+      - base_unit_short
+      - category_name
+      - created_at
+      - id
+      - name
+      - updated_at
+    ProductRequest:
+      type: object
+      properties:
+        sku:
+          type: string
+          maxLength: 64
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 255
+        category:
+          type: integer
+          nullable: true
+        brand:
+          type: integer
+          nullable: true
+        base_unit:
+          type: integer
+        price_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        mxik_code:
+          type: string
+          title: MXIK (IKPU) kodi
+          maxLength: 32
+        description:
+          type: string
+        min_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        is_archived:
+          type: boolean
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductUnitRequest'
+        barcodes:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceRequest'
+      required:
+      - base_unit
+      - name
+    ProductUnit:
+      type: object
+      description: 'Qo''shimcha birlik: yozishda ``unit/factor/barcode``, o''qishda
+        qo''shimcha ``unit_short``.'
+      properties:
+        unit:
+          type: integer
+        unit_short:
+          type: string
+          readOnly: true
+        factor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        barcode:
+          type: string
+          nullable: true
+          maxLength: 64
+      required:
+      - factor
+      - unit
+      - unit_short
+    ProductUnitRequest:
+      type: object
+      description: 'Qo''shimcha birlik: yozishda ``unit/factor/barcode``, o''qishda
+        qo''shimcha ``unit_short``.'
+      properties:
+        unit:
+          type: integer
+        factor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        barcode:
+          type: string
+          nullable: true
+          maxLength: 64
+      required:
+      - factor
+      - unit
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        permissions: {}
+        max_discount_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          title: Maksimal chegirma (%)
+        is_system:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - is_system
+      - name
+    RoleBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - name
+    RoleBriefRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - name
+    RoleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        permissions: {}
+        max_discount_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          title: Maksimal chegirma (%)
+      required:
+      - name
+    SourceEnum:
+      enum:
+      - cbu
+      - manual
+      type: string
+      description: |-
+        * `cbu` - Markaziy bank
+        * `manual` - Qo'lda
+    StockBalance:
+      type: object
+      description: '``cost.view`` ruxsati bo''lmasa tannarx maydonlari javobdan olib
+        tashlanadi.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        warehouse:
+          type: integer
+        warehouse_name:
+          type: string
+          readOnly: true
+        product:
+          type: integer
+        product_name:
+          type: string
+          readOnly: true
+        product_sku:
+          type: string
+          readOnly: true
+        unit:
+          type: string
+          readOnly: true
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        reserved:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        min_stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+          readOnly: true
+        avg_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+        total_cost:
+          type: string
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - min_stock
+      - product
+      - product_name
+      - product_sku
+      - total_cost
+      - unit
+      - updated_at
+      - warehouse
+      - warehouse_name
+    StockMove:
+      type: object
+      description: '``cost.view`` ruxsati bo''lmasa tannarx maydonlari javobdan olib
+        tashlanadi.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        warehouse:
+          type: integer
+        warehouse_name:
+          type: string
+          readOnly: true
+        product:
+          type: integer
+        product_name:
+          type: string
+          readOnly: true
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        unit_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+        qty_after:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        doc_type:
+          type: string
+          maxLength: 32
+        doc_id:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        note:
+          type: string
+          maxLength: 255
+        created_by:
+          type: integer
+          nullable: true
+        created_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by_name
+      - doc_id
+      - doc_type
+      - id
+      - product
+      - product_name
+      - qty
+      - qty_after
+      - unit_cost
+      - warehouse
+      - warehouse_name
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 200
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        inn:
+          type: string
+          maxLength: 20
+        phone:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 300
+        base_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        settings: {}
+        effective_settings:
+          type: object
+          additionalProperties: {}
+          readOnly: true
+      required:
+      - base_currency
+      - effective_settings
+      - id
+      - name
+      - slug
+    TenantBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+      - id
+      - name
+    TenantRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 200
+        inn:
+          type: string
+          maxLength: 20
+        phone:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 300
+        settings: {}
+      required:
+      - name
+    ThemeEnum:
+      enum:
+      - system
+      - light
+      - dark
+      type: string
+      description: |-
+        * `system` - Tizim
+        * `light` - Yorug'
+        * `dark` - Tun
+    Unit:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 50
+        short:
+          type: string
+          title: Qisqa
+          maxLength: 16
+        allow_fraction:
+          type: boolean
+          title: Kasr miqdor
+        code:
+          type: string
+          title: Soliq birlik kodi
+          maxLength: 16
+      required:
+      - id
+      - name
+      - short
+    UnitRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 50
+        short:
+          type: string
+          minLength: 1
+          title: Qisqa
+          maxLength: 16
+        allow_fraction:
+          type: boolean
+          title: Kasr miqdor
+        code:
+          type: string
+          title: Soliq birlik kodi
+          maxLength: 16
+      required:
+      - name
+      - short
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 32
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        roles:
+          type: array
+          items:
+            type: integer
+        branches:
+          type: array
+          items:
+            type: integer
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Oxirgi kirish
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - date_joined
+      - id
+      - last_login
+      - roles
+      - username
+    UserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone:
+          type: string
+          maxLength: 32
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        roles:
+          type: array
+          items:
+            type: integer
+        branches:
+          type: array
+          items:
+            type: integer
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+      required:
+      - roles
+      - username
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 150
+        branch:
+          type: integer
+        branch_name:
+          type: string
+          readOnly: true
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - branch
+      - branch_name
+      - created_at
+      - id
+      - name
+    WarehouseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 150
+        branch:
+          type: integer
+        is_active:
+          type: boolean
+      required:
+      - branch
+      - name
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

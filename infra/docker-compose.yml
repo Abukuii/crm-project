@@ -1,0 +1,98 @@
+# Production (va staging) uchun. Ishga tushirish: infra/README.md ga qarang.
+name: qurilish-crm
+
+x-backend: &backend
+  build: ../backend
+  image: ${IMAGE_PREFIX:-qurilish-crm}/api:${IMAGE_TAG:-latest}
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.prod
+    DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    REDIS_URL: redis://redis:6379/0
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    <<: *backend
+    restart: "no"
+    command: ["python", "manage.py", "migrate", "--noinput"]
+
+  api:
+    <<: *backend
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health/').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    <<: *backend
+    command: ["celery", "-A", "config", "worker", "--loglevel=info", "--concurrency=2"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  beat:
+    <<: *backend
+    command: ["celery", "-A", "config", "beat", "--loglevel=info"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build: ../frontend
+    image: ${IMAGE_PREFIX:-qurilish-crm}/web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:
+  caddydata:
+  caddyconfig:

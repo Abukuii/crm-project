@@ -1,0 +1,28 @@
+# Maxfiy sozlamalar
+.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+.pytest_cache/
+.ruff_cache/
+
+# Django
+staticfiles/
+media/
+*.sqlite3
+*.log
+
+# Node
+node_modules/
+dist/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

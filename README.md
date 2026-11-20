@@ -1,62 +1,69 @@
-# Qurilish Mollari CRM
+# Qurilish CRM 2.0
 
-Qurilish materiallari do'koni uchun to'liq CRM tizimi.
+Qurilish mollari do'konlari uchun savdo, ombor, nasiya va moliya tizimi (ko'p mijozli SaaS).
+To'liq texnik topshiriq: [TZ.md](TZ.md).
 
-## Imkoniyatlar
+| Papka | Tarkibi |
+|---|---|
+| `backend/` | Django 5.2 + DRF API, Celery |
+| `frontend/` | React + TypeScript + Vite SPA (Tailwind) |
+| `infra/` | Docker Compose (prod va dev), deploy |
+| `savdo_sayt/` | **Eski tizim (1.0)** — faqat ma'lumot ko'chirish uchun saqlanadi |
 
-- **Dashboard** — Bugungi savdolar, daromad, haftalik grafik
-- **Yangi Savdo** — Mahsulot sotish (naqd, plastik, nasiya)
-- **Savdo Tarixi** — Barcha savdolar ro'yxati
-- **Mahsulotlar** — Qo'shish, tahrirlash, o'chirish
-- **Kam Qolganlar** — Zaxira ogohlantirishlari
-- **Qarzdorlar** — Nasiya mijozlar va qarz to'lash
-- **Admin Panel** — To'liq boshqaruv `/admin/`
-- **Profil** — Foydalanuvchi sozlamalari
+## Holat (bosqichlar — TZ 15-bo'lim)
 
-## O'rnatish
+- [x] **0. Tayyorgarlik**: monorepo, CI, Docker, Caddy
+- [x] **1. Asos** (qisman): tenant va filiallar, foydalanuvchi/rol/ruxsatlar, JWT + PIN, audit jurnali, katalog (birliklar, shtrix-kodlar, narx turlari, narx tarixi), valyuta kursi (CBU + qo'lda)
+- [x] **2. Ombor** (yadro): qoldiq jurnali, o'rtacha tannarx, qoldiq/harakat API
+- [ ] Excel import, kirim/ko'chirish/inventarizatsiya hujjatlari
+- [ ] 3. Kassa (POS) · 4. Mijozlar va moliya · 5. Hisobotlar va bot · 6. Ko'chirish va ishga tushirish
 
-```bash
-# 1. Papkaga kiring
-cd qurilish_crm
+## Lokal ishlab chiqish
 
-# 2. Virtual environment yarating
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# yoki
-venv\Scripts\activate  # Windows
+Talablar: Python 3.12, Node 22, Docker.
 
-# 3. Django o'rnating
-pip install -r requirements.txt
+```powershell
+# 1) PostgreSQL va Redis
+docker compose -f infra/docker-compose.dev.yml up -d
 
-# 4. Ma'lumotlar bazasini yarating
-python manage.py makemigrations
-python manage.py migrate
+# 2) Backend
+cd backend
+python -m venv .venv
+.venv\Scripts\pip install -r requirements/dev.txt
+copy .env.example .env
+.venv\Scripts\python manage.py migrate
+.venv\Scripts\python manage.py create_tenant --name "Mening do'konim" --owner admin
+.venv\Scripts\python manage.py fetch_rates
+.venv\Scripts\python manage.py runserver
 
-# 5. Admin foydalanuvchi yarating
-python manage.py createsuperuser
-
-# 6. Serverni ishga tushiring
-python manage.py runserver
+# 3) Frontend (yangi terminalda)
+cd frontend
+npm install
+npm run dev   # http://localhost:5173
 ```
 
-## Yoki avtomatik o'rnatish (Linux/Mac)
+API hujjati: http://localhost:8000/api/docs/ (tizimga kirgandan keyin).
 
-```bash
-chmod +x setup.sh
-./setup.sh
+## Tekshiruvlar
+
+```powershell
+cd backend; .venv\Scripts\ruff check .; .venv\Scripts\python -m pytest
+cd frontend; npm test; npm run build
 ```
 
-## Kirish
+Backend API o'zgarsa, frontend tiplarini yangilang:
 
-- **Asosiy:** http://127.0.0.1:8000/
-- **Login:** http://127.0.0.1:8000/login/
-- **Admin:** http://127.0.0.1:8000/admin/
+```powershell
+cd backend; $env:DJANGO_SETTINGS_MODULE="config.settings.test"; .venv\Scripts\python manage.py spectacular --file openapi.yml
+cd frontend; npm run gen:api
+```
 
-## Texnologiyalar
+## Arxitektura qoidalari (qisqacha)
 
-- **Backend:** Python 3, Django 4.2
-- **Database:** SQLite (production'da PostgreSQL tavsiya)
-- **Frontend:** HTML5, CSS3, JavaScript (vanilla)
-- **Ikonalar:** Font Awesome 6
-- **Shrift:** Plus Jakarta Sans
-- **Grafiklar:** Chart.js
+- **Tenant izolyatsiyasi**: har bir view `TenantScopedMixin`, har bir FK `TenantRelatedField` orqali.
+- **Ruxsatlar**: view'da `read_perm` / `write_perm` / `action_perms`; ko'rsatilmagan yozish amali — rad etiladi.
+- **Pul**: faqat `Decimal` (`apps/core/money.py`), `float` taqiqlangan.
+- **Ombor**: qoldiq faqat `inventory.services.post_moves` orqali o'zgaradi; jurnal o'zgarmas.
+- **O'chirish yo'q**: mahsulot, xodim — arxivlanadi / nofaol qilinadi.
+- **Audit**: muhim amallar `apps.core.audit.record` orqali yoziladi.
+- **Xato formati**: `{"error": {"code", "message", "details"}}`.
