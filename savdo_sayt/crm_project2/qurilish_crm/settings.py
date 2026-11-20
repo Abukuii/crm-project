@@ -6,18 +6,26 @@ from dotenv import load_dotenv
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Xavfsizlik: SECRET_KEY ni .env fayldan o'qing yoki o'zingiz kiriting
-SECRET_KEY = config('SECRET_KEY')
+def _csv(value):
+    return [x.strip() for x in value.split(',') if x.strip()]
+
+
+# Xavfsizlik: SECRET_KEY .env fayldan o'qiladi.
+# Default qiymat faqat build vaqtidagi collectstatic uchun — production'da albatta .env da bering.
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-build-only-key')
 
 # Production'da False qiling va .env orqali boshqaring
-DEBUG = config('DEBUG', cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Production'da o'z domeningizni kiriting, masalan: ['yourdomain.com', 'www.yourdomain.com']
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+# Production'da o'z domeningizni kiriting, masalan: yourdomain.com,www.yourdomain.com
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=_csv)
 
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000', cast=_csv)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+
+# Nginx orqasida HTTPS ni to'g'ri aniqlash uchun
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 INSTALLED_APPS = [
@@ -88,9 +96,12 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

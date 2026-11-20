@@ -538,14 +538,18 @@ def savdo_ochirish(request, pk):
 
 def _telegram_notify(data: dict):
     try:
+        import os
         from pathlib import Path
         from dotenv import dotenv_values
 
-        bot_env_path = Path(__file__).resolve().parent.parent.parent / 'telegram_bot' / '.env'
-        config = dotenv_values(bot_env_path)
-
-        token = config.get('BOT_TOKEN')
-        chat_id = config.get('CHANNEL_ID')
+        # Avval muhit o'zgaruvchilari (Docker), topilmasa ../telegram_bot/.env (lokal)
+        token = os.environ.get('BOT_TOKEN')
+        chat_id = os.environ.get('CHANNEL_ID')
+        if not token or not chat_id:
+            bot_env_path = Path(__file__).resolve().parent.parent.parent / 'telegram_bot' / '.env'
+            config = dotenv_values(bot_env_path)
+            token = token or config.get('BOT_TOKEN')
+            chat_id = chat_id or config.get('CHANNEL_ID')
 
         if not token or not chat_id:
             return
