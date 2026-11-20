@@ -2,16 +2,21 @@ import {
   BarChart3,
   Boxes,
   ChevronsLeft,
+  ClipboardList,
+  HandCoins,
   LayoutDashboard,
   LogOut,
   Menu,
   Monitor,
   Moon,
   Package,
+  Receipt,
   Settings,
   ShoppingCart,
+  StickyNote,
   Sun,
   Truck,
+  UserCog,
   Users,
   Wallet,
   type LucideIcon,
@@ -19,6 +24,7 @@ import {
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
+import { Toaster } from "@/components/overlay";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/stores/auth";
@@ -29,15 +35,16 @@ interface NavItem {
   label: string;
   icon: LucideIcon;
   perm?: string;
-  soon?: boolean;
 }
 
 const NAV: { group: string; items: NavItem[] }[] = [
   {
-    group: "Asosiy",
+    group: "Savdo",
     items: [
       { to: "/", label: "Dashboard", icon: LayoutDashboard },
-      { to: "/pos", label: "Kassa", icon: ShoppingCart, perm: "sales.create", soon: true },
+      { to: "/pos", label: "Kassa", icon: ShoppingCart, perm: "sales.create" },
+      { to: "/sales", label: "Savdo tarixi", icon: Receipt, perm: "sales.create" },
+      { to: "/customers", label: "Mijozlar va qarzlar", icon: HandCoins, perm: "customers.view" },
     ],
   },
   {
@@ -45,16 +52,17 @@ const NAV: { group: string; items: NavItem[] }[] = [
     items: [
       { to: "/products", label: "Mahsulotlar", icon: Package, perm: "catalog.view" },
       { to: "/stock", label: "Qoldiqlar", icon: Boxes, perm: "inventory.view" },
-      { to: "/purchases", label: "Kirim", icon: Truck, perm: "inventory.manage", soon: true },
+      { to: "/purchases", label: "Kirim", icon: ClipboardList, perm: "inventory.manage" },
+      { to: "/suppliers", label: "Yetkazib beruvchilar", icon: Truck, perm: "inventory.view" },
     ],
   },
   {
     group: "Boshqaruv",
     items: [
-      { to: "/customers", label: "Mijozlar", icon: Users, perm: "customers.view", soon: true },
-      { to: "/finance", label: "Moliya", icon: Wallet, perm: "finance.view", soon: true },
-      { to: "/reports", label: "Hisobotlar", icon: BarChart3, perm: "reports.view", soon: true },
-      { to: "/settings", label: "Sozlamalar", icon: Settings, perm: "settings.manage", soon: true },
+      { to: "/expenses", label: "Xarajatlar", icon: Wallet, perm: "expenses.manage" },
+      { to: "/reminders", label: "Eslatmalar", icon: StickyNote, perm: "reminders.manage" },
+      { to: "/users", label: "Xodimlar", icon: Users, perm: "users.manage" },
+      { to: "/settings", label: "Sozlamalar", icon: Settings, perm: "settings.manage" },
     ],
   },
 ];
@@ -76,10 +84,8 @@ export function AppLayout() {
         if (!visible.length) return null;
         return (
           <div key={group} className="space-y-1">
-            {!collapsed && (
-              <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted">{group}</p>
-            )}
-            {visible.map(({ to, label, icon: Icon, soon }) => (
+            {!collapsed && <p className="px-3 text-xs font-semibold uppercase tracking-wide text-muted">{group}</p>}
+            {visible.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -95,8 +101,7 @@ export function AppLayout() {
                 }
               >
                 <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                {!collapsed && <span className="flex-1 truncate">{label}</span>}
-                {!collapsed && soon && <span className="text-[10px] text-muted">tez orada</span>}
+                {!collapsed && <span className="truncate">{label}</span>}
               </NavLink>
             ))}
           </div>
@@ -105,20 +110,28 @@ export function AppLayout() {
     </nav>
   );
 
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.username;
+
   return (
     <div className="flex min-h-dvh">
-      {/* Desktop sidebar */}
       <aside
         className={cn(
-          "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface md:flex",
-          collapsed ? "w-16" : "w-60",
+          "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-border bg-surface transition-[width] duration-200 md:flex print:hidden",
+          collapsed ? "w-16" : "w-64",
         )}
       >
-        <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-brand font-bold text-on-brand">Q</div>
-          {!collapsed && <span className="truncate font-semibold">{user?.tenant?.name ?? "Qurilish CRM"}</span>}
+        <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-400 font-bold text-white">
+            S
+          </div>
+          {!collapsed && (
+            <div className="min-w-0 leading-tight">
+              <p className="font-semibold">Savdo</p>
+              <p className="truncate text-xs text-muted">{user?.tenant?.name}</p>
+            </div>
+          )}
         </div>
-        <div className="flex-1">{sidebar}</div>
+        <div className="flex-1 overflow-hidden">{sidebar}</div>
         <button
           onClick={() => setCollapsed((v) => !v)}
           className="flex h-10 items-center justify-center border-t border-border text-muted hover:text-fg"
@@ -128,27 +141,37 @@ export function AppLayout() {
         </button>
       </aside>
 
-      {/* Mobil sidebar */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden" role="dialog" aria-modal>
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-64 bg-surface shadow-xl">{sidebar}</aside>
+          <div className="anim-fade absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
+          <aside className="anim-slide-up absolute inset-y-0 left-0 w-72 bg-surface shadow-xl">{sidebar}</aside>
         </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-surface/80 px-4 backdrop-blur">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-surface/80 px-4 backdrop-blur print:hidden">
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(true)} aria-label="Menyu">
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1" />
+          {can("reports.view") && (
+            <NavLink to="/" className="hidden items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted hover:bg-surface-2 sm:flex">
+              <BarChart3 className="h-3.5 w-3.5" /> Hisobot
+            </NavLink>
+          )}
           <Button variant="ghost" size="icon" onClick={cycle} title={THEME_LABEL[theme]} aria-label={THEME_LABEL[theme]}>
             <ThemeIcon className="h-4 w-4" />
           </Button>
-          <div className="hidden text-right text-sm leading-tight sm:block">
-            <p className="font-medium">{[user?.first_name, user?.last_name].filter(Boolean).join(" ") || user?.username}</p>
-            <p className="text-xs text-muted">{user?.roles.map((r) => r.name).join(", ")}</p>
-          </div>
+          <NavLink to="/profile" className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-surface-2">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-soft text-sm font-semibold text-brand">
+              {(fullName ?? "?").slice(0, 1).toUpperCase()}
+            </span>
+            <span className="hidden text-left text-sm leading-tight sm:block">
+              <span className="block font-medium">{fullName}</span>
+              <span className="block text-xs text-muted">{user?.roles.map((r) => r.name).join(", ")}</span>
+            </span>
+            <UserCog className="h-4 w-4 text-muted" />
+          </NavLink>
           <Button variant="ghost" size="icon" onClick={() => void logout()} title="Chiqish" aria-label="Chiqish">
             <LogOut className="h-4 w-4" />
           </Button>
@@ -157,6 +180,7 @@ export function AppLayout() {
           <Outlet />
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

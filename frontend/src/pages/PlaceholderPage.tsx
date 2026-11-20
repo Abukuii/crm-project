@@ -9,8 +9,8 @@ export function PlaceholderPage({ title }: { title: string }) {
       <Card>
         <EmptyState
           icon={<Construction className="h-6 w-6" />}
-          title="Bu bo'lim ishlab chiqilmoqda"
-          hint="TZ bo'yicha keyingi bosqichlarda qo'shiladi"
+          title="Bu sahifa mavjud emas"
+          hint="Menyudan kerakli bo‘limni tanlang"
         />
       </Card>
     </div>

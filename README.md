@@ -1,6 +1,7 @@
-# Qurilish CRM 2.0
+# Savdo
 
-Qurilish mollari do'konlari uchun savdo, ombor, nasiya va moliya tizimi (ko'p mijozli SaaS).
+Do‘konlar uchun savdo, ombor, nasiya va moliya boshqaruv tizimi (ko‘p mijozli SaaS). Qurilish mollari kabi
+birliklari murakkab (qop, metr, pachka) va dollar/so‘mda ishlaydigan savdoga moslangan.
 To'liq texnik topshiriq: [TZ.md](TZ.md).
 
 | Papka | Tarkibi |
@@ -10,13 +11,24 @@ To'liq texnik topshiriq: [TZ.md](TZ.md).
 | `infra/` | Docker Compose (prod va dev), deploy |
 | `savdo_sayt/` | **Eski tizim (1.0)** — faqat ma'lumot ko'chirish uchun saqlanadi |
 
-## Holat (bosqichlar — TZ 15-bo'lim)
+## Holat
 
-- [x] **0. Tayyorgarlik**: monorepo, CI, Docker, Caddy
-- [x] **1. Asos** (qisman): tenant va filiallar, foydalanuvchi/rol/ruxsatlar, JWT + PIN, audit jurnali, katalog (birliklar, shtrix-kodlar, narx turlari, narx tarixi), valyuta kursi (CBU + qo'lda)
-- [x] **2. Ombor** (yadro): qoldiq jurnali, o'rtacha tannarx, qoldiq/harakat API
-- [ ] Excel import, kirim/ko'chirish/inventarizatsiya hujjatlari
-- [ ] 3. Kassa (POS) · 4. Mijozlar va moliya · 5. Hisobotlar va bot · 6. Ko'chirish va ishga tushirish
+Eski tizimning (1.0) barcha funksiyalari ko‘chirildi va kengaytirildi:
+
+| Modul | Imkoniyatlar |
+|---|---|
+| Kassa | Qidiruv/shtrix-kod, birlik tanlash, kelishilgan narx (chegirma limiti), naqd + karta + o‘tkazma + nasiya, qaytim, chek chop etish, takroriy yuborishdan himoya |
+| Savdo tarixi | Filtrlar, yig‘indi (to‘lov turlari, foyda), bekor qilish (tovar omborga qaytadi), Excel eksport |
+| Mijozlar va qarzlar | Narx turi, kredit limiti, nasiya muddati, qisman/to‘liq to‘lov (FIFO), muddati o‘tgan qarzlar |
+| Mahsulotlar | Birliklar (1 pachka = 10 dona), shtrix-kodlar, narx turlari va tarixi, kirill/lotin qidiruv, Excel import (tekshiruv bilan) va eksport |
+| Ombor | Qoldiq jurnali, o‘rtacha tannarx, kam qolganlar, kirim hujjatlari (qo‘shimcha xarajat taqsimoti, bekor qilish) |
+| Yetkazib beruvchilar | Qarz, to‘lovlar, akt sverka |
+| Xarajatlar, eslatmalar | Kategoriyalar, davr bo‘yicha jami; muhimlik va muddat |
+| Dashboard | Bugun/oy savdosi, sof foyda (tannarx va xarajatlar ayrilgan), haftalik grafik, TOP mahsulotlar, qarzlar, dollar kursi |
+| Boshqaruv | Rollar va ruxsatlar, filiallar, PIN, audit jurnali, Telegram xabarlari, sozlamalar |
+| Bosh sahifa | Animatsiyali landing va kirish formasi (`/welcome`) |
+
+Keyingi bosqichlar (TZ 15-bo‘lim): offline kassa, smena (X/Z hisobot), qisman qaytarish, fiskal chek, Click/Payme, yetkazib berish, eski bazadan ma‘lumot ko‘chirish.
 
 ## Lokal ishlab chiqish
 

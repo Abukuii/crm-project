@@ -682,6 +682,199 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dataio/products/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_dataio_products_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dataio/products/import/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_dataio_products_import_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dataio/products/template/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_dataio_products_template_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dataio/sales/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_dataio_sales_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/expense-categories/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_finance_expense_categories_list"];
+        put?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        post: operations["v1_finance_expense_categories_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/expense-categories/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_finance_expense_categories_retrieve"];
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        put: operations["v1_finance_expense_categories_update"];
+        post?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        delete: operations["v1_finance_expense_categories_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        patch: operations["v1_finance_expense_categories_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/finance/expenses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        get: operations["v1_finance_expenses_list"];
+        put?: never;
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        post: operations["v1_finance_expenses_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/expenses/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        get: operations["v1_finance_expenses_retrieve"];
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        put: operations["v1_finance_expenses_update"];
+        post?: never;
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        delete: operations["v1_finance_expenses_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        patch: operations["v1_finance_expenses_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/finance/expenses/total/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Xarajatlar (eski "Xarajatlar" sahifasi). */
+        get: operations["v1_finance_expenses_total_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/inventory/balances/": {
         parameters: {
             query?: never;
@@ -785,6 +978,446 @@ export interface paths {
         head?: never;
         /** @description Foydalanuvchi faqat o'ziga ruxsat etilgan filial omborlarini ko'radi. */
         patch: operations["v1_inventory_warehouses_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/notes/reminders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_notes_reminders_list"];
+        put?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        post: operations["v1_notes_reminders_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notes/reminders/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_notes_reminders_retrieve"];
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        put: operations["v1_notes_reminders_update"];
+        post?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        delete: operations["v1_notes_reminders_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        patch: operations["v1_notes_reminders_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/purchasing/purchases/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        get: operations["v1_purchasing_purchases_list"];
+        put?: never;
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        post: operations["v1_purchasing_purchases_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchasing/purchases/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        get: operations["v1_purchasing_purchases_retrieve"];
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        put: operations["v1_purchasing_purchases_update"];
+        post?: never;
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        delete: operations["v1_purchasing_purchases_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        patch: operations["v1_purchasing_purchases_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/purchasing/purchases/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        post: operations["v1_purchasing_purchases_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchasing/purchases/{id}/post/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Kirim hujjatlari. DELETE — faqat qoralama uchun. */
+        post: operations["v1_purchasing_purchases_post_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchasing/suppliers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_purchasing_suppliers_list"];
+        put?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        post: operations["v1_purchasing_suppliers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchasing/suppliers/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_purchasing_suppliers_retrieve"];
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        put: operations["v1_purchasing_suppliers_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        patch: operations["v1_purchasing_suppliers_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/purchasing/suppliers/{id}/payments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_purchasing_suppliers_payments_retrieve"];
+        put?: never;
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        post: operations["v1_purchasing_suppliers_payments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/purchasing/suppliers/{id}/statement/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barcha tenant ma'lumotlari uchun asosiy mixin.
+         *
+         *     * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+         *     * yangi yozuvga tenant avtomatik qo'yiladi;
+         *     * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+         */
+        get: operations["v1_purchasing_suppliers_statement_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_reports_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/customers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        get: operations["v1_sales_customers_list"];
+        put?: never;
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        post: operations["v1_sales_customers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/customers/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        get: operations["v1_sales_customers_retrieve"];
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        put: operations["v1_sales_customers_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        patch: operations["v1_sales_customers_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/sales/customers/{id}/payments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        get: operations["v1_sales_customers_payments_retrieve"];
+        put?: never;
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        post: operations["v1_sales_customers_payments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/customers/{id}/receivables/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar" sahifasi). */
+        get: operations["v1_sales_customers_receivables_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/sales/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Savdolar: kassa (POST), tarix (GET), bekor qilish, yig'indi va kassa katalogi. */
+        get: operations["v1_sales_sales_list"];
+        put?: never;
+        /** @description Savdolar: kassa (POST), tarix (GET), bekor qilish, yig'indi va kassa katalogi. */
+        post: operations["v1_sales_sales_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/sales/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Savdolar: kassa (POST), tarix (GET), bekor qilish, yig'indi va kassa katalogi. */
+        get: operations["v1_sales_sales_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/sales/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Savdolar: kassa (POST), tarix (GET), bekor qilish, yig'indi va kassa katalogi. */
+        post: operations["v1_sales_sales_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/sales/pos-catalog/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Kassa uchun: mahsulot + qoldiq + so'mdagi narx (barcha birliklarda). */
+        get: operations["v1_sales_sales_pos_catalog_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/sales/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Savdolar: kassa (POST), tarix (GET), bekor qilish, yig'indi va kassa katalogi. */
+        get: operations["v1_sales_sales_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/tenancy/branches/": {
@@ -910,26 +1543,28 @@ export interface components {
             /** Nomi */
             name: string;
         };
+        CancelRequest: {
+            reason?: string;
+        };
         Category: {
             readonly id: number;
             /** Nomi */
             name: string;
             parent?: number | null;
-            /** Format: int64 */
             sort?: number;
         };
         CategoryRequest: {
             /** Nomi */
             name: string;
             parent?: number | null;
-            /** Format: int64 */
             sort?: number;
         };
         /**
-         * @description * `USD` - USD
+         * @description * `UZS` - So'm
+         *     * `USD` - AQSh dollari
          * @enum {string}
          */
-        CurrencyEnum: "USD";
+        CurrencyEnum: "UZS" | "USD";
         CurrentRate: {
             currency: string;
             /** Format: decimal */
@@ -938,6 +1573,103 @@ export interface components {
             date: string;
             source: string;
         };
+        Customer: {
+            readonly id: number;
+            /** F.I.Sh. / nomi */
+            name: string;
+            phone?: string;
+            address?: string;
+            kind?: components["schemas"]["CustomerKindEnum"];
+            inn?: string;
+            price_type?: number | null;
+            /** Format: decimal */
+            credit_limit?: string | null;
+            /** Nasiya muddati (kun) */
+            payment_days?: number;
+            note?: string;
+            is_archived?: boolean;
+            /** Format: decimal */
+            readonly debt: string | null;
+            /** Format: decimal */
+            readonly overdue_debt: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `person` - Jismoniy shaxs
+         *     * `master` - Usta / pudratchi
+         *     * `company` - Yuridik shaxs
+         * @enum {string}
+         */
+        CustomerKindEnum: "person" | "master" | "company";
+        CustomerPayment: {
+            readonly id: number;
+            /** Format: decimal */
+            amount: string;
+            method?: components["schemas"]["DebtPaymentMethodEnum"];
+            /** Format: date */
+            readonly date: string;
+            note?: string;
+            readonly created_by_name: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        CustomerPaymentRequest: {
+            /** Format: decimal */
+            amount: string;
+            method?: components["schemas"]["DebtPaymentMethodEnum"];
+            note?: string;
+            receivable?: number | null;
+        };
+        CustomerRequest: {
+            /** F.I.Sh. / nomi */
+            name: string;
+            phone?: string;
+            address?: string;
+            kind?: components["schemas"]["CustomerKindEnum"];
+            inn?: string;
+            price_type?: number | null;
+            /** Format: decimal */
+            credit_limit?: string | null;
+            /** Nasiya muddati (kun) */
+            payment_days?: number;
+            note?: string;
+            is_archived?: boolean;
+        };
+        Dashboard: {
+            today: components["schemas"]["Period"];
+            yesterday: components["schemas"]["Period"];
+            month: components["schemas"]["Period"];
+            prev_month: components["schemas"]["Period"];
+            week: components["schemas"]["DayRevenue"][];
+            today_by_method: {
+                [key: string]: string;
+            };
+            top_products: components["schemas"]["TopProduct"][];
+            debt: components["schemas"]["Debt"];
+            low_stock_count: number;
+            recent_sales: components["schemas"]["RecentSale"][];
+        };
+        DayRevenue: {
+            /** Format: date */
+            date: string;
+            /** Format: decimal */
+            revenue: string;
+        };
+        Debt: {
+            /** Format: decimal */
+            total: string;
+            /** Format: decimal */
+            overdue: string;
+            debtors: number;
+        };
+        /**
+         * @description * `cash` - Naqd
+         *     * `card` - Plastik karta
+         *     * `transfer` - O'tkazma
+         * @enum {string}
+         */
+        DebtPaymentMethodEnum: "cash" | "card" | "transfer";
         ExchangeRate: {
             readonly id: number;
             readonly currency: string;
@@ -951,9 +1683,70 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        Expense: {
+            readonly id: number;
+            /** Xarajat nomi */
+            name: string;
+            category: number;
+            readonly category_name: string;
+            /** Format: decimal */
+            amount: string;
+            /** Format: date */
+            date?: string;
+            branch?: number | null;
+            note?: string;
+            readonly created_by_name: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ExpenseCategory: {
+            readonly id: number;
+            name: string;
+        };
+        ExpenseCategoryRequest: {
+            name: string;
+        };
+        ExpenseRequest: {
+            /** Xarajat nomi */
+            name: string;
+            category: number;
+            /** Format: decimal */
+            amount: string;
+            /** Format: date */
+            date?: string;
+            branch?: number | null;
+            note?: string;
+        };
+        ExpenseTotal: {
+            /** Format: decimal */
+            total: string;
+            count: number;
+        };
         Health: {
             status: string;
             db: boolean;
+        };
+        ImportRequestRequest: {
+            /** Format: binary */
+            file: string;
+            warehouse?: number;
+            dry_run?: boolean;
+        };
+        ImportResult: {
+            dry_run: boolean;
+            total: number;
+            errors: number;
+            rows: components["schemas"]["ImportRow"][];
+            created?: number;
+            updated?: number;
+            opening_document?: number | null;
+        };
+        ImportRow: {
+            line: number;
+            name: string;
+            sku: string;
+            action: string;
+            errors: string[];
         };
         /**
          * @description * `uz` - O'zbekcha
@@ -961,13 +1754,25 @@ export interface components {
          * @enum {string}
          */
         LanguageEnum: "uz" | "ru";
+        /**
+         * @description * `normal` - Oddiy
+         *     * `important` - Muhim
+         *     * `urgent` - Shoshilinch
+         * @enum {string}
+         */
+        LevelEnum: "normal" | "important" | "urgent";
         LoginRequestRequest: {
             username: string;
             password: string;
         };
+        /**
+         * @description * `USD` - USD
+         * @enum {string}
+         */
+        ManualRateCurrencyEnum: "USD";
         ManualRateRequest: {
             /** @default USD */
-            currency: components["schemas"]["CurrencyEnum"];
+            currency: components["schemas"]["ManualRateCurrencyEnum"];
             /** Format: decimal */
             rate: string;
             /** Format: date */
@@ -1005,6 +1810,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Branch"][];
         };
+        PaginatedCustomerList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Customer"][];
+        };
         PaginatedExchangeRateList: {
             /** @example 123 */
             count: number;
@@ -1019,6 +1839,36 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["ExchangeRate"][];
+        };
+        PaginatedExpenseList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Expense"][];
+        };
+        PaginatedPosProductList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["PosProduct"][];
         };
         PaginatedProductList: {
             /** @example 123 */
@@ -1035,6 +1885,36 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Product"][];
         };
+        PaginatedPurchaseList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Purchase"][];
+        };
+        PaginatedReceivableList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Receivable"][];
+        };
         PaginatedRoleList: {
             /** @example 123 */
             count: number;
@@ -1049,6 +1929,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Role"][];
+        };
+        PaginatedSaleList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Sale"][];
         };
         PaginatedStockBalanceList: {
             /** @example 123 */
@@ -1080,6 +1975,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["StockMove"][];
         };
+        PaginatedSupplierList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Supplier"][];
+        };
         PaginatedUserList: {
             /** @example 123 */
             count: number;
@@ -1110,8 +2020,36 @@ export interface components {
             /** Nomi */
             name?: string;
             parent?: number | null;
-            /** Format: int64 */
             sort?: number;
+        };
+        PatchedCustomerRequest: {
+            /** F.I.Sh. / nomi */
+            name?: string;
+            phone?: string;
+            address?: string;
+            kind?: components["schemas"]["CustomerKindEnum"];
+            inn?: string;
+            price_type?: number | null;
+            /** Format: decimal */
+            credit_limit?: string | null;
+            /** Nasiya muddati (kun) */
+            payment_days?: number;
+            note?: string;
+            is_archived?: boolean;
+        };
+        PatchedExpenseCategoryRequest: {
+            name?: string;
+        };
+        PatchedExpenseRequest: {
+            /** Xarajat nomi */
+            name?: string;
+            category?: number;
+            /** Format: decimal */
+            amount?: string;
+            /** Format: date */
+            date?: string;
+            branch?: number | null;
+            note?: string;
         };
         PatchedMeRequest: {
             first_name?: string;
@@ -1124,7 +2062,6 @@ export interface components {
             /** Nomi */
             name?: string;
             is_default?: boolean;
-            /** Format: int64 */
             sort?: number;
         };
         PatchedProductRequest: {
@@ -1145,6 +2082,26 @@ export interface components {
             barcodes?: string[];
             prices?: components["schemas"]["PriceRequest"][];
         };
+        PatchedPurchaseRequest: {
+            kind?: components["schemas"]["PurchaseKindEnum"];
+            supplier?: number | null;
+            warehouse?: number;
+            /** Format: date */
+            date?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            extra_costs?: string;
+            note?: string;
+            lines?: components["schemas"]["PurchaseLineRequest"][];
+        };
+        PatchedReminderRequest: {
+            /** Matn */
+            text?: string;
+            level?: components["schemas"]["LevelEnum"];
+            /** Format: date */
+            due_date?: string | null;
+            is_done?: boolean;
+        };
         PatchedRoleRequest: {
             name?: string;
             permissions?: unknown;
@@ -1153,6 +2110,15 @@ export interface components {
              * Format: decimal
              */
             max_discount_percent?: string;
+        };
+        PatchedSupplierRequest: {
+            /** Nomi */
+            name?: string;
+            phone?: string;
+            inn?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            note?: string;
+            is_archived?: boolean;
         };
         PatchedTenantRequest: {
             /** Nomi */
@@ -1193,6 +2159,26 @@ export interface components {
             branch?: number;
             is_active?: boolean;
         };
+        PaymentInRequest: {
+            method: components["schemas"]["SalePaymentMethodEnum"];
+            /** Format: decimal */
+            amount: string;
+        };
+        Period: {
+            sales_count: number;
+            /** Format: decimal */
+            revenue: string;
+            /** Format: decimal */
+            discount: string;
+            /** Format: decimal */
+            avg_check: string;
+            /** Format: decimal */
+            expenses: string;
+            /** Format: decimal */
+            gross_profit?: string;
+            /** Format: decimal */
+            net_profit?: string;
+        };
         PermissionItem: {
             code: string;
             label: string;
@@ -1205,6 +2191,25 @@ export interface components {
             id: number;
             username: string;
             full_name: string;
+        };
+        PosProduct: {
+            id: number;
+            name: string;
+            sku: string;
+            barcodes: string[];
+            category: string | null;
+            allow_fraction: boolean;
+            /** Format: decimal */
+            stock: string;
+            units: components["schemas"]["PosUnit"][];
+        };
+        PosUnit: {
+            unit: number;
+            unit_short: string;
+            /** Format: decimal */
+            factor: string;
+            /** Format: decimal */
+            price: string;
         };
         Price: {
             price_type: number;
@@ -1222,14 +2227,12 @@ export interface components {
             /** Nomi */
             name: string;
             is_default?: boolean;
-            /** Format: int64 */
             sort?: number;
         };
         PriceTypeRequest: {
             /** Nomi */
             name: string;
             is_default?: boolean;
-            /** Format: int64 */
             sort?: number;
         };
         Product: {
@@ -1291,6 +2294,146 @@ export interface components {
             factor: string;
             barcode?: string | null;
         };
+        Purchase: {
+            readonly id: number;
+            readonly number: number;
+            kind?: components["schemas"]["PurchaseKindEnum"];
+            readonly status: components["schemas"]["PurchaseStatusEnum"];
+            supplier?: number | null;
+            readonly supplier_name: string | null;
+            warehouse: number;
+            readonly warehouse_name: string;
+            /** Format: date */
+            date?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            readonly rate: string | null;
+            /** Format: decimal */
+            extra_costs?: string;
+            /**
+             * Format: decimal
+             * @description Tovarlar summasi (hujjat valyutasida)
+             */
+            readonly subtotal: string;
+            /**
+             * Format: decimal
+             * @description Tovarlar + qo'shimcha xarajatlar, so'mda
+             */
+            readonly total_uzs: string;
+            note?: string;
+            lines?: components["schemas"]["PurchaseLine"][];
+            readonly line_count: number;
+            readonly created_by_name: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly posted_at: string | null;
+        };
+        /**
+         * @description * `purchase` - Kirim
+         *     * `opening` - Boshlang'ich qoldiq
+         * @enum {string}
+         */
+        PurchaseKindEnum: "purchase" | "opening";
+        PurchaseLine: {
+            readonly id: number;
+            product: number;
+            readonly product_name: string;
+            unit: number;
+            readonly unit_short: string;
+            /** Format: decimal */
+            qty: string;
+            /** Format: decimal */
+            price: string;
+            /** Format: decimal */
+            readonly factor: string;
+            /** Format: decimal */
+            readonly base_qty: string;
+            /** Format: decimal */
+            readonly total: string;
+            /** Format: decimal */
+            readonly unit_cost: string | null;
+        };
+        PurchaseLineRequest: {
+            product: number;
+            unit: number;
+            /** Format: decimal */
+            qty: string;
+            /** Format: decimal */
+            price: string;
+        };
+        PurchaseRequest: {
+            kind?: components["schemas"]["PurchaseKindEnum"];
+            supplier?: number | null;
+            warehouse: number;
+            /** Format: date */
+            date?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            extra_costs?: string;
+            note?: string;
+            lines?: components["schemas"]["PurchaseLineRequest"][];
+        };
+        /**
+         * @description * `draft` - Qoralama
+         *     * `posted` - O'tkazilgan
+         *     * `cancelled` - Bekor qilingan
+         * @enum {string}
+         */
+        PurchaseStatusEnum: "draft" | "posted" | "cancelled";
+        Receivable: {
+            readonly id: number;
+            sale: number;
+            readonly sale_number: number;
+            /** Format: date */
+            readonly sale_date: string;
+            /** Format: decimal */
+            amount?: string;
+            /** Format: decimal */
+            paid?: string;
+            /** Format: decimal */
+            readonly remaining: string;
+            /** Format: date */
+            due_date: string;
+            status?: components["schemas"]["ReceivableStatusEnum"];
+            readonly is_overdue: boolean;
+        };
+        /**
+         * @description * `open` - Ochiq
+         *     * `closed` - Yopilgan
+         *     * `cancelled` - Bekor qilingan
+         * @enum {string}
+         */
+        ReceivableStatusEnum: "open" | "closed" | "cancelled";
+        RecentSale: {
+            id: number;
+            number: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: decimal */
+            total: string;
+            customer: string | null;
+        };
+        Reminder: {
+            readonly id: number;
+            /** Matn */
+            text: string;
+            level?: components["schemas"]["LevelEnum"];
+            /** Format: date */
+            due_date?: string | null;
+            is_done?: boolean;
+            readonly created_by_name: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ReminderRequest: {
+            /** Matn */
+            text: string;
+            level?: components["schemas"]["LevelEnum"];
+            /** Format: date */
+            due_date?: string | null;
+            is_done?: boolean;
+        };
         Role: {
             readonly id: number;
             name: string;
@@ -1320,12 +2463,137 @@ export interface components {
              */
             max_discount_percent?: string;
         };
+        Sale: {
+            readonly id: number;
+            number: number;
+            /** Format: date */
+            date?: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            status?: components["schemas"]["SaleStatusEnum"];
+            warehouse: number;
+            readonly warehouse_name: string;
+            cashier: number;
+            readonly cashier_name: string;
+            customer?: number | null;
+            readonly customer_name: string | null;
+            readonly customer_phone: string | null;
+            /** Format: decimal */
+            subtotal?: string;
+            /** Format: decimal */
+            discount_total?: string;
+            /** Format: decimal */
+            total?: string;
+            /** Format: decimal */
+            cost_total?: string;
+            readonly profit: string;
+            note?: string;
+            readonly lines: components["schemas"]["SaleLine"][];
+            readonly payments: components["schemas"]["SalePayment"][];
+            /** Format: date-time */
+            cancelled_at?: string | null;
+            cancel_reason?: string;
+        };
+        SaleCreateRequest: {
+            /** Format: uuid */
+            client_uuid?: string | null;
+            warehouse: number;
+            customer?: number | null;
+            items: components["schemas"]["SaleItemInRequest"][];
+            payments: components["schemas"]["PaymentInRequest"][];
+            /** Format: date */
+            due_date?: string | null;
+            note?: string;
+        };
+        SaleItemInRequest: {
+            product: number;
+            unit?: number;
+            /** Format: decimal */
+            qty: string;
+            /** Format: decimal */
+            price?: string | null;
+        };
+        SaleLine: {
+            readonly id: number;
+            product: number;
+            readonly product_name: string;
+            unit: number;
+            readonly unit_short: string;
+            /** Format: decimal */
+            qty: string;
+            /** Format: decimal */
+            list_price?: string;
+            /** Format: decimal */
+            price?: string;
+            /** Format: decimal */
+            discount?: string;
+            /** Format: decimal */
+            total?: string;
+            /** Format: decimal */
+            cost_total?: string;
+        };
+        SalePayment: {
+            method: components["schemas"]["SalePaymentMethodEnum"];
+            /** Format: decimal */
+            amount?: string;
+        };
+        /**
+         * @description * `cash` - Naqd
+         *     * `card` - Plastik karta
+         *     * `transfer` - O'tkazma
+         *     * `credit` - Nasiya
+         * @enum {string}
+         */
+        SalePaymentMethodEnum: "cash" | "card" | "transfer" | "credit";
+        /**
+         * @description * `posted` - O'tkazilgan
+         *     * `cancelled` - Bekor qilingan
+         * @enum {string}
+         */
+        SaleStatusEnum: "posted" | "cancelled";
+        SalesSummary: {
+            count: number;
+            /** Format: decimal */
+            total: string;
+            /** Format: decimal */
+            discount: string;
+            /** Format: decimal */
+            profit: string | null;
+            by_method: {
+                [key: string]: string;
+            };
+        };
         /**
          * @description * `cbu` - Markaziy bank
          *     * `manual` - Qo'lda
          * @enum {string}
          */
         SourceEnum: "cbu" | "manual";
+        Statement: {
+            supplier: string;
+            currency: string;
+            /** Format: decimal */
+            opening: string;
+            rows: components["schemas"]["StatementRow"][];
+            /** Format: decimal */
+            debit_total: string;
+            /** Format: decimal */
+            credit_total: string;
+            /** Format: decimal */
+            closing: string;
+        };
+        StatementRow: {
+            /** Format: date */
+            date: string;
+            kind: string;
+            ref: string;
+            /** Format: decimal */
+            debit: string;
+            /** Format: decimal */
+            credit: string;
+            /** Format: decimal */
+            balance: string;
+        };
         /** @description ``cost.view`` ruxsati bo'lmasa tannarx maydonlari javobdan olib tashlanadi. */
         StockBalance: {
             readonly id: number;
@@ -1369,6 +2637,46 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        Supplier: {
+            readonly id: number;
+            /** Nomi */
+            name: string;
+            phone?: string;
+            inn?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            note?: string;
+            is_archived?: boolean;
+            readonly balance: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        SupplierPayment: {
+            readonly id: number;
+            /** Format: decimal */
+            amount: string;
+            /** Format: date */
+            date?: string;
+            note?: string;
+            readonly is_cancelled: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        SupplierPaymentRequest: {
+            /** Format: decimal */
+            amount: string;
+            /** Format: date */
+            date?: string;
+            note?: string;
+        };
+        SupplierRequest: {
+            /** Nomi */
+            name: string;
+            phone?: string;
+            inn?: string;
+            currency?: components["schemas"]["CurrencyEnum"];
+            note?: string;
+            is_archived?: boolean;
+        };
         Tenant: {
             readonly id: number;
             /** Nomi */
@@ -1402,6 +2710,14 @@ export interface components {
          * @enum {string}
          */
         ThemeEnum: "system" | "light" | "dark";
+        TopProduct: {
+            product_id: number;
+            name: string;
+            /** Format: decimal */
+            qty: string;
+            /** Format: decimal */
+            revenue: string;
+        };
         Unit: {
             readonly id: number;
             /** Nomi */
@@ -2869,6 +4185,406 @@ export interface operations {
             };
         };
     };
+    v1_dataio_products_export_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+        };
+    };
+    v1_dataio_products_import_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ImportRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResult"];
+                };
+            };
+        };
+    };
+    v1_dataio_products_template_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+        };
+    };
+    v1_dataio_sales_export_retrieve: {
+        parameters: {
+            query?: {
+                date_from?: string;
+                date_to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+        };
+    };
+    v1_finance_expense_categories_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"][];
+                };
+            };
+        };
+    };
+    v1_finance_expense_categories_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseCategoryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseCategoryRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseCategoryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"];
+                };
+            };
+        };
+    };
+    v1_finance_expense_categories_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense category. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"];
+                };
+            };
+        };
+    };
+    v1_finance_expense_categories_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense category. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseCategoryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseCategoryRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseCategoryRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"];
+                };
+            };
+        };
+    };
+    v1_finance_expense_categories_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense category. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_finance_expense_categories_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense category. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedExpenseCategoryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedExpenseCategoryRequest"];
+                "multipart/form-data": components["schemas"]["PatchedExpenseCategoryRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"];
+                };
+            };
+        };
+    };
+    v1_finance_expenses_list: {
+        parameters: {
+            query?: {
+                branch?: number;
+                category?: number;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedExpenseList"];
+                };
+            };
+        };
+    };
+    v1_finance_expenses_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+        };
+    };
+    v1_finance_expenses_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+        };
+    };
+    v1_finance_expenses_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+        };
+    };
+    v1_finance_expenses_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_finance_expenses_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this expense. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedExpenseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedExpenseRequest"];
+                "multipart/form-data": components["schemas"]["PatchedExpenseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+        };
+    };
+    v1_finance_expenses_total_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseTotal"];
+                };
+            };
+        };
+    };
     v1_inventory_balances_list: {
         parameters: {
             query?: {
@@ -3097,6 +4813,983 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Warehouse"];
+                };
+            };
+        };
+    };
+    v1_notes_reminders_list: {
+        parameters: {
+            query?: {
+                is_done?: boolean;
+                /**
+                 * @description * `normal` - Oddiy
+                 *     * `important` - Muhim
+                 *     * `urgent` - Shoshilinch
+                 */
+                level?: "important" | "normal" | "urgent";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reminder"][];
+                };
+            };
+        };
+    };
+    v1_notes_reminders_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReminderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReminderRequest"];
+                "multipart/form-data": components["schemas"]["ReminderRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reminder"];
+                };
+            };
+        };
+    };
+    v1_notes_reminders_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this reminder. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reminder"];
+                };
+            };
+        };
+    };
+    v1_notes_reminders_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this reminder. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReminderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReminderRequest"];
+                "multipart/form-data": components["schemas"]["ReminderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reminder"];
+                };
+            };
+        };
+    };
+    v1_notes_reminders_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this reminder. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_notes_reminders_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this reminder. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedReminderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedReminderRequest"];
+                "multipart/form-data": components["schemas"]["PatchedReminderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Reminder"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `purchase` - Kirim
+                 *     * `opening` - Boshlang'ich qoldiq
+                 */
+                kind?: "opening" | "purchase";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /**
+                 * @description * `draft` - Qoralama
+                 *     * `posted` - O'tkazilgan
+                 *     * `cancelled` - Bekor qilingan
+                 */
+                status?: "cancelled" | "draft" | "posted";
+                supplier?: number;
+                warehouse?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPurchaseList"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PurchaseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PurchaseRequest"];
+                "multipart/form-data": components["schemas"]["PurchaseRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Purchase"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this purchase. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Purchase"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this purchase. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PurchaseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PurchaseRequest"];
+                "multipart/form-data": components["schemas"]["PurchaseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Purchase"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this purchase. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_purchasing_purchases_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this purchase. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPurchaseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPurchaseRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPurchaseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Purchase"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this purchase. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Purchase"];
+                };
+            };
+        };
+    };
+    v1_purchasing_purchases_post_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this purchase. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Purchase"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `UZS` - So'm
+                 *     * `USD` - AQSh dollari
+                 */
+                currency?: "USD" | "UZS";
+                is_archived?: boolean;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSupplierList"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupplierRequest"];
+                "multipart/form-data": components["schemas"]["SupplierRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Supplier"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this supplier. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Supplier"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this supplier. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupplierRequest"];
+                "multipart/form-data": components["schemas"]["SupplierRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Supplier"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this supplier. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSupplierRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSupplierRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSupplierRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Supplier"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_payments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this supplier. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierPayment"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_payments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this supplier. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupplierPaymentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupplierPaymentRequest"];
+                "multipart/form-data": components["schemas"]["SupplierPaymentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierPayment"];
+                };
+            };
+        };
+    };
+    v1_purchasing_suppliers_statement_retrieve: {
+        parameters: {
+            query?: {
+                date_from?: string;
+                date_to?: string;
+            };
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this supplier. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Statement"];
+                };
+            };
+        };
+    };
+    v1_reports_dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_list: {
+        parameters: {
+            query?: {
+                is_archived?: boolean;
+                /**
+                 * @description * `person` - Jismoniy shaxs
+                 *     * `master` - Usta / pudratchi
+                 *     * `company` - Yuridik shaxs
+                 */
+                kind?: "company" | "master" | "person";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCustomerList"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CustomerRequest"];
+                "multipart/form-data": components["schemas"]["CustomerRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Customer"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this customer. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Customer"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this customer. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CustomerRequest"];
+                "multipart/form-data": components["schemas"]["CustomerRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Customer"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this customer. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedCustomerRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedCustomerRequest"];
+                "multipart/form-data": components["schemas"]["PatchedCustomerRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Customer"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_payments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this customer. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerPayment"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_payments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this customer. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerPaymentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CustomerPaymentRequest"];
+                "multipart/form-data": components["schemas"]["CustomerPaymentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerPayment"];
+                };
+            };
+        };
+    };
+    v1_sales_customers_receivables_list: {
+        parameters: {
+            query?: {
+                is_archived?: boolean;
+                /**
+                 * @description * `person` - Jismoniy shaxs
+                 *     * `master` - Usta / pudratchi
+                 *     * `company` - Yuridik shaxs
+                 */
+                kind?: "company" | "master" | "person";
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this customer. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedReceivableList"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_list: {
+        parameters: {
+            query?: {
+                cashier?: number;
+                customer?: number;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /**
+                 * @description * `posted` - O'tkazilgan
+                 *     * `cancelled` - Bekor qilingan
+                 */
+                status?: "cancelled" | "posted";
+                warehouse?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSaleList"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaleCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SaleCreateRequest"];
+                "multipart/form-data": components["schemas"]["SaleCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sale"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this sale. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sale"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this sale. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CancelRequest"];
+                "multipart/form-data": components["schemas"]["CancelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sale"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_pos_catalog_list: {
+        parameters: {
+            query: {
+                cashier?: number;
+                customer?: number;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                search?: string;
+                /**
+                 * @description * `posted` - O'tkazilgan
+                 *     * `cancelled` - Bekor qilingan
+                 */
+                status?: "cancelled" | "posted";
+                warehouse: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPosProductList"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_summary_retrieve: {
+        parameters: {
+            query?: {
+                date_from?: string;
+                date_to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalesSummary"];
                 };
             };
         };

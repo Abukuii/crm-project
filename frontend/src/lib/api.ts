@@ -107,3 +107,28 @@ export async function api<T>(path: string, opts: RequestOptions = {}, retry = tr
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
+
+/** Fayl yuklash (multipart). */
+export async function apiUpload<T>(path: string, form: FormData, retry = true): Promise<T> {
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  const res = await fetch(`${BASE}${path}`, { method: "POST", body: form, headers, credentials: "include" });
+  if (res.status === 401 && retry && (await refreshAccess())) return apiUpload<T>(path, form, false);
+  if (!res.ok) throw await parseError(res);
+  return (await res.json()) as T;
+}
+
+/** Faylni (Excel) yuklab olish. */
+export async function apiDownload(path: string, filename: string, query?: Query, retry = true): Promise<void> {
+  const headers: Record<string, string> = {};
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  const res = await fetch(buildUrl(path, query), { headers, credentials: "include" });
+  if (res.status === 401 && retry && (await refreshAccess())) return apiDownload(path, filename, query, false);
+  if (!res.ok) throw await parseError(res);
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}

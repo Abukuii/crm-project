@@ -1,29 +1,281 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Package, Search } from "lucide-react";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Download, FileSpreadsheet, Package, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import type { PaginatedProducts } from "@/api/types";
-import { Badge, Button, Card, EmptyState, Input, Skeleton } from "@/components/ui";
+import type { ImportResult, PaginatedProducts, Product } from "@/api/types";
+import { Modal } from "@/components/overlay";
+import { Badge, Button, Card, EmptyState, Input, PageHeader, Pager, Select, Skeleton, Table, Td, Textarea, Th } from "@/components/ui";
 import { useDebounced } from "@/hooks/useDebounced";
-import { api } from "@/lib/api";
+import { api, apiDownload, apiUpload } from "@/lib/api";
 import { formatMoney } from "@/lib/format";
+import { useCategories, usePriceTypes, useUnits, useWarehouses } from "@/lib/queries";
+import { useAuth } from "@/stores/auth";
+import { toast } from "@/stores/toast";
 
 const PAGE_SIZE = 50;
 
+interface FormState {
+  id?: number;
+  name: string;
+  sku: string;
+  category: number | null;
+  base_unit: number | null;
+  price_currency: "UZS" | "USD";
+  min_stock: string;
+  mxik_code: string;
+  description: string;
+  barcodes: string;
+  units: { unit: number; factor: string; barcode: string }[];
+  prices: Record<number, string>;
+}
+
+function toForm(p?: Product): FormState {
+  return {
+    id: p?.id,
+    name: p?.name ?? "",
+    sku: p?.sku ?? "",
+    category: p?.category ?? null,
+    base_unit: p?.base_unit ?? null,
+    price_currency: (p?.price_currency as "UZS" | "USD") ?? "UZS",
+    min_stock: p?.min_stock ?? "0",
+    mxik_code: p?.mxik_code ?? "",
+    description: p?.description ?? "",
+    barcodes: (p?.barcodes ?? []).join(", "),
+    units: (p?.units ?? []).map((u) => ({ unit: u.unit, factor: u.factor, barcode: u.barcode ?? "" })),
+    prices: Object.fromEntries((p?.prices ?? []).map((x) => [x.price_type, x.amount])),
+  };
+}
+
+function ProductForm({ product, onClose }: { product?: Product; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { can } = useAuth();
+  const units = useUnits();
+  const categories = useCategories();
+  const priceTypes = usePriceTypes();
+  const [f, setF] = useState<FormState>(() => toForm(product));
+  const set = (patch: Partial<FormState>) => setF({ ...f, ...patch });
+
+  const save = useMutation({
+    mutationFn: () => {
+      const body: Record<string, unknown> = {
+        name: f.name, sku: f.sku, category: f.category, base_unit: f.base_unit, price_currency: f.price_currency,
+        min_stock: f.min_stock || "0", mxik_code: f.mxik_code, description: f.description,
+        barcodes: f.barcodes.split(/[,\s]+/).map((s) => s.trim()).filter(Boolean),
+        units: f.units.filter((u) => u.unit && Number(u.factor) > 0).map((u) => ({ ...u, barcode: u.barcode || null })),
+      };
+      if (can("price.edit")) {
+        body.prices = Object.entries(f.prices)
+          .filter(([, v]) => v !== "" && v !== undefined)
+          .map(([k, v]) => ({ price_type: Number(k), amount: v }));
+      }
+      return f.id
+        ? api<Product>(`/catalog/products/${f.id}/`, { method: "PATCH", body })
+        : api<Product>("/catalog/products/", { method: "POST", body });
+    },
+    onSuccess: () => {
+      toast.success("Mahsulot saqlandi");
+      void qc.invalidateQueries({ queryKey: ["products"] });
+      void qc.invalidateQueries({ queryKey: ["categories"] });
+      onClose();
+    },
+    onError: toast.error,
+  });
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      title={f.id ? "Mahsulotni tahrirlash" : "Yangi mahsulot"}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>Bekor</Button>
+          <Button loading={save.isPending} disabled={!f.name.trim() || !f.base_unit} onClick={() => save.mutate()}>Saqlash</Button>
+        </>
+      }
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="sm:col-span-2"><Input label="Nomi" value={f.name} onChange={(e) => set({ name: e.target.value })} autoFocus /></div>
+        <Input label="Artikul (bo'sh — avtomatik)" value={f.sku} onChange={(e) => set({ sku: e.target.value })} />
+        <Select label="Kategoriya" value={f.category ?? ""} onChange={(e) => set({ category: e.target.value ? Number(e.target.value) : null })}>
+          <option value="">—</option>
+          {categories.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </Select>
+        <Select label="Asosiy birlik" value={f.base_unit ?? ""} onChange={(e) => set({ base_unit: Number(e.target.value) })}>
+          <option value="" disabled>Tanlang</option>
+          {units.data?.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.short})</option>)}
+        </Select>
+        <Select label="Narx valyutasi" value={f.price_currency} onChange={(e) => set({ price_currency: e.target.value as "UZS" | "USD" })}>
+          <option value="UZS">So'm</option>
+          <option value="USD">Dollar</option>
+        </Select>
+        <Input label="Minimal qoldiq" type="number" min={0} value={f.min_stock} onChange={(e) => set({ min_stock: e.target.value })} />
+        <Input label="MXIK (IKPU) kodi" value={f.mxik_code} onChange={(e) => set({ mxik_code: e.target.value })} />
+        <div className="sm:col-span-2"><Input label="Shtrix-kodlar (vergul bilan)" value={f.barcodes} onChange={(e) => set({ barcodes: e.target.value })} /></div>
+      </div>
+
+      {can("price.edit") && (
+        <div className="mt-5">
+          <h3 className="mb-2 text-sm font-semibold">Narxlar ({f.price_currency === "USD" ? "dollar" : "so'm"}, 1 asosiy birlik)</h3>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {priceTypes.data?.map((pt) => (
+              <Input key={pt.id} label={pt.name} type="number" min={0} step="any" value={f.prices[pt.id] ?? ""}
+                onChange={(e) => set({ prices: { ...f.prices, [pt.id]: e.target.value } })} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-sm font-semibold">Qo'shimcha birliklar</h3>
+          <Button variant="ghost" size="sm" onClick={() => set({ units: [...f.units, { unit: 0, factor: "", barcode: "" }] })}>
+            <Plus className="h-4 w-4" /> Birlik
+          </Button>
+        </div>
+        {f.units.length === 0 && <p className="text-xs text-muted">Masalan: 1 pachka = 10 dona, 1 rulon = 100 m</p>}
+        <div className="space-y-2">
+          {f.units.map((u, i) => (
+            <div key={i} className="grid grid-cols-[1fr_110px_1fr_auto] items-end gap-2">
+              <Select aria-label="Birlik" value={u.unit || ""} onChange={(e) => set({ units: f.units.map((x, j) => (j === i ? { ...x, unit: Number(e.target.value) } : x)) })}>
+                <option value="" disabled>Birlik</option>
+                {units.data?.filter((x) => x.id !== f.base_unit).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+              </Select>
+              <Input aria-label="Koeffitsient" placeholder="= nechta" type="number" value={u.factor} onChange={(e) => set({ units: f.units.map((x, j) => (j === i ? { ...x, factor: e.target.value } : x)) })} />
+              <Input aria-label="Shtrix-kod" placeholder="Shtrix-kod" value={u.barcode} onChange={(e) => set({ units: f.units.map((x, j) => (j === i ? { ...x, barcode: e.target.value } : x)) })} />
+              <Button variant="ghost" size="icon" onClick={() => set({ units: f.units.filter((_, j) => j !== i) })} aria-label="O'chirish"><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="mt-5"><Textarea label="Tavsif" value={f.description} onChange={(e) => set({ description: e.target.value })} /></div>
+    </Modal>
+  );
+}
+
+function ImportModal({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const warehouses = useWarehouses();
+  const [file, setFile] = useState<File | null>(null);
+  const [warehouse, setWarehouse] = useState<string>("");
+  const [preview, setPreview] = useState<ImportResult | null>(null);
+
+  const run = useMutation({
+    mutationFn: (dryRun: boolean) => {
+      const form = new FormData();
+      form.append("file", file!);
+      form.append("dry_run", String(dryRun));
+      if (warehouse) form.append("warehouse", warehouse);
+      return apiUpload<ImportResult>("/dataio/products/import/", form);
+    },
+    onSuccess: (res) => {
+      if (res.dry_run) {
+        setPreview(res);
+        return;
+      }
+      toast.success(`Import tugadi: ${res.created} ta yangi, ${res.updated} ta yangilandi`);
+      void qc.invalidateQueries({ queryKey: ["products"] });
+      void qc.invalidateQueries({ queryKey: ["balances"] });
+      onClose();
+    },
+    onError: toast.error,
+  });
+
+  const errors = preview?.rows.filter((r) => r.errors.length) ?? [];
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      title="Excel'dan import"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>Yopish</Button>
+          {!preview ? (
+            <Button disabled={!file} loading={run.isPending} onClick={() => run.mutate(true)}>Tekshirish</Button>
+          ) : (
+            <Button disabled={errors.length > 0} loading={run.isPending} onClick={() => run.mutate(false)}>
+              Import qilish ({preview.total})
+            </Button>
+          )}
+        </>
+      }
+    >
+      <ol className="space-y-4 text-sm">
+        <li className="flex items-center justify-between gap-3 rounded-xl bg-surface-2 p-3">
+          <span><b>1.</b> Shablonni yuklab oling va to'ldiring</span>
+          <Button variant="secondary" size="sm" onClick={() => apiDownload("/dataio/products/template/", "mahsulotlar_shablon.xlsx").catch(toast.error)}>
+            <FileSpreadsheet className="h-4 w-4" /> Shablon
+          </Button>
+        </li>
+        <li className="space-y-2 rounded-xl bg-surface-2 p-3">
+          <p><b>2.</b> Faylni tanlang (.xlsx)</p>
+          <input
+            type="file"
+            accept=".xlsx"
+            onChange={(e) => (setFile(e.target.files?.[0] ?? null), setPreview(null))}
+            className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-on-brand"
+          />
+          {(warehouses.data?.length ?? 0) > 1 && (
+            <Select label="Boshlang'ich qoldiq qaysi omborga" value={warehouse} onChange={(e) => setWarehouse(e.target.value)}>
+              <option value="">Asosiy</option>
+              {warehouses.data!.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
+            </Select>
+          )}
+        </li>
+      </ol>
+      {preview && (
+        <div className="anim-slide-up mt-4 space-y-3">
+          <div className="flex gap-2">
+            <Badge tone="brand">Jami: {preview.total}</Badge>
+            <Badge tone="success">Yangi: {preview.rows.filter((r) => r.action === "create").length}</Badge>
+            <Badge>Yangilanadi: {preview.rows.filter((r) => r.action === "update").length}</Badge>
+            {errors.length > 0 && <Badge tone="danger">Xato: {errors.length}</Badge>}
+          </div>
+          {errors.length > 0 ? (
+            <div className="max-h-64 overflow-auto rounded-xl border border-danger/40">
+              <Table head={<tr><Th>Qator</Th><Th>Nomi</Th><Th>Xato</Th></tr>}>
+                {errors.map((r) => (
+                  <tr key={r.line}>
+                    <Td className="num">{r.line}</Td>
+                    <Td>{r.name || "—"}</Td>
+                    <Td className="text-danger">{r.errors.join("; ")}</Td>
+                  </tr>
+                ))}
+              </Table>
+            </div>
+          ) : (
+            <p className="rounded-lg bg-success/10 px-3 py-2 text-success">Xato topilmadi — import qilishga tayyor.</p>
+          )}
+        </div>
+      )}
+    </Modal>
+  );
+}
+
 export function ProductsPage() {
+  const { can } = useAuth();
+  const qc = useQueryClient();
   const [params, setParams] = useSearchParams();
   const search = params.get("search") ?? "";
   const page = Number(params.get("page") ?? "1");
   const debounced = useDebounced(search);
+  const [editing, setEditing] = useState<Product | "new" | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: ["products", { search: debounced, page }],
     queryFn: ({ signal }) =>
-      api<PaginatedProducts>("/catalog/products/", {
-        query: { search: debounced, page, page_size: PAGE_SIZE, is_archived: false },
-        signal,
-      }),
+      api<PaginatedProducts>("/catalog/products/", { query: { search: debounced, page, page_size: PAGE_SIZE, is_archived: false }, signal }),
     placeholderData: keepPreviousData,
+  });
+
+  const archive = useMutation({
+    mutationFn: (p: Product) => api(`/catalog/products/${p.id}/`, { method: "DELETE" }),
+    onSuccess: () => (toast.success("Mahsulot arxivlandi"), void qc.invalidateQueries({ queryKey: ["products"] })),
+    onError: toast.error,
   });
 
   const update = (next: Record<string, string | null>) => {
@@ -32,88 +284,82 @@ export function ProductsPage() {
     setParams(p, { replace: true });
   };
 
-  const pages = data ? Math.max(1, Math.ceil(data.count / PAGE_SIZE)) : 1;
-
   return (
     <div className="mx-auto max-w-7xl space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Mahsulotlar</h1>
-          <p className="text-sm text-muted">{data ? `${data.count} ta mahsulot` : " "}</p>
-        </div>
-        <div className="w-full sm:w-80">
-          <Input
-            placeholder="Nomi, artikul yoki shtrix-kod…"
-            icon={<Search className="h-4 w-4" />}
-            value={search}
-            onChange={(e) => update({ search: e.target.value || null, page: null })}
-            aria-label="Mahsulot qidirish"
-          />
-        </div>
+      <PageHeader
+        title="Mahsulotlar"
+        subtitle={data ? `${data.count} ta mahsulot` : " "}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => apiDownload("/dataio/products/export/", "mahsulotlar.xlsx").catch(toast.error)}>
+              <Download className="h-4 w-4" /> Excel
+            </Button>
+            {can("catalog.manage") && (
+              <>
+                <Button variant="secondary" onClick={() => setImporting(true)}><Upload className="h-4 w-4" /> Import</Button>
+                <Button onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Mahsulot</Button>
+              </>
+            )}
+          </>
+        }
+      />
+      <div className="w-full sm:w-96">
+        <Input
+          placeholder="Nomi, artikul yoki shtrix-kod…"
+          icon={<Search className="h-4 w-4" />}
+          value={search}
+          onChange={(e) => update({ search: e.target.value || null, page: null })}
+          aria-label="Mahsulot qidirish"
+        />
       </div>
 
       <Card className="overflow-hidden">
         {isLoading ? (
-          <div className="space-y-2 p-4">
-            {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-10" />)}
-          </div>
+          <div className="space-y-2 p-4">{Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-10" />)}</div>
         ) : isError ? (
-          <EmptyState icon={<Package className="h-6 w-6" />} title="Ma'lumotni yuklab bo'lmadi" hint="Internet aloqasini tekshiring" />
+          <EmptyState icon={<Package className="h-6 w-6" />} title="Ma'lumotni yuklab bo'lmadi" />
         ) : !data?.results.length ? (
           <EmptyState
             icon={<Package className="h-6 w-6" />}
             title={search ? "Hech narsa topilmadi" : "Hali mahsulot yo'q"}
-            hint={search ? "Boshqa so'z bilan qidirib ko'ring (kirill va lotin farqi yo'q)" : "Mahsulot qo'shish va Excel import keyingi bosqichda"}
+            hint={search ? "Kirill va lotin farqi yo'q — boshqa so'z bilan qidiring" : "Mahsulot qo'shing yoki Excel'dan import qiling"}
           />
         ) : (
           <div className={isFetching ? "opacity-60 transition-opacity" : undefined}>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="border-b border-border bg-surface-2 text-left text-xs uppercase tracking-wide text-muted">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Nomi</th>
-                    <th className="px-4 py-3 font-medium">Artikul</th>
-                    <th className="px-4 py-3 font-medium">Kategoriya</th>
-                    <th className="px-4 py-3 font-medium">Birlik</th>
-                    <th className="px-4 py-3 text-right font-medium">Narx</th>
+            <Table head={<tr><Th>Nomi</Th><Th>Artikul</Th><Th>Kategoriya</Th><Th>Birlik</Th><Th right>Narx</Th><Th /></tr>}>
+              {data.results.map((p) => {
+                const price = p.prices?.[0];
+                return (
+                  <tr key={p.id} className="hover:bg-surface-2/60">
+                    <Td className="font-medium">{p.name}</Td>
+                    <Td className="text-muted num">{p.sku}</Td>
+                    <Td>{p.category_name ?? <span className="text-muted">—</span>}</Td>
+                    <Td>
+                      <Badge>{p.base_unit_short}</Badge>{" "}
+                      {p.units?.map((u) => <Badge key={u.unit} tone="brand">{u.unit_short}={Number(u.factor)}</Badge>)}
+                    </Td>
+                    <Td right>{price ? formatMoney(price.amount, p.price_currency) : <span className="text-muted">—</span>}</Td>
+                    <Td>
+                      {can("catalog.manage") && (
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setEditing(p)} aria-label="Tahrirlash"><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" aria-label="Arxivlash"
+                            onClick={() => window.confirm(`'${p.name}' arxivlansinmi? Tarix saqlanadi.`) && archive.mutate(p)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </Td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {data.results.map((p) => {
-                    const price = p.prices?.[0];
-                    return (
-                      <tr key={p.id} className="hover:bg-surface-2/60">
-                        <td className="px-4 py-3 font-medium">{p.name}</td>
-                        <td className="px-4 py-3 text-muted num">{p.sku}</td>
-                        <td className="px-4 py-3">{p.category_name ?? <span className="text-muted">—</span>}</td>
-                        <td className="px-4 py-3">
-                          <Badge>{p.base_unit_short}</Badge>
-                        </td>
-                        <td className="px-4 py-3 text-right num">
-                          {price ? formatMoney(price.amount, p.price_currency) : <span className="text-muted">—</span>}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            {pages > 1 && (
-              <div className="flex items-center justify-between border-t border-border px-4 py-3 text-sm">
-                <span className="text-muted">{page} / {pages}</span>
-                <div className="flex gap-2">
-                  <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => update({ page: String(page - 1) })} aria-label="Oldingi sahifa">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => update({ page: String(page + 1) })} aria-label="Keyingi sahifa">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
+                );
+              })}
+            </Table>
+            <Pager page={page} count={data.count} size={PAGE_SIZE} onPage={(p) => update({ page: String(p) })} />
           </div>
         )}
       </Card>
+      {editing && <ProductForm product={editing === "new" ? undefined : editing} onClose={() => setEditing(null)} />}
+      {importing && <ImportModal onClose={() => setImporting(false)} />}
     </div>
   );
 }
