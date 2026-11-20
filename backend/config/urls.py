@@ -11,6 +11,12 @@ api_v1 = [
     path("currency/", include("apps.currency.urls")),
     path("inventory/", include("apps.inventory.urls")),
     path("tenancy/", include("apps.tenancy.urls")),
+    path("purchasing/", include("apps.purchasing.urls")),
+    path("sales/", include("apps.sales.urls")),
+    path("finance/", include("apps.finance.urls")),
+    path("notes/", include("apps.reminders.views")),
+    path("reports/", include("apps.reports.views")),
+    path("dataio/", include("apps.dataio.urls")),
 ]
 
 urlpatterns = [

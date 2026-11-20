@@ -27,7 +27,10 @@ ZERO = Decimal("0")
 class MoveLine:
     product_id: int
     qty: Decimal  # asosiy birlikda; + kirim, − chiqim
-    unit_cost: Decimal | None = None  # kirim uchun majburiy (so'mda)
+    # Kirimda — majburiy tannarx (so'mda).
+    # Chiqimda — odatda berilmaydi (o'rtacha tannarx olinadi). Berilsa — bu kirimni bekor qilish
+    # (storno): tovar aynan shu tannarx bilan chiqariladi va o'rtacha tannarx qayta tiklanadi.
+    unit_cost: Decimal | None = None
 
 
 def _check_products(tenant, product_ids: set[int]) -> dict[int, Product]:
@@ -122,8 +125,15 @@ def post_moves(
                     }
                 )
                 continue
-            balance.qty = balance.qty + qty
-            unit_cost = balance.avg_cost
+            new_qty = balance.qty + qty
+            if line.unit_cost is not None:  # storno: aniq tannarx bilan qaytarish
+                unit_cost = q_price(line.unit_cost)
+                if new_qty > ZERO:
+                    restored = (balance.qty * balance.avg_cost + qty * unit_cost) / new_qty
+                    balance.avg_cost = q_price(max(restored, ZERO))
+            else:
+                unit_cost = balance.avg_cost
+            balance.qty = new_qty
 
         moves.append(
             StockMove(

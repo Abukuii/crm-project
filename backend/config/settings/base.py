@@ -38,6 +38,13 @@ INSTALLED_APPS = [
     "apps.catalog",
     "apps.currency",
     "apps.inventory",
+    "apps.purchasing",
+    "apps.sales",
+    "apps.finance",
+    "apps.reminders",
+    "apps.notifications",
+    "apps.reports",
+    "apps.dataio",
 ]
 
 MIDDLEWARE = [
@@ -145,12 +152,16 @@ JWT_REFRESH_COOKIE = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Qurilish CRM API",
+    "TITLE": "Savdo API",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAuthenticated"],
     "COMPONENT_SPLIT_REQUEST": True,
-    "ENUM_NAME_OVERRIDES": {"CurrencyEnum": "apps.core.money.CURRENCY_CHOICES"},
+    "ENUM_NAME_OVERRIDES": {
+        "CurrencyEnum": "apps.core.money.CURRENCY_CHOICES",
+        "SalePaymentMethodEnum": "apps.sales.models.SalePayment.METHOD_CHOICES",
+        "DebtPaymentMethodEnum": "apps.sales.models.CustomerPayment.METHOD_CHOICES",
+    },
 }
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
@@ -180,6 +191,10 @@ CACHES = {
 # ── Tashqi xizmatlar ────────────────────────────────────────────────────────
 CBU_RATES_URL = env("CBU_RATES_URL", default="https://cbu.uz/uz/arkhiv-kursov-valyut/json/")
 CBU_CURRENCIES = env.list("CBU_CURRENCIES", default=["USD", "EUR", "RUB"])
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+# Excel import cheklovlari
+IMPORT_MAX_ROWS = env.int("IMPORT_MAX_ROWS", default=5000)
+IMPORT_MAX_BYTES = env.int("IMPORT_MAX_BYTES", default=5 * 1024 * 1024)
 
 LOGGING = {
     "version": 1,

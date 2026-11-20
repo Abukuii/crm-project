@@ -1,7 +1,9 @@
 import pytest
 from django.conf import settings
 
+from apps.accounts.apps import sync_system_roles
 from apps.accounts.models import Role
+from apps.accounts.perms import DEFAULT_ROLES
 
 COOKIE = settings.JWT_REFRESH_COOKIE["name"]
 pytestmark = pytest.mark.django_db
@@ -108,9 +110,8 @@ class TestUsersAndRoles:
         )
         assert response.status_code == 201, response.json()
         me = api_login_me("ali")
-        assert me["permissions"] == sorted(
-            ["catalog.view", "inventory.view", "sales.create", "customers.view"]
-        )
+        kassir_spec = next(r for r in DEFAULT_ROLES if r["name"] == "Kassir")
+        assert me["permissions"] == sorted(kassir_spec["permissions"])
         assert me["branch_ids"] == [setup.branch.pk]
 
     def test_cashier_cannot_manage_users(self, api, make_user):
@@ -165,3 +166,13 @@ def api_login_me(username):
     )
     assert response.status_code == 200, response.json()
     return response.json()["user"]
+
+
+def test_sync_system_roles_updates_outdated_permissions(tenant):
+    role = Role.objects.get(tenant=tenant, name="Kassir")
+    role.permissions = ["catalog.view"]
+    role.save()
+    assert sync_system_roles() == 1
+    role.refresh_from_db()
+    assert "debts.collect" in role.permissions
+    assert sync_system_roles() == 0

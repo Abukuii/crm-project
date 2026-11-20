@@ -10,6 +10,9 @@ SETTING_DEFAULTS: dict = {
     "low_stock_threshold": "10",
     # "cbu" — Markaziy bank kursi, "manual" — do'konning o'z kursi
     "rate_source": "cbu",
+    # Telegram: savdo xabarlari yuboriladigan guruh/kanal ID'si
+    "telegram_chat_id": "",
+    "telegram_notify_sales": True,
 }
 
 

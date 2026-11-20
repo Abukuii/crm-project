@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "D:/crm-project/backend/.venv/Scripts/python.exe",
+      "runtimeArgs": ["D:/crm-project/backend/manage.py", "runserver", "127.0.0.1:8000"],
+      "port": 8000
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "D:/crm-project/frontend", "run", "dev"],
+      "port": 5173
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Qurilish CRM API
+  title: Savdo API
   version: 2.0.0
 paths:
   /api/health/:
@@ -1640,6 +1640,451 @@ paths:
               schema:
                 $ref: '#/components/schemas/CurrentRate'
           description: ''
+  /api/v1/dataio/products/export/:
+    get:
+      operationId: v1_dataio_products_export_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/v1/dataio/products/import/:
+    post:
+      operationId: v1_dataio_products_import_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResult'
+          description: ''
+  /api/v1/dataio/products/template/:
+    get:
+      operationId: v1_dataio_products_template_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/v1/dataio/sales/export/:
+    get:
+      operationId: v1_dataio_sales_export_retrieve
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/v1/finance/expense-categories/:
+    get:
+      operationId: v1_finance_expense_categories_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+    post:
+      operationId: v1_finance_expense_categories_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+  /api/v1/finance/expense-categories/{id}/:
+    get:
+      operationId: v1_finance_expense_categories_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense category.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+    put:
+      operationId: v1_finance_expense_categories_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense category.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+    patch:
+      operationId: v1_finance_expense_categories_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense category.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+    delete:
+      operationId: v1_finance_expense_categories_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense category.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/finance/expenses/:
+    get:
+      operationId: v1_finance_expenses_list
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      parameters:
+      - in: query
+        name: branch
+        schema:
+          type: integer
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpenseList'
+          description: ''
+    post:
+      operationId: v1_finance_expenses_create
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+  /api/v1/finance/expenses/{id}/:
+    get:
+      operationId: v1_finance_expenses_retrieve
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+    put:
+      operationId: v1_finance_expenses_update
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+    patch:
+      operationId: v1_finance_expenses_partial_update
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+    delete:
+      operationId: v1_finance_expenses_destroy
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this expense.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/finance/expenses/total/:
+    get:
+      operationId: v1_finance_expenses_total_retrieve
+      description: Xarajatlar (eski "Xarajatlar" sahifasi).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseTotal'
+          description: ''
   /api/v1/inventory/balances/:
     get:
       operationId: v1_inventory_balances_list
@@ -1932,6 +2377,1253 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Warehouse'
+          description: ''
+  /api/v1/notes/reminders/:
+    get:
+      operationId: v1_notes_reminders_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: query
+        name: is_done
+        schema:
+          type: boolean
+      - in: query
+        name: level
+        schema:
+          type: string
+          enum:
+          - important
+          - normal
+          - urgent
+        description: |-
+          * `normal` - Oddiy
+          * `important` - Muhim
+          * `urgent` - Shoshilinch
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reminder'
+          description: ''
+    post:
+      operationId: v1_notes_reminders_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+  /api/v1/notes/reminders/{id}/:
+    get:
+      operationId: v1_notes_reminders_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reminder.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+    put:
+      operationId: v1_notes_reminders_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reminder.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+    patch:
+      operationId: v1_notes_reminders_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reminder.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReminderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReminderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReminderRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+    delete:
+      operationId: v1_notes_reminders_destroy
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reminder.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/purchasing/purchases/:
+    get:
+      operationId: v1_purchasing_purchases_list
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - opening
+          - purchase
+        description: |-
+          * `purchase` - Kirim
+          * `opening` - Boshlang'ich qoldiq
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - draft
+          - posted
+        description: |-
+          * `draft` - Qoralama
+          * `posted` - O'tkazilgan
+          * `cancelled` - Bekor qilingan
+      - in: query
+        name: supplier
+        schema:
+          type: integer
+      - in: query
+        name: warehouse
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPurchaseList'
+          description: ''
+    post:
+      operationId: v1_purchasing_purchases_create
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+          description: ''
+  /api/v1/purchasing/purchases/{id}/:
+    get:
+      operationId: v1_purchasing_purchases_retrieve
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this purchase.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+          description: ''
+    put:
+      operationId: v1_purchasing_purchases_update
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this purchase.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+          description: ''
+    patch:
+      operationId: v1_purchasing_purchases_partial_update
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this purchase.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPurchaseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPurchaseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPurchaseRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+          description: ''
+    delete:
+      operationId: v1_purchasing_purchases_destroy
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this purchase.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/purchasing/purchases/{id}/cancel/:
+    post:
+      operationId: v1_purchasing_purchases_cancel_create
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this purchase.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+          description: ''
+  /api/v1/purchasing/purchases/{id}/post/:
+    post:
+      operationId: v1_purchasing_purchases_post_create
+      description: Kirim hujjatlari. DELETE — faqat qoralama uchun.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this purchase.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Purchase'
+          description: ''
+  /api/v1/purchasing/suppliers/:
+    get:
+      operationId: v1_purchasing_suppliers_list
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: query
+        name: currency
+        schema:
+          type: string
+          enum:
+          - USD
+          - UZS
+        description: |-
+          * `UZS` - So'm
+          * `USD` - AQSh dollari
+      - in: query
+        name: is_archived
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSupplierList'
+          description: ''
+    post:
+      operationId: v1_purchasing_suppliers_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupplierRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupplierRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+          description: ''
+  /api/v1/purchasing/suppliers/{id}/:
+    get:
+      operationId: v1_purchasing_suppliers_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this supplier.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+          description: ''
+    put:
+      operationId: v1_purchasing_suppliers_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this supplier.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupplierRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupplierRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+          description: ''
+    patch:
+      operationId: v1_purchasing_suppliers_partial_update
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this supplier.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSupplierRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSupplierRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSupplierRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+          description: ''
+  /api/v1/purchasing/suppliers/{id}/payments/:
+    get:
+      operationId: v1_purchasing_suppliers_payments_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this supplier.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierPayment'
+          description: ''
+    post:
+      operationId: v1_purchasing_suppliers_payments_create
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this supplier.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierPaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupplierPaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupplierPaymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierPayment'
+          description: ''
+  /api/v1/purchasing/suppliers/{id}/statement/:
+    get:
+      operationId: v1_purchasing_suppliers_statement_retrieve
+      description: |-
+        Barcha tenant ma'lumotlari uchun asosiy mixin.
+
+        * queryset faqat joriy foydalanuvchi tenant'i bo'yicha;
+        * yangi yozuvga tenant avtomatik qo'yiladi;
+        * ``read_perm`` / ``write_perm`` / ``action_perms`` orqali ruxsatlar.
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this supplier.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statement'
+          description: ''
+  /api/v1/reports/dashboard/:
+    get:
+      operationId: v1_reports_dashboard_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+          description: ''
+  /api/v1/sales/customers/:
+    get:
+      operationId: v1_sales_customers_list
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: query
+        name: is_archived
+        schema:
+          type: boolean
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - company
+          - master
+          - person
+        description: |-
+          * `person` - Jismoniy shaxs
+          * `master` - Usta / pudratchi
+          * `company` - Yuridik shaxs
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCustomerList'
+          description: ''
+    post:
+      operationId: v1_sales_customers_create
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+  /api/v1/sales/customers/{id}/:
+    get:
+      operationId: v1_sales_customers_retrieve
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    put:
+      operationId: v1_sales_customers_update
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+    patch:
+      operationId: v1_sales_customers_partial_update
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCustomerRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: ''
+  /api/v1/sales/customers/{id}/payments/:
+    get:
+      operationId: v1_sales_customers_payments_retrieve
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPayment'
+          description: ''
+    post:
+      operationId: v1_sales_customers_payments_create
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerPaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomerPaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomerPaymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerPayment'
+          description: ''
+  /api/v1/sales/customers/{id}/receivables/:
+    get:
+      operationId: v1_sales_customers_receivables_list
+      description: Mijozlar. ``?has_debt=true`` — qarzdorlar ro'yxati (eski "Qarzdorlar"
+        sahifasi).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this customer.
+        required: true
+      - in: query
+        name: is_archived
+        schema:
+          type: boolean
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - company
+          - master
+          - person
+        description: |-
+          * `person` - Jismoniy shaxs
+          * `master` - Usta / pudratchi
+          * `company` - Yuridik shaxs
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReceivableList'
+          description: ''
+  /api/v1/sales/sales/:
+    get:
+      operationId: v1_sales_sales_list
+      description: 'Savdolar: kassa (POST), tarix (GET), bekor qilish, yig''indi va
+        kassa katalogi.'
+      parameters:
+      - in: query
+        name: cashier
+        schema:
+          type: integer
+      - in: query
+        name: customer
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - posted
+        description: |-
+          * `posted` - O'tkazilgan
+          * `cancelled` - Bekor qilingan
+      - in: query
+        name: warehouse
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSaleList'
+          description: ''
+    post:
+      operationId: v1_sales_sales_create
+      description: 'Savdolar: kassa (POST), tarix (GET), bekor qilish, yig''indi va
+        kassa katalogi.'
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaleCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SaleCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SaleCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
+  /api/v1/sales/sales/{id}/:
+    get:
+      operationId: v1_sales_sales_retrieve
+      description: 'Savdolar: kassa (POST), tarix (GET), bekor qilish, yig''indi va
+        kassa katalogi.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sale.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
+  /api/v1/sales/sales/{id}/cancel/:
+    post:
+      operationId: v1_sales_sales_cancel_create
+      description: 'Savdolar: kassa (POST), tarix (GET), bekor qilish, yig''indi va
+        kassa katalogi.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sale.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
+  /api/v1/sales/sales/pos-catalog/:
+    get:
+      operationId: v1_sales_sales_pos_catalog_list
+      description: 'Kassa uchun: mahsulot + qoldiq + so''mdagi narx (barcha birliklarda).'
+      parameters:
+      - in: query
+        name: cashier
+        schema:
+          type: integer
+      - in: query
+        name: customer
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - posted
+        description: |-
+          * `posted` - O'tkazilgan
+          * `cancelled` - Bekor qilingan
+      - in: query
+        name: warehouse
+        schema:
+          type: integer
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPosProductList'
+          description: ''
+  /api/v1/sales/sales/summary/:
+    get:
+      operationId: v1_sales_sales_summary_retrieve
+      description: 'Savdolar: kassa (POST), tarix (GET), bekor qilish, yig''indi va
+        kassa katalogi.'
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesSummary'
           description: ''
   /api/v1/tenancy/branches/:
     get:
@@ -2261,6 +3953,12 @@ components:
           maxLength: 150
       required:
       - name
+    CancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 300
     Category:
       type: object
       properties:
@@ -2276,9 +3974,8 @@ components:
           nullable: true
         sort:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
       required:
       - id
       - name
@@ -2295,16 +3992,18 @@ components:
           nullable: true
         sort:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
       required:
       - name
     CurrencyEnum:
       enum:
+      - UZS
       - USD
       type: string
-      description: '* `USD` - USD'
+      description: |-
+        * `UZS` - So'm
+        * `USD` - AQSh dollari
     CurrentRate:
       type: object
       properties:
@@ -2324,6 +4023,249 @@ components:
       - date
       - rate
       - source
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: F.I.Sh. / nomi
+          maxLength: 200
+        phone:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 300
+        kind:
+          $ref: '#/components/schemas/CustomerKindEnum'
+        inn:
+          type: string
+          maxLength: 20
+        price_type:
+          type: integer
+          nullable: true
+        credit_limit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        payment_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Nasiya muddati (kun)
+        note:
+          type: string
+        is_archived:
+          type: boolean
+        debt:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        overdue_debt:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - debt
+      - id
+      - name
+      - overdue_debt
+    CustomerKindEnum:
+      enum:
+      - person
+      - master
+      - company
+      type: string
+      description: |-
+        * `person` - Jismoniy shaxs
+        * `master` - Usta / pudratchi
+        * `company` - Yuridik shaxs
+    CustomerPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        method:
+          $ref: '#/components/schemas/DebtPaymentMethodEnum'
+        date:
+          type: string
+          format: date
+          readOnly: true
+        note:
+          type: string
+          maxLength: 300
+        created_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - created_by_name
+      - date
+      - id
+    CustomerPaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        method:
+          $ref: '#/components/schemas/DebtPaymentMethodEnum'
+        note:
+          type: string
+          maxLength: 300
+        receivable:
+          type: integer
+          writeOnly: true
+          nullable: true
+      required:
+      - amount
+    CustomerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: F.I.Sh. / nomi
+          maxLength: 200
+        phone:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 300
+        kind:
+          $ref: '#/components/schemas/CustomerKindEnum'
+        inn:
+          type: string
+          maxLength: 20
+        price_type:
+          type: integer
+          nullable: true
+        credit_limit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        payment_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Nasiya muddati (kun)
+        note:
+          type: string
+        is_archived:
+          type: boolean
+      required:
+      - name
+    Dashboard:
+      type: object
+      properties:
+        today:
+          $ref: '#/components/schemas/Period'
+        yesterday:
+          $ref: '#/components/schemas/Period'
+        month:
+          $ref: '#/components/schemas/Period'
+        prev_month:
+          $ref: '#/components/schemas/Period'
+        week:
+          type: array
+          items:
+            $ref: '#/components/schemas/DayRevenue'
+        today_by_method:
+          type: object
+          additionalProperties:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        top_products:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopProduct'
+        debt:
+          $ref: '#/components/schemas/Debt'
+        low_stock_count:
+          type: integer
+        recent_sales:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecentSale'
+      required:
+      - debt
+      - low_stock_count
+      - month
+      - prev_month
+      - recent_sales
+      - today
+      - today_by_method
+      - top_products
+      - week
+      - yesterday
+    DayRevenue:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        revenue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - date
+      - revenue
+    Debt:
+      type: object
+      properties:
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        overdue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        debtors:
+          type: integer
+      required:
+      - debtors
+      - overdue
+      - total
+    DebtPaymentMethodEnum:
+      enum:
+      - cash
+      - card
+      - transfer
+      type: string
+      description: |-
+        * `cash` - Naqd
+        * `card` - Plastik karta
+        * `transfer` - O'tkazma
     ExchangeRate:
       type: object
       properties:
@@ -2362,6 +4304,108 @@ components:
       - rate
       - source
       - updated_at
+    Expense:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Xarajat nomi
+          maxLength: 200
+        category:
+          type: integer
+        category_name:
+          type: string
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+        branch:
+          type: integer
+          nullable: true
+        note:
+          type: string
+        created_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - category
+      - category_name
+      - created_at
+      - created_by_name
+      - id
+      - name
+    ExpenseCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - name
+    ExpenseCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - name
+    ExpenseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Xarajat nomi
+          maxLength: 200
+        category:
+          type: integer
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+        branch:
+          type: integer
+          nullable: true
+        note:
+          type: string
+      required:
+      - amount
+      - category
+      - name
+    ExpenseTotal:
+      type: object
+      properties:
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        count:
+          type: integer
+      required:
+      - count
+      - total
     Health:
       type: object
       properties:
@@ -2372,6 +4416,64 @@ components:
       required:
       - db
       - status
+    ImportRequestRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        warehouse:
+          type: integer
+        dry_run:
+          type: boolean
+      required:
+      - file
+    ImportResult:
+      type: object
+      properties:
+        dry_run:
+          type: boolean
+        total:
+          type: integer
+        errors:
+          type: integer
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportRow'
+        created:
+          type: integer
+        updated:
+          type: integer
+        opening_document:
+          type: integer
+          nullable: true
+      required:
+      - dry_run
+      - errors
+      - rows
+      - total
+    ImportRow:
+      type: object
+      properties:
+        line:
+          type: integer
+        name:
+          type: string
+        sku:
+          type: string
+        action:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+      required:
+      - action
+      - errors
+      - line
+      - name
+      - sku
     LanguageEnum:
       enum:
       - uz
@@ -2380,6 +4482,16 @@ components:
       description: |-
         * `uz` - O'zbekcha
         * `ru` - Русский
+    LevelEnum:
+      enum:
+      - normal
+      - important
+      - urgent
+      type: string
+      description: |-
+        * `normal` - Oddiy
+        * `important` - Muhim
+        * `urgent` - Shoshilinch
     LoginRequestRequest:
       type: object
       properties:
@@ -2393,12 +4505,17 @@ components:
       required:
       - password
       - username
+    ManualRateCurrencyEnum:
+      enum:
+      - USD
+      type: string
+      description: '* `USD` - USD'
     ManualRateRequest:
       type: object
       properties:
         currency:
           allOf:
-          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/ManualRateCurrencyEnum'
           default: USD
         rate:
           type: string
@@ -2494,6 +4611,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Branch'
+    PaginatedCustomerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
     PaginatedExchangeRateList:
       type: object
       required:
@@ -2517,6 +4657,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ExchangeRate'
+    PaginatedExpenseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+    PaginatedPosProductList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PosProduct'
     PaginatedProductList:
       type: object
       required:
@@ -2540,6 +4726,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Product'
+    PaginatedPurchaseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Purchase'
+    PaginatedReceivableList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Receivable'
     PaginatedRoleList:
       type: object
       required:
@@ -2563,6 +4795,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Role'
+    PaginatedSaleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sale'
     PaginatedStockBalanceList:
       type: object
       required:
@@ -2609,6 +4864,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StockMove'
+    PaginatedSupplierList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Supplier'
     PaginatedUserList:
       type: object
       required:
@@ -2669,9 +4947,73 @@ components:
           nullable: true
         sort:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
+    PatchedCustomerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: F.I.Sh. / nomi
+          maxLength: 200
+        phone:
+          type: string
+          maxLength: 32
+        address:
+          type: string
+          maxLength: 300
+        kind:
+          $ref: '#/components/schemas/CustomerKindEnum'
+        inn:
+          type: string
+          maxLength: 20
+        price_type:
+          type: integer
+          nullable: true
+        credit_limit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        payment_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Nasiya muddati (kun)
+        note:
+          type: string
+        is_archived:
+          type: boolean
+    PatchedExpenseCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+    PatchedExpenseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Xarajat nomi
+          maxLength: 200
+        category:
+          type: integer
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+        branch:
+          type: integer
+          nullable: true
+        note:
+          type: string
     PatchedMeRequest:
       type: object
       properties:
@@ -2700,9 +5042,8 @@ components:
           type: boolean
         sort:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
     PatchedProductRequest:
       type: object
       properties:
@@ -2750,6 +5091,47 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PriceRequest'
+    PatchedPurchaseRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/PurchaseKindEnum'
+        supplier:
+          type: integer
+          nullable: true
+        warehouse:
+          type: integer
+        date:
+          type: string
+          format: date
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        extra_costs:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        note:
+          type: string
+          maxLength: 300
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseLineRequest'
+    PatchedReminderRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          title: Matn
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        is_done:
+          type: boolean
     PatchedRoleRequest:
       type: object
       properties:
@@ -2763,6 +5145,26 @@ components:
           format: decimal
           pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
           title: Maksimal chegirma (%)
+    PatchedSupplierRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 200
+        phone:
+          type: string
+          maxLength: 32
+        inn:
+          type: string
+          maxLength: 20
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        note:
+          type: string
+        is_archived:
+          type: boolean
     PatchedTenantRequest:
       type: object
       properties:
@@ -2849,6 +5251,53 @@ components:
           type: integer
         is_active:
           type: boolean
+    PaymentInRequest:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/SalePaymentMethodEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - amount
+      - method
+    Period:
+      type: object
+      properties:
+        sales_count:
+          type: integer
+        revenue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        avg_check:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        expenses:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        gross_profit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        net_profit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - avg_check
+      - discount
+      - expenses
+      - revenue
+      - sales_count
     PermissionItem:
       type: object
       properties:
@@ -2884,6 +5333,61 @@ components:
       - full_name
       - id
       - username
+    PosProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sku:
+          type: string
+        barcodes:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          nullable: true
+        allow_fraction:
+          type: boolean
+        stock:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/PosUnit'
+      required:
+      - allow_fraction
+      - barcodes
+      - category
+      - id
+      - name
+      - sku
+      - stock
+      - units
+    PosUnit:
+      type: object
+      properties:
+        unit:
+          type: integer
+        unit_short:
+          type: string
+        factor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - factor
+      - price
+      - unit
+      - unit_short
     Price:
       type: object
       properties:
@@ -2926,9 +5430,8 @@ components:
           type: boolean
         sort:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
       required:
       - id
       - name
@@ -2944,9 +5447,8 @@ components:
           type: boolean
         sort:
           type: integer
-          maximum: 9223372036854775807
+          maximum: 2147483647
           minimum: 0
-          format: int64
       required:
       - name
     Product:
@@ -3114,6 +5616,344 @@ components:
       required:
       - factor
       - unit
+    Purchase:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/PurchaseKindEnum'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PurchaseStatusEnum'
+          readOnly: true
+        supplier:
+          type: integer
+          nullable: true
+        supplier_name:
+          type: string
+          readOnly: true
+          nullable: true
+        warehouse:
+          type: integer
+        warehouse_name:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+          readOnly: true
+          nullable: true
+        extra_costs:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          readOnly: true
+          description: Tovarlar summasi (hujjat valyutasida)
+        total_uzs:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          readOnly: true
+          description: Tovarlar + qo'shimcha xarajatlar, so'mda
+        note:
+          type: string
+          maxLength: 300
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseLine'
+        line_count:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        posted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - created_at
+      - created_by_name
+      - id
+      - line_count
+      - number
+      - posted_at
+      - rate
+      - status
+      - subtotal
+      - supplier_name
+      - total_uzs
+      - warehouse
+      - warehouse_name
+    PurchaseKindEnum:
+      enum:
+      - purchase
+      - opening
+      type: string
+      description: |-
+        * `purchase` - Kirim
+        * `opening` - Boshlang'ich qoldiq
+    PurchaseLine:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+        product_name:
+          type: string
+          readOnly: true
+        unit:
+          type: integer
+        unit_short:
+          type: string
+          readOnly: true
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+        factor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+          readOnly: true
+        base_qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+          readOnly: true
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          readOnly: true
+        unit_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+          readOnly: true
+          nullable: true
+      required:
+      - base_qty
+      - factor
+      - id
+      - price
+      - product
+      - product_name
+      - qty
+      - total
+      - unit
+      - unit_cost
+      - unit_short
+    PurchaseLineRequest:
+      type: object
+      properties:
+        product:
+          type: integer
+        unit:
+          type: integer
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,14}(?:\.\d{0,4})?$
+      required:
+      - price
+      - product
+      - qty
+      - unit
+    PurchaseRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/PurchaseKindEnum'
+        supplier:
+          type: integer
+          nullable: true
+        warehouse:
+          type: integer
+        date:
+          type: string
+          format: date
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        extra_costs:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        note:
+          type: string
+          maxLength: 300
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PurchaseLineRequest'
+      required:
+      - warehouse
+    PurchaseStatusEnum:
+      enum:
+      - draft
+      - posted
+      - cancelled
+      type: string
+      description: |-
+        * `draft` - Qoralama
+        * `posted` - O'tkazilgan
+        * `cancelled` - Bekor qilingan
+    Receivable:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        sale:
+          type: integer
+        sale_number:
+          type: integer
+          readOnly: true
+        sale_date:
+          type: string
+          format: date
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        paid:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        remaining:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          readOnly: true
+        due_date:
+          type: string
+          format: date
+        status:
+          $ref: '#/components/schemas/ReceivableStatusEnum'
+        is_overdue:
+          type: boolean
+          readOnly: true
+      required:
+      - due_date
+      - id
+      - is_overdue
+      - remaining
+      - sale
+      - sale_date
+      - sale_number
+    ReceivableStatusEnum:
+      enum:
+      - open
+      - closed
+      - cancelled
+      type: string
+      description: |-
+        * `open` - Ochiq
+        * `closed` - Yopilgan
+        * `cancelled` - Bekor qilingan
+    RecentSale:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        customer:
+          type: string
+          nullable: true
+      required:
+      - created_at
+      - customer
+      - id
+      - number
+      - total
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+          title: Matn
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        is_done:
+          type: boolean
+        created_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by_name
+      - id
+      - text
+    ReminderRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          title: Matn
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        is_done:
+          type: boolean
+      required:
+      - text
     Role:
       type: object
       properties:
@@ -3177,6 +6017,256 @@ components:
           title: Maksimal chegirma (%)
       required:
       - name
+    Sale:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        date:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/SaleStatusEnum'
+        warehouse:
+          type: integer
+        warehouse_name:
+          type: string
+          readOnly: true
+        cashier:
+          type: integer
+        cashier_name:
+          type: string
+          readOnly: true
+        customer:
+          type: integer
+          nullable: true
+        customer_name:
+          type: string
+          readOnly: true
+          nullable: true
+        customer_phone:
+          type: string
+          readOnly: true
+          nullable: true
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        discount_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        cost_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        profit:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          maxLength: 300
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleLine'
+          readOnly: true
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SalePayment'
+          readOnly: true
+        cancelled_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancel_reason:
+          type: string
+          maxLength: 300
+      required:
+      - cashier
+      - cashier_name
+      - created_at
+      - customer_name
+      - customer_phone
+      - id
+      - lines
+      - number
+      - payments
+      - profit
+      - warehouse
+      - warehouse_name
+    SaleCreateRequest:
+      type: object
+      properties:
+        client_uuid:
+          type: string
+          format: uuid
+          nullable: true
+        warehouse:
+          type: integer
+        customer:
+          type: integer
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleItemInRequest'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentInRequest'
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        note:
+          type: string
+          maxLength: 300
+      required:
+      - items
+      - payments
+      - warehouse
+    SaleItemInRequest:
+      type: object
+      properties:
+        product:
+          type: integer
+        unit:
+          type: integer
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+      required:
+      - product
+      - qty
+    SaleLine:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+        product_name:
+          type: string
+          readOnly: true
+        unit:
+          type: integer
+        unit_short:
+          type: string
+          readOnly: true
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        list_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        cost_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - id
+      - product
+      - product_name
+      - qty
+      - unit
+      - unit_short
+    SalePayment:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/SalePaymentMethodEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - method
+    SalePaymentMethodEnum:
+      enum:
+      - cash
+      - card
+      - transfer
+      - credit
+      type: string
+      description: |-
+        * `cash` - Naqd
+        * `card` - Plastik karta
+        * `transfer` - O'tkazma
+        * `credit` - Nasiya
+    SaleStatusEnum:
+      enum:
+      - posted
+      - cancelled
+      type: string
+      description: |-
+        * `posted` - O'tkazilgan
+        * `cancelled` - Bekor qilingan
+    SalesSummary:
+      type: object
+      properties:
+        count:
+          type: integer
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        profit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        by_method:
+          type: object
+          additionalProperties:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - by_method
+      - count
+      - discount
+      - profit
+      - total
     SourceEnum:
       enum:
       - cbu
@@ -3185,6 +6275,70 @@ components:
       description: |-
         * `cbu` - Markaziy bank
         * `manual` - Qo'lda
+    Statement:
+      type: object
+      properties:
+        supplier:
+          type: string
+        currency:
+          type: string
+        opening:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatementRow'
+        debit_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        credit_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        closing:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - closing
+      - credit_total
+      - currency
+      - debit_total
+      - opening
+      - rows
+      - supplier
+    StatementRow:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        kind:
+          type: string
+        ref:
+          type: string
+        debit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        credit:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - balance
+      - credit
+      - date
+      - debit
+      - kind
+      - ref
     StockBalance:
       type: object
       description: '``cost.view`` ruxsati bo''lmasa tannarx maydonlari javobdan olib
@@ -3309,6 +6463,106 @@ components:
       - unit_cost
       - warehouse
       - warehouse_name
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+          maxLength: 200
+        phone:
+          type: string
+          maxLength: 32
+        inn:
+          type: string
+          maxLength: 20
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        note:
+          type: string
+        is_archived:
+          type: boolean
+        balance:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - balance
+      - created_at
+      - id
+      - name
+    SupplierPayment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+          maxLength: 300
+        is_cancelled:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - id
+      - is_cancelled
+    SupplierPaymentRequest:
+      type: object
+      properties:
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+          maxLength: 300
+      required:
+      - amount
+    SupplierRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+          maxLength: 200
+        phone:
+          type: string
+          maxLength: 32
+        inn:
+          type: string
+          maxLength: 20
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        note:
+          type: string
+        is_archived:
+          type: boolean
+      required:
+      - name
     Tenant:
       type: object
       properties:
@@ -3387,6 +6641,26 @@ components:
         * `system` - Tizim
         * `light` - Yorug'
         * `dark` - Tun
+    TopProduct:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        name:
+          type: string
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+        revenue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - name
+      - product_id
+      - qty
+      - revenue
     Unit:
       type: object
       properties:

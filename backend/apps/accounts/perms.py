@@ -15,6 +15,9 @@ PERMISSIONS: dict[str, str] = {
     "sales.discount_over_limit": "Limitdan ortiq chegirma",
     "customers.view": "Mijozlarni ko'rish",
     "customers.manage": "Mijozlarni boshqarish",
+    "debts.collect": "Nasiya to'lovlarini qabul qilish",
+    "expenses.manage": "Xarajatlarni kiritish",
+    "reminders.manage": "Eslatmalar",
     "finance.view": "Moliyani ko'rish",
     "finance.manage": "Moliyaviy yozuvlar",
     "reports.view": "Hisobotlar",
@@ -30,13 +33,17 @@ DEFAULT_ROLES = [
         "permissions": [
             "catalog.view", "catalog.manage", "price.edit", "inventory.view",
             "inventory.manage", "inventory.audit", "sales.create", "sales.refund",
-            "sales.discount_over_limit", "customers.view", "customers.manage", "reports.view",
+            "sales.discount_over_limit", "customers.view", "customers.manage", "debts.collect",
+            "expenses.manage", "reminders.manage", "reports.view",
         ],
         "max_discount_percent": 15,
     },
     {
         "name": "Kassir",
-        "permissions": ["catalog.view", "inventory.view", "sales.create", "customers.view"],
+        "permissions": [
+            "catalog.view", "inventory.view", "sales.create", "customers.view",
+            "customers.manage", "debts.collect",
+        ],
         "max_discount_percent": 5,
     },
     {
@@ -48,7 +55,7 @@ DEFAULT_ROLES = [
         "name": "Buxgalter",
         "permissions": [
             "catalog.view", "cost.view", "inventory.view", "customers.view",
-            "finance.view", "finance.manage", "reports.view",
+            "finance.view", "finance.manage", "expenses.manage", "reports.view",
         ],
         "max_discount_percent": 0,
     },

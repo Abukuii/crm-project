@@ -56,6 +56,7 @@ def provision_tenant(
     from apps.accounts.models import Role, User
     from apps.accounts.perms import DEFAULT_ROLES
     from apps.catalog.models import PriceType, Unit
+    from apps.finance.models import DEFAULT_EXPENSE_CATEGORIES, ExpenseCategory
     from apps.inventory.models import Warehouse
 
     tenant = Tenant.objects.create(name=name, slug=_unique_slug(name), phone=phone)
@@ -81,6 +82,10 @@ def provision_tenant(
             PriceType(tenant=tenant, name=n, is_default=d, sort=i)
             for i, (n, d) in enumerate(DEFAULT_PRICE_TYPES)
         ]
+    )
+
+    ExpenseCategory.objects.bulk_create(
+        [ExpenseCategory(tenant=tenant, name=n) for n in DEFAULT_EXPENSE_CATEGORIES]
     )
 
     owner = User.objects.create_user(
