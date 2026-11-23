@@ -133,6 +133,21 @@ class TestSale:
             ("rulon", "1000000.00"),
         ]
 
+    def test_pos_catalog_finds_unit_by_scanned_barcode(self, owner_api, stock):
+        from apps.catalog.models import Barcode, ProductUnit
+
+        rulon = ProductUnit.objects.get(product=stock.cable)
+        Barcode.objects.create(tenant=stock.tenant, product=stock.cable, code="4780000000017")
+        Barcode.objects.create(tenant=stock.tenant, product=stock.cable, product_unit=rulon,
+                               code="4780000000024")  # fmt: skip
+        items = owner_api.get(f"{URL}pos-catalog/", {"warehouse": stock.wh.pk,
+                                                    "search": "4780000000024"}).json()  # fmt: skip
+        assert [i["name"] for i in items] == ["Kabel VVG"]
+        assert [(u["unit_short"], u["barcodes"]) for u in items[0]["units"]] == [
+            ("m", ["4780000000017"]),
+            ("rulon", ["4780000000024"]),
+        ]
+
 
 class TestCredit:
     def _credit_sale(self, api, stock, customer, qty="10", cash="0"):

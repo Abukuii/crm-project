@@ -163,6 +163,7 @@ class PosUnitSerializer(serializers.Serializer):
     unit_short = serializers.CharField()
     factor = serializers.DecimalField(max_digits=14, decimal_places=3)
     price = serializers.DecimalField(max_digits=18, decimal_places=2)
+    barcodes = serializers.ListField(child=serializers.CharField())  # shu birlik shtrix-kodlari
 
 
 class PosProductSerializer(serializers.Serializer):

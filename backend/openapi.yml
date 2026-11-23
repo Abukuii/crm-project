@@ -1714,6 +1714,40 @@ paths:
                 type: string
                 format: binary
           description: ''
+  /api/v1/dataio/stats/export/:
+    get:
+      operationId: v1_dataio_stats_export_retrieve
+      description: Umumiy statistika (savdo, foyda, mahsulotlar, kassirlar, xarajatlar,
+        qarzdorlar).
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - ru
+          - uz
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/v1/finance/expense-categories/:
     get:
       operationId: v1_finance_expense_categories_list
@@ -4478,10 +4512,12 @@ components:
       enum:
       - uz
       - ru
+      - en
       type: string
       description: |-
         * `uz` - O'zbekcha
         * `ru` - Русский
+        * `en` - English
     LevelEnum:
       enum:
       - normal
@@ -5383,7 +5419,12 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        barcodes:
+          type: array
+          items:
+            type: string
       required:
+      - barcodes
       - factor
       - price
       - unit

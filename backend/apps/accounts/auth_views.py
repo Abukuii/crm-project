@@ -1,6 +1,7 @@
 """Autentifikatsiya: access token javobda, refresh token httpOnly cookie'da."""
 
 from django.conf import settings
+from django.core.cache import cache
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import serializers, status
 from rest_framework.exceptions import AuthenticationFailed
@@ -8,8 +9,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenBackendError, TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.settings import api_settings as jwt_settings
+from rest_framework_simplejwt.state import token_backend
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.core import audit
@@ -48,6 +51,19 @@ def _set_refresh_cookie(response: Response, refresh: str) -> None:
 def _clear_refresh_cookie(response: Response) -> None:
     cfg = _cookie_cfg()
     response.delete_cookie(cfg["name"], path=cfg["path"], samesite=cfg["samesite"])
+
+
+def _refresh_payload(token: str) -> dict | None:
+    """Imzo va muddat tekshirilgan refresh token yuklamasi (qora ro'yxat tekshirilmaydi)."""
+    try:
+        payload = token_backend.decode(token, verify=True)
+    except TokenBackendError:
+        return None
+    return payload if payload.get(jwt_settings.TOKEN_TYPE_CLAIM) == "refresh" else None
+
+
+def _grace_key(jti: str) -> str:
+    return f"jwt-rotation-grace:{jti}"
 
 
 def _issue_tokens(user: User) -> tuple[str, str]:
@@ -96,10 +112,19 @@ class RefreshView(APIView):
                 code="no_refresh_token",
                 status_code=status.HTTP_401_UNAUTHORIZED,
             )
+        old = _refresh_payload(token)
         serializer = TokenRefreshSerializer(data={"refresh": token})
         try:
             serializer.is_valid(raise_exception=True)
         except (TokenError, InvalidToken, serializers.ValidationError):
+            # Rotatsiya poygasi: token yaqinda (grace oynasi ichida) almashtirilgan bo'lsa —
+            # ikkinchi vkladka yoki uzilgan javob uchun yangi juftlik beramiz.
+            granted = self._grace_refresh(old)
+            if granted is not None:
+                access, refresh = granted
+                response = Response({"access": access})
+                _set_refresh_cookie(response, refresh)
+                return response
             response = Response(
                 {
                     "error": {
@@ -112,10 +137,27 @@ class RefreshView(APIView):
             )
             _clear_refresh_cookie(response)
             return response
+        if old and "refresh" in serializer.validated_data:
+            cache.set(
+                _grace_key(old[jwt_settings.JTI_CLAIM]), 1, settings.JWT_ROTATION_GRACE_SECONDS
+            )
         response = Response({"access": serializer.validated_data["access"]})
         if "refresh" in serializer.validated_data:
             _set_refresh_cookie(response, serializer.validated_data["refresh"])
         return response
+
+    @staticmethod
+    def _grace_refresh(payload: dict | None) -> tuple[str, str] | None:
+        if not payload or not cache.get(_grace_key(payload.get(jwt_settings.JTI_CLAIM, ""))):
+            return None
+        user = (
+            User.objects.filter(pk=payload.get(jwt_settings.USER_ID_CLAIM), is_active=True)
+            .select_related("tenant")
+            .first()
+        )
+        if user is None or user.tenant is None or not user.tenant.is_active:
+            return None
+        return _issue_tokens(user)
 
 
 @extend_schema(request=None, responses={204: OpenApiResponse(description="Chiqildi")})
@@ -126,6 +168,9 @@ class LogoutView(APIView):
     def post(self, request):
         token = request.COOKIES.get(_cookie_cfg()["name"])
         if token:
+            payload = _refresh_payload(token)
+            if payload:
+                cache.delete(_grace_key(payload.get(jwt_settings.JTI_CLAIM, "")))
             try:
                 RefreshToken(token).blacklist()
             except TokenError:

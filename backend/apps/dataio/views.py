@@ -181,3 +181,37 @@ class SalesExportView(_Base):
         widths = [8, 18, 26, 16, 18, 14, 14, 12, 34, 14, 14]
         name = f"savdolar_{timezone.localdate():%Y%m%d}.xlsx"
         return xlsx_response(build_workbook("Savdolar", headers, rows, widths), name)
+
+
+@extend_schema(
+    parameters=[
+        OpenApiParameter("date_from", str),
+        OpenApiParameter("date_to", str),
+        OpenApiParameter("lang", str, enum=["uz", "ru", "en"]),
+    ],
+    responses={(200, XLSX): OpenApiTypes.BINARY},
+)
+class StatsExportView(_Base):
+    """Umumiy statistika (savdo, foyda, mahsulotlar, kassirlar, xarajatlar, qarzdorlar)."""
+
+    perm = "reports.view"
+
+    def get(self, request):
+        from datetime import date
+
+        from .stats_export import stats_workbook
+
+        params = request.query_params
+        today = timezone.localdate()
+        try:
+            date_from = date.fromisoformat(
+                params.get("date_from") or today.replace(day=1).isoformat()
+            )
+            date_to = date.fromisoformat(params.get("date_to") or today.isoformat())
+        except ValueError:
+            raise DomainError("Sana noto'g'ri", code="invalid_date") from None
+        if date_from > date_to or (date_to - date_from).days > 366:
+            raise DomainError("Davr 1 yildan oshmasin", code="invalid_period")
+        lang = params.get("lang") or request.user.language or "uz"
+        content = stats_workbook(request.user.tenant, request.user, date_from, date_to, lang)
+        return xlsx_response(content, f"statistika_{date_from:%Y%m%d}_{date_to:%Y%m%d}.xlsx")

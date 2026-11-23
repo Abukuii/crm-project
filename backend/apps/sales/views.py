@@ -260,11 +260,16 @@ class SaleViewSet(
         for p in products:
             if p.pk not in prices or (p.price_currency == USD and rate is None):
                 continue  # narxsiz tovar kassada ko'rinmaydi
+            codes: dict[int | None, list[str]] = {}
+            for b in p.barcodes.all():
+                codes.setdefault(b.product_unit_id, []).append(b.code)
             units = [{"unit": p.base_unit_id, "unit_short": p.base_unit.short, "factor": Decimal(1),
-                      "price": services.to_uzs_per_unit(prices[p.pk], p, Decimal(1), rate)}]  # fmt: skip
+                      "price": services.to_uzs_per_unit(prices[p.pk], p, Decimal(1), rate),
+                      "barcodes": codes.get(None, [])}]  # fmt: skip
             units += [
                 {"unit": pu.unit_id, "unit_short": pu.unit.short, "factor": pu.factor,
-                 "price": services.to_uzs_per_unit(prices[p.pk], p, pu.factor, rate)}
+                 "price": services.to_uzs_per_unit(prices[p.pk], p, pu.factor, rate),
+                 "barcodes": codes.get(pu.pk, [])}
                 for pu in p.units.all()
             ]  # fmt: skip
             result.append({

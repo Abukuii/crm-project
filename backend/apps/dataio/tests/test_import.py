@@ -114,3 +114,35 @@ def test_exports(owner_api, stock):
     assert ws.max_row == 3  # sarlavha + 2 mahsulot
     r = owner_api.get("/api/v1/dataio/sales/export/")
     assert r.status_code == 200
+
+
+@pytest.mark.parametrize(("lang", "sheet", "metric"), [
+    ("uz", "Umumiy", "Savdo summasi"), ("ru", "Сводка", "Сумма продаж"), ("en", "Summary", "Revenue"),
+])  # fmt: skip
+def test_stats_export_multisheet_and_lang(owner_api, stock, lang, sheet, metric):
+    from apps.sales.models import Customer
+
+    cust = Customer.objects.create(tenant=stock.tenant, name="Botir")
+    owner_api.post("/api/v1/sales/sales/", {
+        "warehouse": stock.wh.pk, "customer": cust.pk,
+        "items": [{"product": stock.cement.pk, "qty": "2"}],
+        "payments": [{"method": "cash", "amount": "16000"}, {"method": "credit", "amount": "100000"}],
+    }, format="json")  # fmt: skip
+    r = owner_api.get("/api/v1/dataio/stats/export/", {"lang": lang})
+    assert r.status_code == 200
+    wb = load_workbook(io.BytesIO(r.content))
+    assert wb.sheetnames[0] == sheet and len(wb.sheetnames) == 7
+    rows = {row[0]: row[1] for row in wb[sheet].iter_rows(values_only=True) if row and row[0]}
+    assert rows[metric] == 116000
+    debtors = list(wb.worksheets[6].iter_rows(values_only=True))
+    assert any(r and r[0] == "Botir" and r[2] == 100000 for r in debtors)
+
+
+def test_stats_export_hides_cost_and_requires_reports(api, make_user, stock):
+    assert api(make_user("Kassir")).get("/api/v1/dataio/stats/export/").status_code == 403
+    r = api(make_user("Menejer")).get("/api/v1/dataio/stats/export/")
+    rows = [
+        row[0]
+        for row in load_workbook(io.BytesIO(r.content)).worksheets[0].iter_rows(values_only=True)
+    ]
+    assert "Sof foyda" not in rows and "Savdo summasi" in rows

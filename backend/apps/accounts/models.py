@@ -29,7 +29,7 @@ class Role(TenantModel):
 
 
 class User(AbstractUser):
-    LANG_CHOICES = [("uz", "O'zbekcha"), ("ru", "Русский")]
+    LANG_CHOICES = [("uz", "O'zbekcha"), ("ru", "Русский"), ("en", "English")]
     THEME_CHOICES = [("system", "Tizim"), ("light", "Yorug'"), ("dark", "Tun")]
 
     # tenant=None — platforma administratori (faqat Django admin orqali ishlaydi)

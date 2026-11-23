@@ -47,6 +47,8 @@ class TestLogin:
 
 class TestRefreshLogout:
     def test_refresh_via_cookie_and_rotation(self, api, owner):
+        from django.core.cache import cache
+
         client = api()
         _login(client, owner.username)
         old = client.cookies[COOKIE].value
@@ -55,7 +57,12 @@ class TestRefreshLogout:
         assert response.json()["access"]
         assert client.cookies[COOKIE].value != old
 
-        # eski (aylantirilgan) token qayta ishlamaydi
+        # Grace oynasi: ikkinchi vkladka eski cookie bilan kelsa ham sessiya uzilmaydi
+        client.cookies[COOKIE] = old
+        assert client.post("/api/v1/auth/refresh/").status_code == 200
+
+        # Grace tugagach eski (aylantirilgan) token ishlamaydi
+        cache.clear()
         client.cookies[COOKIE] = old
         assert client.post("/api/v1/auth/refresh/").status_code == 401
 

@@ -2,6 +2,7 @@
 
 import io
 import re
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
@@ -40,25 +41,52 @@ def cell_text(value) -> str:
     return str(value).strip()
 
 
-def build_workbook(title: str, headers: list[str], rows: list[list], widths: list[int] | None = None,
-                   note: str | None = None) -> bytes:  # fmt: skip
-    wb = Workbook()
-    ws = wb.active
-    ws.title = title[:31]
-    ws.append(headers)
-    for i, _ in enumerate(headers, start=1):
-        c = ws.cell(row=1, column=i)
+@dataclass
+class Sheet:
+    title: str
+    headers: list[str]
+    rows: list[list]
+    widths: list[int] | None = None
+    # Jami qatori (qalin), masalan ["Jami", None, 1200, ...]
+    footer: list | None = None
+    notes: list[str] = field(default_factory=list)
+
+
+def _fill_sheet(ws, sheet: Sheet) -> None:
+    ws.title = sheet.title[:31]
+    start_row = 1
+    for note in sheet.notes:
+        ws.append([note])
+        ws.cell(row=start_row, column=1).font = Font(
+            bold=start_row == 1, size=13 if start_row == 1 else 11
+        )
+        start_row += 1
+    if sheet.notes:
+        ws.append([])
+        start_row += 1
+    ws.append(sheet.headers)
+    for i, _ in enumerate(sheet.headers, start=1):
+        c = ws.cell(row=start_row, column=i)
         c.font = Font(bold=True, color="FFFFFF")
         c.fill = PatternFill("solid", fgColor=BRAND)
         c.alignment = Alignment(vertical="center", wrap_text=True)
-    ws.row_dimensions[1].height = 30
-    ws.freeze_panes = "A2"
-    for row in rows:
+    ws.row_dimensions[start_row].height = 30
+    ws.freeze_panes = f"A{start_row + 1}"  # ws.cell() bo'sh qator yaratib qo'yardi
+    for row in sheet.rows:
         ws.append([float(v) if isinstance(v, Decimal) else v for v in row])
-    for i, h in enumerate(headers, start=1):
-        width = widths[i - 1] if widths and i <= len(widths) else max(12, min(40, len(h) + 4))
+    if sheet.footer:
+        ws.append([float(v) if isinstance(v, Decimal) else v for v in sheet.footer])
+        for c in ws[ws.max_row]:
+            c.font = Font(bold=True)
+            c.fill = PatternFill("solid", fgColor="FFEDD5")
+    for i, h in enumerate(sheet.headers, start=1):
+        width = (
+            sheet.widths[i - 1]
+            if sheet.widths and i <= len(sheet.widths)
+            else max(12, min(40, len(h) + 4))
+        )
         ws.column_dimensions[get_column_letter(i)].width = width
-    for row in ws.iter_rows(min_row=2):
+    for row in ws.iter_rows(min_row=start_row + 1):
         for c in row:
             if isinstance(c.value, datetime | date):
                 c.number_format = (
@@ -66,6 +94,28 @@ def build_workbook(title: str, headers: list[str], rows: list[list], widths: lis
                 )
             elif isinstance(c.value, float | int) and not isinstance(c.value, bool):
                 c.number_format = "#,##0.##"
+
+
+def build_sheets(sheets: list[Sheet]) -> bytes:
+    """Bir nechta varaqli Excel fayl."""
+    wb = Workbook()
+    for i, sheet in enumerate(sheets):
+        _fill_sheet(wb.active if i == 0 else wb.create_sheet(), sheet)
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+
+def build_workbook(
+    title: str,
+    headers: list[str],
+    rows: list[list],
+    widths: list[int] | None = None,
+    note: str | None = None,
+) -> bytes:
+    sheets = [Sheet(title, headers, rows, widths)]
+    wb = Workbook()
+    _fill_sheet(wb.active, sheets[0])
     if note:
         info = wb.create_sheet("Yo'riqnoma")
         for line in note.strip().splitlines():

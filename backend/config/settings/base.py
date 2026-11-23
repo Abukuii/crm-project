@@ -100,7 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = "uz"
-LANGUAGES = [("uz", "O'zbekcha"), ("ru", "Русский")]
+LANGUAGES = [("uz", "O'zbekcha"), ("ru", "Русский"), ("en", "English")]
 TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_TZ = True
@@ -144,6 +144,8 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 # Refresh token httpOnly cookie'da saqlanadi (XSS orqali o'g'irlab bo'lmaydi)
+# Rotatsiyadan keyin eski refresh token shuncha soniya ishlaydi (bir nechta vkladka / uzilgan javob)
+JWT_ROTATION_GRACE_SECONDS = env.int("JWT_ROTATION_GRACE_SECONDS", default=60)
 JWT_REFRESH_COOKIE = {
     "name": "crm_refresh",
     "path": "/api/v1/auth/",
