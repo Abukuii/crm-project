@@ -27,6 +27,7 @@ import { NavLink, Outlet } from "react-router-dom";
 
 import { t } from "@/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
+import { ContactInfo } from "@/components/ContactInfo";
 import { Toaster } from "@/components/overlay";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -183,6 +184,9 @@ export function AppLayout() {
         <main className="flex-1 p-4 md:p-6">
           <Outlet />
         </main>
+        <footer className="border-t border-border bg-surface px-4 py-3 print:hidden">
+          <ContactInfo />
+        </footer>
       </div>
       <Toaster />
     </div>

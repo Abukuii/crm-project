@@ -294,6 +294,7 @@ export const en: Record<string, string> = {
   "Tavsif": "Description",
   "Tekshirish": "Check",
   "Telefon": "Phone",
+  "Bog‘lanish uchun": "Contact",
   "Telegram xabarlar": "Telegram notifications",
   "Telegram xabarlari": "Telegram notifications",
   "Telegram: yangi savdo": "Telegram: new sale",

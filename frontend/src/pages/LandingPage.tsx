@@ -22,6 +22,7 @@ import { Navigate, useLocation } from "react-router-dom";
 
 import { t, weekdayShort } from "@/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
+import { ContactInfo } from "@/components/ContactInfo";
 import { Button, Input } from "@/components/ui";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -397,8 +398,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer className="relative z-10 border-t border-border/60 py-6 text-center text-xs text-muted">
-        © {new Date().getFullYear()} Savdo — {t("savdo va ombor boshqaruv tizimi")}
+      <footer className="relative z-10 space-y-2 border-t border-border/60 px-4 py-6 text-center text-xs text-muted">
+        <ContactInfo />
+        <p>© {new Date().getFullYear()} Savdo — {t("savdo va ombor boshqaruv tizimi")}</p>
       </footer>
     </div>
   );
