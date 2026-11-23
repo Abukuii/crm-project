@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Building2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { t } from "@/i18n";
 import type { Me, Tenant } from "@/api/types";
 import { Button, Card, Input, PageHeader, Select } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -28,7 +29,7 @@ export function SettingsPage() {
   const save = useMutation({
     mutationFn: () => api<Tenant>("/tenancy/current/", { method: "PATCH", body: { ...info, settings: s } }),
     onSuccess: () => {
-      toast.success("Sozlamalar saqlandi");
+      toast.success(t("Sozlamalar saqlandi"));
       void qc.invalidateQueries({ queryKey: ["tenant"] });
       void qc.invalidateQueries({ queryKey: ["rate"] });
     },
@@ -37,36 +38,36 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <PageHeader title="Sozlamalar" actions={<Button loading={save.isPending} onClick={() => save.mutate()}>Saqlash</Button>} />
+      <PageHeader title={t("Sozlamalar")} actions={<Button loading={save.isPending} onClick={() => save.mutate()}>{t("Saqlash")}</Button>} />
       <Card className="space-y-3 p-5">
-        <h2 className="flex items-center gap-2 font-semibold"><Building2 className="h-4 w-4 text-brand" /> Do'kon ma'lumotlari</h2>
+        <h2 className="flex items-center gap-2 font-semibold"><Building2 className="h-4 w-4 text-brand" /> {t("Do'kon ma'lumotlari")}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input label="Nomi (chekda ko'rinadi)" value={info.name} onChange={(e) => setInfo({ ...info, name: e.target.value })} />
-          <Input label="INN" value={info.inn} onChange={(e) => setInfo({ ...info, inn: e.target.value })} />
-          <Input label="Telefon" value={info.phone} onChange={(e) => setInfo({ ...info, phone: e.target.value })} />
-          <Input label="Manzil" value={info.address} onChange={(e) => setInfo({ ...info, address: e.target.value })} />
+          <Input label={t("Nomi (chekda ko'rinadi)")} value={info.name} onChange={(e) => setInfo({ ...info, name: e.target.value })} />
+          <Input label={t("INN")} value={info.inn} onChange={(e) => setInfo({ ...info, inn: e.target.value })} />
+          <Input label={t("Telefon")} value={info.phone} onChange={(e) => setInfo({ ...info, phone: e.target.value })} />
+          <Input label={t("Manzil")} value={info.address} onChange={(e) => setInfo({ ...info, address: e.target.value })} />
         </div>
       </Card>
       <Card className="space-y-3 p-5">
-        <h2 className="font-semibold">Savdo va ombor</h2>
+        <h2 className="font-semibold">{t("Savdo va ombor")}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Select label="Qoldiq yetmasa" value={s.negative_stock} onChange={(e) => setS({ ...s, negative_stock: e.target.value })}>
-            <option value="forbid">Sotishni taqiqlash (tavsiya)</option>
-            <option value="allow">Minusga sotishga ruxsat</option>
+          <Select label={t("Qoldiq yetmasa")} value={s.negative_stock} onChange={(e) => setS({ ...s, negative_stock: e.target.value })}>
+            <option value="forbid">{t("Sotishni taqiqlash (tavsiya)")}</option>
+            <option value="allow">{t("Minusga sotishga ruxsat")}</option>
           </Select>
-          <Select label="Dollar kursi manbai" value={s.rate_source} onChange={(e) => setS({ ...s, rate_source: e.target.value })}>
-            <option value="cbu">Markaziy bank (avtomatik)</option>
-            <option value="manual">Do'kon kursi (qo'lda)</option>
+          <Select label={t("Dollar kursi manbai")} value={s.rate_source} onChange={(e) => setS({ ...s, rate_source: e.target.value })}>
+            <option value="cbu">{t("Markaziy bank (avtomatik)")}</option>
+            <option value="manual">{t("Do'kon kursi (qo'lda)")}</option>
           </Select>
         </div>
       </Card>
       <Card className="space-y-3 p-5">
-        <h2 className="flex items-center gap-2 font-semibold"><Send className="h-4 w-4 text-brand" /> Telegram xabarlari</h2>
-        <p className="text-sm text-muted">Botni guruh yoki kanalga qo'shing va uning ID'sini kiriting (masalan, -1001234567890). Har bir savdo haqida xabar keladi.</p>
-        <Input label="Guruh / kanal ID" value={s.telegram_chat_id} onChange={(e) => setS({ ...s, telegram_chat_id: e.target.value })} />
+        <h2 className="flex items-center gap-2 font-semibold"><Send className="h-4 w-4 text-brand" /> {t("Telegram xabarlari")}</h2>
+        <p className="text-sm text-muted">{t("Botni guruh yoki kanalga qo'shing va uning ID'sini kiriting (masalan, -1001234567890). Har bir savdo haqida xabar keladi.")}</p>
+        <Input label={t("Guruh / kanal ID")} value={s.telegram_chat_id} onChange={(e) => setS({ ...s, telegram_chat_id: e.target.value })} />
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={s.telegram_notify_sales} onChange={(e) => setS({ ...s, telegram_notify_sales: e.target.checked })} />
-          Har bir savdo haqida xabar yuborish
+          {t("Har bir savdo haqida xabar yuborish")}
         </label>
       </Card>
     </div>
@@ -79,22 +80,22 @@ export function ProfilePage() {
   const [f, setF] = useState({ first_name: user?.first_name ?? "", last_name: user?.last_name ?? "", phone: user?.phone ?? "" });
   const save = useMutation({
     mutationFn: () => api<Me>("/auth/me/", { method: "PATCH", body: { ...f, theme } }),
-    onSuccess: (me) => (useAuth.setState({ user: me }), toast.success("Profil yangilandi")),
+    onSuccess: (me) => (useAuth.setState({ user: me }), toast.success(t("Profil yangilandi"))),
     onError: toast.error,
   });
   return (
     <div className="mx-auto max-w-xl space-y-4">
-      <PageHeader title="Profil" subtitle={`${user?.username} · ${user?.roles.map((r) => r.name).join(", ")}`} />
+      <PageHeader title={t("Profil")} subtitle={`${user?.username} · ${user?.roles.map((r) => t(r.name)).join(", ")}`} />
       <Card className="space-y-3 p-5">
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input label="Ism" value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} />
-          <Input label="Familiya" value={f.last_name} onChange={(e) => setF({ ...f, last_name: e.target.value })} />
-          <Input label="Telefon" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
-          <Select label="Mavzu" value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
-            <option value="system">Tizim bo'yicha</option><option value="light">Yorug'</option><option value="dark">Tun rejimi</option>
+          <Input label={t("Ism")} value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} />
+          <Input label={t("Familiya")} value={f.last_name} onChange={(e) => setF({ ...f, last_name: e.target.value })} />
+          <Input label={t("Telefon")} value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
+          <Select label={t("Mavzu")} value={theme} onChange={(e) => setTheme(e.target.value as Theme)}>
+            <option value="system">{t("Tizim bo'yicha")}</option><option value="light">{t("Yorug'")}</option><option value="dark">{t("Tun rejimi")}</option>
           </Select>
         </div>
-        <Button loading={save.isPending} onClick={() => save.mutate()}>Saqlash</Button>
+        <Button loading={save.isPending} onClick={() => save.mutate()}>{t("Saqlash")}</Button>
       </Card>
     </div>
   );

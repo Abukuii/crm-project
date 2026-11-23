@@ -3,6 +3,7 @@ import { AlertTriangle, Boxes, Search } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import { t } from "@/i18n";
 import type { Page, StockBalance } from "@/api/types";
 import { Badge, Card, EmptyState, Input, PageHeader, Pager, Select, Skeleton, Table, Td, Th } from "@/components/ui";
 import { useDebounced } from "@/hooks/useDebounced";
@@ -31,38 +32,38 @@ export function StockPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-4">
-      <PageHeader title="Qoldiqlar" subtitle={list.data ? `${list.data.count} ta pozitsiya` : undefined} />
+      <PageHeader title={t("Qoldiqlar")} subtitle={list.data ? t("{n} ta pozitsiya", { n: list.data.count }) : undefined} />
       <div className="flex flex-wrap items-end gap-2">
         <button
           onClick={() => (setPage(1), setParams(low ? {} : { low_stock: "true" }))}
           className={cn("flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium", low ? "bg-warning text-white" : "bg-surface-2 text-muted hover:text-fg")}
         >
-          <AlertTriangle className="h-4 w-4" /> Kam qolganlar
+          <AlertTriangle className="h-4 w-4" /> {t("Kam qolganlar")}
         </button>
         {(warehouses.data?.length ?? 0) > 1 && (
           <div className="w-48">
-            <Select value={warehouse} onChange={(e) => (setWarehouse(e.target.value), setPage(1))} aria-label="Ombor">
-              <option value="">Barcha omborlar</option>
+            <Select value={warehouse} onChange={(e) => (setWarehouse(e.target.value), setPage(1))} aria-label={t("Ombor")}>
+              <option value="">{t("Barcha omborlar")}</option>
               {warehouses.data!.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
             </Select>
           </div>
         )}
         <div className="ml-auto w-full sm:w-80">
-          <Input placeholder="Mahsulot nomi" icon={<Search className="h-4 w-4" />} value={search} onChange={(e) => (setSearch(e.target.value), setPage(1))} aria-label="Qidiruv" />
+          <Input placeholder={t("Mahsulot nomi")} icon={<Search className="h-4 w-4" />} value={search} onChange={(e) => (setSearch(e.target.value), setPage(1))} aria-label={t("Qidiruv")} />
         </div>
       </div>
       <Card className="overflow-hidden">
         {list.isLoading ? (
           <div className="space-y-2 p-4">{Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-10" />)}</div>
         ) : !list.data?.results.length ? (
-          <EmptyState icon={<Boxes className="h-6 w-6" />} title={low ? "Kam qolgan mahsulot yo'q" : "Qoldiq yo'q"} hint="Kirim hujjati yoki Excel import orqali qoldiq kiriting" />
+          <EmptyState icon={<Boxes className="h-6 w-6" />} title={low ? t("Kam qolgan mahsulot yo'q") : t("Qoldiq yo'q")} hint={t("Kirim hujjati yoki Excel import orqali qoldiq kiriting")} />
         ) : (
           <>
             <Table
               head={
                 <tr>
-                  <Th>Mahsulot</Th><Th>Ombor</Th><Th right>Qoldiq</Th><Th right>Min.</Th>
-                  {showCost && <><Th right>O'rtacha tannarx</Th><Th right>Qiymati</Th></>}
+                  <Th>{t("Mahsulot")}</Th><Th>{t("Ombor")}</Th><Th right>{t("Qoldiq")}</Th><Th right>{t("Min.")}</Th>
+                  {showCost && <><Th right>{t("O'rtacha tannarx")}</Th><Th right>{t("Qiymati")}</Th></>}
                 </tr>
               }
             >

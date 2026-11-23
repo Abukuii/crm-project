@@ -1,5 +1,6 @@
 import { Construction } from "lucide-react";
 
+import { t } from "@/i18n";
 import { Card, EmptyState } from "@/components/ui";
 
 export function PlaceholderPage({ title }: { title: string }) {
@@ -9,8 +10,8 @@ export function PlaceholderPage({ title }: { title: string }) {
       <Card>
         <EmptyState
           icon={<Construction className="h-6 w-6" />}
-          title="Bu sahifa mavjud emas"
-          hint="Menyudan kerakli bo‘limni tanlang"
+          title={t("Bu sahifa mavjud emas")}
+          hint={t("Menyudan kerakli bo‘limni tanlang")}
         />
       </Card>
     </div>

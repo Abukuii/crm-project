@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, Pencil, Plus, Users } from "lucide-react";
 import { useState } from "react";
 
+import { t } from "@/i18n";
 import type { Page, User } from "@/api/types";
 import { Modal } from "@/components/overlay";
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Skeleton, Table, Td, Th } from "@/components/ui";
@@ -27,32 +28,32 @@ function UserForm({ initial, onClose }: { initial: Form; onClose: () => void }) 
         ? api(`/accounts/users/${id}/`, { method: "PATCH", body: rest })
         : api("/accounts/users/", { method: "POST", body: { ...rest, password } });
     },
-    onSuccess: () => (toast.success("Xodim saqlandi"), void qc.invalidateQueries({ queryKey: ["users"] }), onClose()),
+    onSuccess: () => (toast.success(t("Xodim saqlandi")), void qc.invalidateQueries({ queryKey: ["users"] }), onClose()),
     onError: toast.error,
   });
   return (
-    <Modal open onClose={onClose} title={f.id ? "Xodimni tahrirlash" : "Yangi xodim"} size="lg"
-      footer={<><Button variant="secondary" onClick={onClose}>Bekor</Button><Button loading={save.isPending} disabled={!f.username || (!f.id && f.password.length < 8) || !f.roles.length} onClick={() => save.mutate()}>Saqlash</Button></>}>
+    <Modal open onClose={onClose} title={f.id ? t("Xodimni tahrirlash") : t("Yangi xodim")} size="lg"
+      footer={<><Button variant="secondary" onClick={onClose}>{t("Bekor")}</Button><Button loading={save.isPending} disabled={!f.username || (!f.id && f.password.length < 8) || !f.roles.length} onClick={() => save.mutate()}>{t("Saqlash")}</Button></>}>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Input label="Login" value={f.username} disabled={!!f.id} onChange={(e) => setF({ ...f, username: e.target.value })} autoFocus />
-        {!f.id && <Input label="Parol (kamida 8 belgi)" type="password" autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />}
-        <Input label="Ism" value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} />
-        <Input label="Familiya" value={f.last_name} onChange={(e) => setF({ ...f, last_name: e.target.value })} />
-        <Input label="Telefon" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
+        <Input label={t("Login")} value={f.username} disabled={!!f.id} onChange={(e) => setF({ ...f, username: e.target.value })} autoFocus />
+        {!f.id && <Input label={t("Parol (kamida 8 belgi)")} type="password" autoComplete="new-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />}
+        <Input label={t("Ism")} value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} />
+        <Input label={t("Familiya")} value={f.last_name} onChange={(e) => setF({ ...f, last_name: e.target.value })} />
+        <Input label={t("Telefon")} value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
       </div>
       <div className="mt-4">
-        <p className="mb-2 text-sm font-medium">Rollar</p>
+        <p className="mb-2 text-sm font-medium">{t("Rollar")}</p>
         <div className="flex flex-wrap gap-2">
           {roles.data?.map((r) => (
             <button key={r.id} type="button" onClick={() => toggle("roles", r.id)}
               className={`rounded-full border px-3 py-1 text-sm ${f.roles.includes(r.id) ? "border-brand bg-brand-soft text-brand" : "border-border text-muted"}`}>
-              {r.name}
+              {t(r.name)}
             </button>
           ))}
         </div>
       </div>
       <div className="mt-4">
-        <p className="mb-2 text-sm font-medium">Filiallar (egasidan boshqa rollar uchun majburiy)</p>
+        <p className="mb-2 text-sm font-medium">{t("Filiallar (egasidan boshqa rollar uchun majburiy)")}</p>
         <div className="flex flex-wrap gap-2">
           {branches.data?.map((b) => (
             <button key={b.id} type="button" onClick={() => toggle("branches", b.id)}
@@ -64,7 +65,7 @@ function UserForm({ initial, onClose }: { initial: Form; onClose: () => void }) 
       </div>
       {f.id && (
         <label className="mt-4 flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={f.is_active} onChange={(e) => setF({ ...f, is_active: e.target.checked })} /> Faol
+          <input type="checkbox" checked={f.is_active} onChange={(e) => setF({ ...f, is_active: e.target.checked })} /> {t("Faol")}
         </label>
       )}
     </Modal>
@@ -75,14 +76,14 @@ function SecretModal({ user, kind, onClose }: { user: User; kind: "password" | "
   const [value, setValue] = useState("");
   const save = useMutation({
     mutationFn: () => api(`/accounts/users/${user.id}/${kind === "pin" ? "set-pin" : "set-password"}/`, { method: "POST", body: kind === "pin" ? { pin: value } : { password: value } }),
-    onSuccess: () => (toast.success(kind === "pin" ? "PIN o'rnatildi" : "Parol o'zgartirildi"), onClose()),
+    onSuccess: () => (toast.success(kind === "pin" ? t("PIN o'rnatildi") : t("Parol o'zgartirildi")), onClose()),
     onError: toast.error,
   });
   const valid = kind === "pin" ? /^\d{4,6}$/.test(value) : value.length >= 8;
   return (
-    <Modal open onClose={onClose} size="sm" title={`${user.username}: ${kind === "pin" ? "kassa PIN" : "yangi parol"}`}
-      footer={<><Button variant="secondary" onClick={onClose}>Bekor</Button><Button disabled={!valid} loading={save.isPending} onClick={() => save.mutate()}>Saqlash</Button></>}>
-      <Input type="password" autoComplete="new-password" inputMode={kind === "pin" ? "numeric" : undefined} label={kind === "pin" ? "4–6 raqam" : "Kamida 8 belgi"} value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
+    <Modal open onClose={onClose} size="sm" title={`${user.username}: ${kind === "pin" ? t("kassa PIN") : t("yangi parol")}`}
+      footer={<><Button variant="secondary" onClick={onClose}>{t("Bekor")}</Button><Button disabled={!valid} loading={save.isPending} onClick={() => save.mutate()}>{t("Saqlash")}</Button></>}>
+      <Input type="password" autoComplete="new-password" inputMode={kind === "pin" ? "numeric" : undefined} label={kind === "pin" ? t("4–6 raqam") : t("Kamida 8 belgi")} value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
     </Modal>
   );
 }
@@ -96,23 +97,23 @@ export function UsersPage() {
   const roleName = (id: number) => roles.data?.find((r) => r.id === id)?.name ?? id;
   return (
     <div className="mx-auto max-w-6xl space-y-4">
-      <PageHeader title="Xodimlar"
-        actions={<Button onClick={() => setEditing({ username: "", first_name: "", last_name: "", phone: "", password: "", roles: [], branches: [], is_active: true })}><Plus className="h-4 w-4" /> Xodim</Button>} />
+      <PageHeader title={t("Xodimlar")}
+        actions={<Button onClick={() => setEditing({ username: "", first_name: "", last_name: "", phone: "", password: "", roles: [], branches: [], is_active: true })}><Plus className="h-4 w-4" /> {t("Xodim")}</Button>} />
       <Card className="overflow-hidden">
-        {list.isLoading ? <Skeleton className="m-4 h-32" /> : !list.data?.results.length ? <EmptyState icon={<Users className="h-6 w-6" />} title="Xodim yo'q" /> : (
-          <Table head={<tr><Th>Login</Th><Th>Ism</Th><Th>Rollar</Th><Th>Oxirgi kirish</Th><Th>Holat</Th><Th /></tr>}>
+        {list.isLoading ? <Skeleton className="m-4 h-32" /> : !list.data?.results.length ? <EmptyState icon={<Users className="h-6 w-6" />} title={t("Xodim yo'q")} /> : (
+          <Table head={<tr><Th>{t("Login")}</Th><Th>{t("Ism")}</Th><Th>{t("Rollar")}</Th><Th>{t("Oxirgi kirish")}</Th><Th>{t("Holat")}</Th><Th /></tr>}>
             {list.data.results.map((u) => (
               <tr key={u.id} className="hover:bg-surface-2/60">
-                <Td className="font-medium">{u.username}{u.id === me?.id && <span className="text-xs text-muted"> (siz)</span>}</Td>
+                <Td className="font-medium">{u.username}{u.id === me?.id && <span className="text-xs text-muted"> {t("(siz)")}</span>}</Td>
                 <Td>{[u.first_name, u.last_name].filter(Boolean).join(" ") || "—"}</Td>
-                <Td><div className="flex flex-wrap gap-1">{u.roles.map((r) => <Badge key={r} tone="brand">{roleName(r)}</Badge>)}</div></Td>
+                <Td><div className="flex flex-wrap gap-1">{u.roles.map((r) => <Badge key={r} tone="brand">{t(String(roleName(r)))}</Badge>)}</div></Td>
                 <Td className="text-muted">{formatDateTime(u.last_login)}</Td>
-                <Td>{u.is_active ? <Badge tone="success">faol</Badge> : <Badge tone="danger">o'chirilgan</Badge>}</Td>
+                <Td>{u.is_active ? <Badge tone="success">{t("faol")}</Badge> : <Badge tone="danger">{t("o'chirilgan")}</Badge>}</Td>
                 <Td>
                   <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setSecret({ user: u, kind: "pin" })}>PIN</Button>
-                    <Button variant="ghost" size="icon" aria-label="Parol" onClick={() => setSecret({ user: u, kind: "password" })}><KeyRound className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" aria-label="Tahrirlash" onClick={() => setEditing({ id: u.id, username: u.username, first_name: u.first_name ?? "", last_name: u.last_name ?? "", phone: u.phone ?? "", password: "", roles: u.roles, branches: u.branches ?? [], is_active: u.is_active ?? true })}><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="sm" onClick={() => setSecret({ user: u, kind: "pin" })}>{t("PIN")}</Button>
+                    <Button variant="ghost" size="icon" aria-label={t("Parol")} onClick={() => setSecret({ user: u, kind: "password" })}><KeyRound className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" aria-label={t("Tahrirlash")} onClick={() => setEditing({ id: u.id, username: u.username, first_name: u.first_name ?? "", last_name: u.last_name ?? "", phone: u.phone ?? "", password: "", roles: u.roles, branches: u.branches ?? [], is_active: u.is_active ?? true })}><Pencil className="h-4 w-4" /></Button>
                   </div>
                 </Td>
               </tr>

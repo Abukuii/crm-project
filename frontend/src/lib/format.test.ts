@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { useLang } from "@/i18n";
+
 import { formatMoney, formatNumber, formatQty } from "./format";
+
+useLang.setState({ lang: "uz" });
 
 const S = " ";
 

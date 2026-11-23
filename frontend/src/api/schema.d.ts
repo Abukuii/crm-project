@@ -746,6 +746,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dataio/stats/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Umumiy statistika (savdo, foyda, mahsulotlar, kassirlar, xarajatlar, qarzdorlar). */
+        get: operations["v1_dataio_stats_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/finance/expense-categories/": {
         parameters: {
             query?: never;
@@ -1751,9 +1768,10 @@ export interface components {
         /**
          * @description * `uz` - O'zbekcha
          *     * `ru` - Русский
+         *     * `en` - English
          * @enum {string}
          */
-        LanguageEnum: "uz" | "ru";
+        LanguageEnum: "uz" | "ru" | "en";
         /**
          * @description * `normal` - Oddiy
          *     * `important` - Muhim
@@ -2210,6 +2228,7 @@ export interface components {
             factor: string;
             /** Format: decimal */
             price: string;
+            barcodes: string[];
         };
         Price: {
             price_type: number;
@@ -4251,6 +4270,29 @@ export interface operations {
             query?: {
                 date_from?: string;
                 date_to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+        };
+    };
+    v1_dataio_stats_export_retrieve: {
+        parameters: {
+            query?: {
+                date_from?: string;
+                date_to?: string;
+                lang?: "en" | "ru" | "uz";
             };
             header?: never;
             path?: never;

@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { Pencil, Plus, Trash2, Wallet } from "lucide-react";
 import { useState } from "react";
 
+import { t } from "@/i18n";
 import type { Expense, Page } from "@/api/types";
 import { Modal } from "@/components/overlay";
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Pager, Select, Skeleton, Table, Td, Textarea, Th } from "@/components/ui";
@@ -23,7 +24,7 @@ function ExpenseForm({ initial, onClose }: { initial: Form; onClose: () => void 
       return f.id ? api(`/finance/expenses/${f.id}/`, { method: "PATCH", body }) : api("/finance/expenses/", { method: "POST", body });
     },
     onSuccess: () => {
-      toast.success("Xarajat saqlandi");
+      toast.success(t("Xarajat saqlandi"));
       void qc.invalidateQueries({ queryKey: ["expenses"] });
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
       onClose();
@@ -31,17 +32,17 @@ function ExpenseForm({ initial, onClose }: { initial: Form; onClose: () => void 
     onError: toast.error,
   });
   return (
-    <Modal open onClose={onClose} title={f.id ? "Xarajatni tahrirlash" : "Yangi xarajat"}
-      footer={<><Button variant="secondary" onClick={onClose}>Bekor</Button><Button loading={save.isPending} disabled={!f.name.trim() || !f.category || !Number(f.amount)} onClick={() => save.mutate()}>Saqlash</Button></>}>
+    <Modal open onClose={onClose} title={f.id ? t("Xarajatni tahrirlash") : t("Yangi xarajat")}
+      footer={<><Button variant="secondary" onClick={onClose}>{t("Bekor")}</Button><Button loading={save.isPending} disabled={!f.name.trim() || !f.category || !Number(f.amount)} onClick={() => save.mutate()}>{t("Saqlash")}</Button></>}>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="sm:col-span-2"><Input label="Nomi" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoFocus /></div>
-        <Select label="Kategoriya" value={f.category} onChange={(e) => setF({ ...f, category: Number(e.target.value) })}>
-          <option value="" disabled>Tanlang</option>
+        <div className="sm:col-span-2"><Input label={t("Nomi")} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} autoFocus /></div>
+        <Select label={t("Kategoriya")} value={f.category} onChange={(e) => setF({ ...f, category: Number(e.target.value) })}>
+          <option value="" disabled>{t("Tanlang")}</option>
           {cats.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </Select>
-        <Input label="Summa (so'm)" type="number" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
-        <Input label="Sana" type="date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} />
-        <div className="sm:col-span-2"><Textarea label="Izoh" value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></div>
+        <Input label={t("Summa (so'm)")} type="number" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} />
+        <Input label={t("Sana")} type="date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} />
+        <div className="sm:col-span-2"><Textarea label={t("Izoh")} value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} /></div>
       </div>
     </Modal>
   );
@@ -58,7 +59,7 @@ export function ExpensesPage() {
   const total = useQuery({ queryKey: ["expenses", "total", filters], queryFn: () => api<{ total: string; count: number }>("/finance/expenses/total/", { query: filters }) });
   const remove = useMutation({
     mutationFn: (id: number) => api(`/finance/expenses/${id}/`, { method: "DELETE" }),
-    onSuccess: () => (toast.success("O'chirildi"), void qc.invalidateQueries({ queryKey: ["expenses"] })),
+    onSuccess: () => (toast.success(t("O'chirildi")), void qc.invalidateQueries({ queryKey: ["expenses"] })),
     onError: toast.error,
   });
   const set = (patch: Partial<typeof filters>) => (setFilters({ ...filters, ...patch }), setPage(1));
@@ -66,24 +67,24 @@ export function ExpensesPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-4">
       <PageHeader
-        title="Xarajatlar"
+        title={t("Xarajatlar")}
         subtitle={total.data && <>Davr bo'yicha: <b className="text-fg num">{formatMoney(total.data.total)}</b> · {total.data.count} ta</>}
-        actions={<Button onClick={() => setEditing({ name: "", category: "", amount: "", date: isoDate(), note: "" })}><Plus className="h-4 w-4" /> Xarajat</Button>}
+        actions={<Button onClick={() => setEditing({ name: "", category: "", amount: "", date: isoDate(), note: "" })}><Plus className="h-4 w-4" /> {t("Xarajat")}</Button>}
       />
       <Card className="grid gap-3 p-4 sm:grid-cols-3">
-        <Input label="Dan" type="date" value={filters.date_from} onChange={(e) => set({ date_from: e.target.value })} />
-        <Input label="Gacha" type="date" value={filters.date_to} onChange={(e) => set({ date_to: e.target.value })} />
-        <Select label="Kategoriya" value={filters.category} onChange={(e) => set({ category: e.target.value })}>
-          <option value="">Barchasi</option>
+        <Input label={t("Dan")} type="date" value={filters.date_from} onChange={(e) => set({ date_from: e.target.value })} />
+        <Input label={t("Gacha")} type="date" value={filters.date_to} onChange={(e) => set({ date_to: e.target.value })} />
+        <Select label={t("Kategoriya")} value={filters.category} onChange={(e) => set({ category: e.target.value })}>
+          <option value="">{t("Barchasi")}</option>
           {cats.data?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </Select>
       </Card>
       <Card className="overflow-hidden">
         {list.isLoading ? <Skeleton className="m-4 h-32" /> : !list.data?.results.length ? (
-          <EmptyState icon={<Wallet className="h-6 w-6" />} title="Bu davrda xarajat yo'q" />
+          <EmptyState icon={<Wallet className="h-6 w-6" />} title={t("Bu davrda xarajat yo'q")} />
         ) : (
           <>
-            <Table head={<tr><Th>Sana</Th><Th>Nomi</Th><Th>Kategoriya</Th><Th>Kiritgan</Th><Th right>Summa</Th><Th /></tr>}>
+            <Table head={<tr><Th>{t("Sana")}</Th><Th>{t("Nomi")}</Th><Th>{t("Kategoriya")}</Th><Th>{t("Kiritgan")}</Th><Th right>{t("Summa")}</Th><Th /></tr>}>
               {list.data.results.map((x) => (
                 <tr key={x.id} className="hover:bg-surface-2/60">
                   <Td>{formatDate(x.date)}</Td>
@@ -93,8 +94,8 @@ export function ExpensesPage() {
                   <Td right className="font-semibold">{formatMoney(x.amount)}</Td>
                   <Td>
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" aria-label="Tahrirlash" onClick={() => setEditing({ id: x.id, name: x.name, category: x.category, amount: x.amount, date: x.date ?? isoDate(), note: x.note ?? "" })}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" aria-label="O'chirish" onClick={() => window.confirm("Xarajat o'chirilsinmi?") && remove.mutate(x.id)}><Trash2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" aria-label={t("Tahrirlash")} onClick={() => setEditing({ id: x.id, name: x.name, category: x.category, amount: x.amount, date: x.date ?? isoDate(), note: x.note ?? "" })}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" aria-label={t("O'chirish")} onClick={() => window.confirm(t("Xarajat o'chirilsinmi?")) && remove.mutate(x.id)}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </Td>
                 </tr>

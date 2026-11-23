@@ -1,6 +1,7 @@
 import { Loader2 } from "lucide-react";
 import React, { forwardRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 
+import { t } from "@/i18n";
 import { cn } from "@/lib/cn";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
@@ -225,8 +226,8 @@ export function Pager({ page, count, size, onPage }: { page: number; count: numb
     <div className="flex items-center justify-between border-t border-border px-4 py-3 text-sm">
       <span className="text-muted">{page} / {pages}</span>
       <div className="flex gap-2">
-        <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onPage(page - 1)}>Oldingi</Button>
-        <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => onPage(page + 1)}>Keyingi</Button>
+        <Button variant="secondary" size="sm" disabled={page <= 1} onClick={() => onPage(page - 1)}>{t("Oldingi")}</Button>
+        <Button variant="secondary" size="sm" disabled={page >= pages} onClick={() => onPage(page + 1)}>{t("Keyingi")}</Button>
       </div>
     </div>
   );

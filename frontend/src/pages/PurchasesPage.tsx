@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { Ban, CheckCircle2, ClipboardList, Plus, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { t } from "@/i18n";
 import type { Page, Product, Purchase, Supplier } from "@/api/types";
 import { Drawer } from "@/components/overlay";
 import { ProductPicker } from "@/components/ProductPicker";
@@ -72,7 +73,7 @@ function PurchaseEditor({ purchase, onClose }: { purchase: Purchase | null; onCl
       return andPost ? api<Purchase>(`/purchasing/purchases/${doc.id}/post/`, { method: "POST" }) : doc;
     },
     onSuccess: (doc) => {
-      toast.success(doc.status === "posted" ? `Kirim #${doc.number} o'tkazildi — qoldiq oshdi` : `Kirim #${doc.number} saqlandi`);
+      toast.success(doc.status === "posted" ? t("Kirim #{n} o'tkazildi — qoldiq oshdi", { n: doc.number }) : t("Kirim #{n} saqlandi", { n: doc.number }));
       invalidate();
       onClose();
     },
@@ -80,12 +81,12 @@ function PurchaseEditor({ purchase, onClose }: { purchase: Purchase | null; onCl
   });
   const cancel = useMutation({
     mutationFn: () => api<Purchase>(`/purchasing/purchases/${purchase!.id}/cancel/`, { method: "POST" }),
-    onSuccess: () => (toast.success("Kirim bekor qilindi"), invalidate(), onClose()),
+    onSuccess: () => (toast.success(t("Kirim bekor qilindi")), invalidate(), onClose()),
     onError: toast.error,
   });
   const remove = useMutation({
     mutationFn: () => api(`/purchasing/purchases/${purchase!.id}/`, { method: "DELETE" }),
-    onSuccess: () => (toast.success("Qoralama o'chirildi"), invalidate(), onClose()),
+    onSuccess: () => (toast.success(t("Qoralama o'chirildi")), invalidate(), onClose()),
     onError: toast.error,
   });
 
@@ -98,48 +99,48 @@ function PurchaseEditor({ purchase, onClose }: { purchase: Purchase | null; onCl
     <Drawer
       open
       onClose={onClose}
-      title={purchase ? `Kirim #${purchase.number}` : "Yangi kirim"}
+      title={purchase ? t("Kirim #{n}", { n: purchase.number }) : t("Yangi kirim")}
       footer={
         editable ? (
           <>
-            {purchase && <Button variant="ghost" onClick={() => window.confirm("Qoralama o'chirilsinmi?") && remove.mutate()}><Trash2 className="h-4 w-4" /></Button>}
-            <Button variant="secondary" loading={save.isPending} disabled={!lines.length} onClick={() => save.mutate(false)}><Save className="h-4 w-4" /> Qoralama</Button>
+            {purchase && <Button variant="ghost" onClick={() => window.confirm(t("Qoralama o'chirilsinmi?")) && remove.mutate()}><Trash2 className="h-4 w-4" /></Button>}
+            <Button variant="secondary" loading={save.isPending} disabled={!lines.length} onClick={() => save.mutate(false)}><Save className="h-4 w-4" /> {t("Qoralama")}</Button>
             <Button loading={save.isPending} disabled={!lines.length || lines.some((l) => !Number(l.qty) || l.price === "")} onClick={() => save.mutate(true)}>
-              <CheckCircle2 className="h-4 w-4" /> O'tkazish
+              <CheckCircle2 className="h-4 w-4" /> {t("O'tkazish")}
             </Button>
           </>
         ) : purchase?.status === "posted" ? (
-          <Button variant="danger" loading={cancel.isPending} onClick={() => window.confirm("Kirim bekor qilinadi, tovar ombordan chiqariladi. Davom etilsinmi?") && cancel.mutate()}>
-            <Ban className="h-4 w-4" /> Bekor qilish
+          <Button variant="danger" loading={cancel.isPending} onClick={() => window.confirm(t("Kirim bekor qilinadi, tovar ombordan chiqariladi. Davom etilsinmi?")) && cancel.mutate()}>
+            <Ban className="h-4 w-4" /> {t("Bekor qilish")}
           </Button>
         ) : null
       }
     >
       <div className="space-y-4">
-        {purchase && <Badge tone={STATUS[purchase.status!]?.tone}>{STATUS[purchase.status!]?.label}</Badge>}
+        {purchase && <Badge tone={STATUS[purchase.status!]?.tone}>{t(STATUS[purchase.status!]?.label ?? "")}</Badge>}
         <div className="grid gap-3 sm:grid-cols-2">
-          <Select label="Yetkazib beruvchi" disabled={!editable} value={head.supplier ?? ""} onChange={(e) => {
+          <Select label={t("Yetkazib beruvchi")} disabled={!editable} value={head.supplier ?? ""} onChange={(e) => {
             const s = suppliers.data?.results.find((x) => x.id === Number(e.target.value));
             setHead({ ...head, supplier: s?.id ?? null, currency: s?.currency ?? head.currency });
           }}>
-            <option value="">— (yetkazib beruvchisiz)</option>
+            <option value="">{t("— (yetkazib beruvchisiz)")}</option>
             {suppliers.data?.results.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.currency})</option>)}
           </Select>
-          <Select label="Ombor" disabled={!editable} value={warehouseId ?? ""} onChange={(e) => setHead({ ...head, warehouse: Number(e.target.value) })}>
+          <Select label={t("Ombor")} disabled={!editable} value={warehouseId ?? ""} onChange={(e) => setHead({ ...head, warehouse: Number(e.target.value) })}>
             {warehouses.data?.map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
           </Select>
-          <Input label="Sana" type="date" disabled={!editable} value={head.date} onChange={(e) => setHead({ ...head, date: e.target.value })} />
-          <Select label="Valyuta" disabled={!editable || !!head.supplier} value={head.currency} onChange={(e) => setHead({ ...head, currency: e.target.value as "UZS" | "USD" })}>
-            <option value="UZS">So'm</option><option value="USD">Dollar</option>
+          <Input label={t("Sana")} type="date" disabled={!editable} value={head.date} onChange={(e) => setHead({ ...head, date: e.target.value })} />
+          <Select label={t("Valyuta")} disabled={!editable || !!head.supplier} value={head.currency} onChange={(e) => setHead({ ...head, currency: e.target.value as "UZS" | "USD" })}>
+            <option value="UZS">{t("So'm")}</option><option value="USD">{t("Dollar")}</option>
           </Select>
-          <Input label="Qo'shimcha xarajat (so'm): transport, yuklash" type="number" disabled={!editable} value={head.extra_costs} onChange={(e) => setHead({ ...head, extra_costs: e.target.value })} />
-          <Input label="Izoh" disabled={!editable} value={head.note} onChange={(e) => setHead({ ...head, note: e.target.value })} />
+          <Input label={t("Qo'shimcha xarajat (so'm): transport, yuklash")} type="number" disabled={!editable} value={head.extra_costs} onChange={(e) => setHead({ ...head, extra_costs: e.target.value })} />
+          <Input label={t("Izoh")} disabled={!editable} value={head.note} onChange={(e) => setHead({ ...head, note: e.target.value })} />
         </div>
 
         {editable && <ProductPicker onPick={addProduct} />}
 
         {lines.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">Tovar qo'shing</p>
+          <p className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted">{t("Tovar qo'shing")}</p>
         ) : (
           <ul className="divide-y divide-border rounded-xl border border-border">
             {lines.map((l, i) => {
@@ -149,20 +150,20 @@ function PurchaseEditor({ purchase, onClose }: { purchase: Purchase | null; onCl
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-medium">{l.product_name}</span>
                     {editable && (
-                      <button className="text-muted hover:text-danger" onClick={() => setLines(lines.filter((_, j) => j !== i))} aria-label="O'chirish">
+                      <button className="text-muted hover:text-danger" onClick={() => setLines(lines.filter((_, j) => j !== i))} aria-label={t("O'chirish")}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}
                   </div>
                   <div className="grid grid-cols-[90px_100px_1fr] gap-2">
-                    <Input aria-label="Miqdor" type="number" disabled={!editable} value={l.qty} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, qty: e.target.value } : x)))} />
-                    <Select aria-label="Birlik" disabled={!editable} value={l.unit} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, unit: Number(e.target.value) } : x)))}>
+                    <Input aria-label={t("Miqdor")} type="number" disabled={!editable} value={l.qty} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, qty: e.target.value } : x)))} />
+                    <Select aria-label={t("Birlik")} disabled={!editable} value={l.unit} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, unit: Number(e.target.value) } : x)))}>
                       {l.units.map((u) => <option key={u.id} value={u.id}>{u.short}</option>)}
                     </Select>
-                    <Input aria-label="Xarid narxi" placeholder={`Narx (${head.currency})`} type="number" step="any" disabled={!editable} value={l.price} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))} />
+                    <Input aria-label={t("Xarid narxi")} placeholder={t("Narx ({cur})", { cur: head.currency })} type="number" step="any" disabled={!editable} value={l.price} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, price: e.target.value } : x)))} />
                   </div>
                   <div className="flex justify-between text-xs text-muted">
-                    <span>{posted?.unit_cost && <>Tannarx (so'm, asosiy birlik): {formatNumber(posted.unit_cost, 2)}</>}</span>
+                    <span>{posted?.unit_cost && <>{t("Tannarx (so'm, asosiy birlik)")}: {formatNumber(posted.unit_cost, 2)}</>}</span>
                     <span className="text-sm font-semibold text-fg num">{formatNumber(Number(l.qty || 0) * Number(l.price || 0), 2)} {head.currency}</span>
                   </div>
                 </li>
@@ -171,11 +172,11 @@ function PurchaseEditor({ purchase, onClose }: { purchase: Purchase | null; onCl
           </ul>
         )}
         <div className="flex items-end justify-between rounded-xl bg-surface-2 p-4">
-          <span className="text-sm text-muted">Tovarlar jami</span>
+          <span className="text-sm text-muted">{t("Tovarlar jami")}</span>
           <span className="text-2xl font-bold num">{formatNumber(subtotal, 2)} {head.currency}</span>
         </div>
         {purchase?.status === "posted" && (
-          <p className="text-sm text-muted">So'mda (xarajatlar bilan): <b className="text-fg">{formatMoney(purchase.total_uzs)}</b> · kurs {purchase.rate}</p>
+          <p className="text-sm text-muted">{t("So'mda (xarajatlar bilan):")} <b className="text-fg">{formatMoney(purchase.total_uzs)}</b> · kurs {purchase.rate}</p>
         )}
       </div>
     </Drawer>
@@ -196,31 +197,31 @@ export function PurchasesPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-4">
       <PageHeader
-        title="Kirim"
-        subtitle="Omborga tovar qabul qilish"
-        actions={<Button onClick={() => setOpened("new")}><Plus className="h-4 w-4" /> Yangi kirim</Button>}
+        title={t("Kirim")}
+        subtitle={t("Omborga tovar qabul qilish")}
+        actions={<Button onClick={() => setOpened("new")}><Plus className="h-4 w-4" /> {t("Yangi kirim")}</Button>}
       />
       <div className="w-48">
-        <Select value={status} onChange={(e) => (setStatus(e.target.value), setPage(1))} aria-label="Holat">
-          <option value="">Barcha holatlar</option>
-          {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+        <Select value={status} onChange={(e) => (setStatus(e.target.value), setPage(1))} aria-label={t("Holat")}>
+          <option value="">{t("Barcha holatlar")}</option>
+          {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{t(v.label)}</option>)}
         </Select>
       </div>
       <Card className="overflow-hidden">
         {list.isLoading ? (
           <div className="space-y-2 p-4">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-10" />)}</div>
         ) : !list.data?.results.length ? (
-          <EmptyState icon={<ClipboardList className="h-6 w-6" />} title="Kirim hujjatlari yo'q" action={<Button onClick={() => setOpened("new")}>Birinchi kirim</Button>} />
+          <EmptyState icon={<ClipboardList className="h-6 w-6" />} title={t("Kirim hujjatlari yo'q")} action={<Button onClick={() => setOpened("new")}>{t("Birinchi kirim")}</Button>} />
         ) : (
           <>
-            <Table head={<tr><Th>№</Th><Th>Sana</Th><Th>Yetkazib beruvchi</Th><Th>Ombor</Th><Th>Holat</Th><Th right>Summa</Th></tr>}>
+            <Table head={<tr><Th>№</Th><Th>{t("Sana")}</Th><Th>{t("Yetkazib beruvchi")}</Th><Th>{t("Ombor")}</Th><Th>{t("Holat")}</Th><Th right>{t("Summa")}</Th></tr>}>
               {list.data.results.map((p) => (
                 <tr key={p.id} className="cursor-pointer hover:bg-surface-2/60" onClick={() => setOpened(p)}>
-                  <Td className="font-medium num">#{p.number}{p.kind === "opening" && <span className="text-xs text-muted"> boshl.</span>}</Td>
+                  <Td className="font-medium num">#{p.number}{p.kind === "opening" && <span className="text-xs text-muted"> {t("boshl.")}</span>}</Td>
                   <Td>{formatDate(p.date)}</Td>
                   <Td>{p.supplier_name ?? <span className="text-muted">—</span>}</Td>
                   <Td className="text-muted">{p.warehouse_name}</Td>
-                  <Td><Badge tone={STATUS[p.status!]?.tone}>{STATUS[p.status!]?.label}</Badge></Td>
+                  <Td><Badge tone={STATUS[p.status!]?.tone}>{t(STATUS[p.status!]?.label ?? "")}</Badge></Td>
                   <Td right className="font-semibold">{formatNumber(p.subtotal, 2)} {p.currency}</Td>
                 </tr>
               ))}

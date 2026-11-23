@@ -1,3 +1,4 @@
+import { t } from "@/i18n";
 /** Raqamlarni o'zbekcha formatlash: 1 250 000, 2,5 (bo'shliq — minglik ajratgich). */
 
 const NBSP = " ";
@@ -18,7 +19,7 @@ export function formatNumber(value: string | number | null | undefined, maxFract
 
 export function formatMoney(value: string | number | null | undefined, currency = "UZS"): string {
   if (value === null || value === undefined || value === "") return "—";
-  return currency === "USD" ? `$${formatNumber(value, 2)}` : `${formatNumber(value, 0)}${NBSP}so'm`;
+  return currency === "USD" ? `$${formatNumber(value, 2)}` : `${formatNumber(value, 0)}${NBSP}${t("so'm")}`;
 }
 
 export function formatQty(value: string | number | null | undefined, unit?: string): string {

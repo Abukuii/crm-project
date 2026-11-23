@@ -1,4 +1,5 @@
 import type { ApiErrorBody } from "@/api/types";
+import { t } from "@/i18n";
 
 /**
  * API klienti.
@@ -39,7 +40,7 @@ async function parseError(res: Response): Promise<ApiError> {
     const body = (await res.json()) as ApiErrorBody;
     return new ApiError(res.status, body.error.code, body.error.message, body.error.details);
   } catch {
-    return new ApiError(res.status, "network_error", "Server bilan aloqa yo'q");
+    return new ApiError(res.status, "network_error", t("Server bilan aloqa yo'q"));
   }
 }
 
@@ -95,7 +96,7 @@ export async function api<T>(path: string, opts: RequestOptions = {}, retry = tr
     });
   } catch (e) {
     if ((e as Error).name === "AbortError") throw e;
-    throw new ApiError(0, "network_error", "Internet aloqasi yo'q");
+    throw new ApiError(0, "network_error", t("Internet aloqasi yo'q"));
   }
 
   if (res.status === 401 && retry) {

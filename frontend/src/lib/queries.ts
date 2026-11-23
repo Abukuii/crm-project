@@ -9,6 +9,7 @@ import type {
   Unit,
   Warehouse,
 } from "@/api/types";
+import { locale } from "@/i18n";
 import { api } from "@/lib/api";
 
 const LONG = 5 * 60_000;
@@ -55,7 +56,7 @@ export function monthStart(): string {
 
 export function formatDateTime(value: string | null | undefined): string {
   if (!value) return "—";
-  return new Date(value).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(value).toLocaleString(locale(), { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 export function formatDate(value: string | null | undefined): string {

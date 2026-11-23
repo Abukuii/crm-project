@@ -21,6 +21,7 @@ import { ProfilePage, SettingsPage } from "@/pages/SettingsPage";
 import { StockPage } from "@/pages/StockPage";
 import { SuppliersPage } from "@/pages/SuppliersPage";
 import { UsersPage } from "@/pages/UsersPage";
+import { useLang } from "@/i18n";
 import { useAuth } from "@/stores/auth";
 
 const queryClient = new QueryClient({
@@ -57,12 +58,13 @@ function Perm({ perm, children }: { perm: string; children: ReactNode }) {
 
 function App() {
   const { bootstrap, status } = useAuth();
+  const lang = useLang((s) => s.lang);
   useEffect(() => {
     void bootstrap();
   }, [bootstrap]);
 
   return (
-    <Routes>
+    <Routes key={lang}>
       <Route path="/welcome" element={status === "loading" ? <Spinner /> : <LandingPage />} />
       <Route path="/login" element={<Navigate to="/welcome" replace />} />
       <Route

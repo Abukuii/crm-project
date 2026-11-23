@@ -2,13 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useState } from "react";
 
+import { t } from "@/i18n";
 import type { PaginatedProducts, Product } from "@/api/types";
 import { Input } from "@/components/ui";
 import { useDebounced } from "@/hooks/useDebounced";
 import { api } from "@/lib/api";
 
 /** Mahsulot qidirib tanlash (nom, artikul yoki shtrix-kod). Enter — birinchi natija. */
-export function ProductPicker({ onPick, placeholder = "Mahsulot qo'shish: nom yoki shtrix-kod" }: { onPick: (p: Product) => void; placeholder?: string }) {
+export function ProductPicker({ onPick, placeholder }: { onPick: (p: Product) => void; placeholder?: string }) {
   const [term, setTerm] = useState("");
   const [open, setOpen] = useState(false);
   const debounced = useDebounced(term, 200);
@@ -24,7 +25,7 @@ export function ProductPicker({ onPick, placeholder = "Mahsulot qo'shish: nom yo
   return (
     <div className="relative">
       <Input
-        placeholder={placeholder}
+        placeholder={placeholder ?? t("Mahsulot qo'shish: nom yoki shtrix-kod")}
         icon={<Search className="h-4 w-4" />}
         value={term}
         onFocus={() => setOpen(true)}
@@ -37,7 +38,7 @@ export function ProductPicker({ onPick, placeholder = "Mahsulot qo'shish: nom yo
             pick(first);
           }
         }}
-        aria-label="Mahsulot qidirish"
+        aria-label={t("Mahsulot qidirish")}
       />
       {open && (q.data?.results.length ?? 0) > 0 && (
         <ul className="anim-pop absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-border bg-surface p-1 shadow-xl">

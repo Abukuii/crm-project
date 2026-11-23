@@ -2,6 +2,7 @@ import { CheckCircle2, Info, X, XCircle } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
+import { t } from "@/i18n";
 import { cn } from "@/lib/cn";
 import { useToasts } from "@/stores/toast";
 
@@ -48,7 +49,7 @@ export function Modal({
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-muted hover:bg-surface-2 hover:text-fg" aria-label="Yopish">
+          <button onClick={onClose} className="rounded-lg p-1 text-muted hover:bg-surface-2 hover:text-fg" aria-label={t("Yopish")}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -81,7 +82,7 @@ export function Drawer({
       <aside className="anim-slide-left absolute inset-y-0 right-0 flex w-full max-w-xl flex-col border-l border-border bg-surface shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-muted hover:bg-surface-2 hover:text-fg" aria-label="Yopish">
+          <button onClick={onClose} className="rounded-lg p-1 text-muted hover:bg-surface-2 hover:text-fg" aria-label={t("Yopish")}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -99,16 +100,16 @@ export function Toaster() {
   const tones = { success: "text-success", error: "text-danger", info: "text-brand" };
   return createPortal(
     <div className="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[min(92vw,380px)] flex-col gap-2" aria-live="polite">
-      {items.map((t) => {
-        const Icon = icons[t.tone];
+      {items.map((item) => {
+        const Icon = icons[item.tone];
         return (
           <div
-            key={t.id}
+            key={item.id}
             className="anim-slide-up pointer-events-auto flex items-start gap-3 rounded-xl border border-border bg-surface p-3 text-sm shadow-lg"
           >
-            <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", tones[t.tone])} />
-            <p className="flex-1">{t.text}</p>
-            <button onClick={() => dismiss(t.id)} className="text-muted hover:text-fg" aria-label="Yopish">
+            <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", tones[item.tone])} />
+            <p className="flex-1">{item.text}</p>
+            <button onClick={() => dismiss(item.id)} className="text-muted hover:text-fg" aria-label={t("Yopish")}>
               <X className="h-4 w-4" />
             </button>
           </div>

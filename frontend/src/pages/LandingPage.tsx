@@ -20,6 +20,8 @@ import {
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 
+import { t, weekdayShort } from "@/i18n";
+import { LangSwitcher } from "@/components/LangSwitcher";
 import { Button, Input } from "@/components/ui";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -92,7 +94,9 @@ function Reveal({ children, delay = 0, className }: { children: React.ReactNode;
 /* ── Animatsiyali "jonli" dashboard maketi ───────────────────────────────── */
 
 const BARS = [42, 58, 49, 71, 64, 88, 79];
-const DAYS = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"];
+/** Dushanbadan boshlab hafta kunlari (joriy til bo'yicha qisqa nomlar). */
+const weekdays = () =>
+  Array.from({ length: 7 }, (_, i) => weekdayShort(new Date(2024, 0, 1 + i)).slice(0, 2));
 
 function DashboardMockup() {
   const [tick, setTick] = useState(0);
@@ -106,6 +110,7 @@ function DashboardMockup() {
     { who: "Qurilish LLC", what: "Kabel VVG × 3 rulon", sum: "3 000 000", tone: "text-brand", tag: "Karta" },
   ];
   const current = feed[tick % feed.length]!;
+  const DAYS = weekdays();
 
   return (
     <div className="relative">
@@ -122,7 +127,7 @@ function DashboardMockup() {
               <span className="anim-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
             </span>
-            Jonli
+            {t("Jonli")}
           </span>
         </div>
 
@@ -133,7 +138,7 @@ function DashboardMockup() {
             { label: "Cheklar", value: "47", delta: "+5" },
           ].map((k, i) => (
             <div key={k.label} className="anim-slide-up rounded-xl bg-white/5 p-3" style={{ animationDelay: `${300 + i * 120}ms` }}>
-              <p className="text-[11px] text-slate-400">{k.label}</p>
+              <p className="text-[11px] text-slate-400">{t(k.label)}</p>
               <p className="mt-1 text-lg font-semibold num">{k.value}</p>
               <p className="text-[11px] text-emerald-400">{k.delta}</p>
             </div>
@@ -142,7 +147,7 @@ function DashboardMockup() {
 
         <div className="mt-4 rounded-xl bg-white/5 p-3">
           <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-            <span>Haftalik savdo</span>
+            <span>{t("Haftalik savdo")}</span>
             <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
           </div>
           <div className="relative flex h-28 items-end gap-2">
@@ -175,22 +180,22 @@ function DashboardMockup() {
             <ShoppingCart className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">{current.who}</p>
+            <p className="truncate text-sm font-medium">{t(current.who)}</p>
             <p className="truncate text-xs text-slate-400">{current.what}</p>
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold num">{current.sum}</p>
-            <p className={cn("text-[11px]", current.tone)}>{current.tag}</p>
+            <p className={cn("text-[11px]", current.tone)}>{t(current.tag)}</p>
           </div>
         </div>
       </div>
 
       {/* Suzib yuruvchi kartochkalar */}
       <div className="anim-float absolute -left-6 -top-6 hidden rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-xs text-slate-200 shadow-xl backdrop-blur sm:flex sm:items-center sm:gap-2" style={{ animationDelay: "-2s" }}>
-        <ScanBarcode className="h-4 w-4 text-orange-400" /> Shtrix-kod: 0,3 s
+        <ScanBarcode className="h-4 w-4 text-orange-400" /> {t("Shtrix-kod: 0,3 s")}
       </div>
       <div className="anim-float absolute -bottom-5 -right-4 hidden rounded-xl border border-white/10 bg-slate-900/90 px-3 py-2 text-xs text-slate-200 shadow-xl backdrop-blur sm:flex sm:items-center sm:gap-2" style={{ animationDelay: "-4s" }}>
-        <Bell className="h-4 w-4 text-amber-400" /> Telegram: yangi savdo
+        <Bell className="h-4 w-4 text-amber-400" /> {t("Telegram: yangi savdo")}
       </div>
     </div>
   );
@@ -212,7 +217,7 @@ function LoginCard() {
     try {
       await login(username.trim(), password);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Kutilmagan xatolik");
+      setError(err instanceof ApiError ? t(err.message) : t("Kutilmagan xatolik"));
     } finally {
       setLoading(false);
     }
@@ -222,12 +227,12 @@ function LoginCard() {
     <div id="login" className="anim-pop relative rounded-3xl border border-border bg-surface/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
       <div className="pointer-events-none absolute -inset-px -z-10 rounded-3xl bg-gradient-to-br from-orange-500/40 via-transparent to-amber-400/30 blur-sm" />
       <div className="mb-6">
-        <h2 className="text-xl font-semibold">Hisobingizga kiring</h2>
-        <p className="mt-1 text-sm text-muted">Kassa, ombor va hisobotlar — bitta joyda</p>
+        <h2 className="text-xl font-semibold">{t("Hisobingizga kiring")}</h2>
+        <p className="mt-1 text-sm text-muted">{t("Kassa, ombor va hisobotlar — bitta joyda")}</p>
       </div>
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Input
-          label="Login"
+          label={t("Login")}
           name="username"
           autoComplete="username"
           required
@@ -236,7 +241,7 @@ function LoginCard() {
           onChange={(e) => setUsername(e.target.value)}
         />
         <Input
-          label="Parol"
+          label={t("Parol")}
           name="password"
           type="password"
           autoComplete="current-password"
@@ -251,12 +256,12 @@ function LoginCard() {
           </p>
         )}
         <Button type="submit" className="h-11 w-full text-base" loading={loading} disabled={!username || !password}>
-          Kirish <ArrowRight className="h-4 w-4" />
+          {t("Kirish")} <ArrowRight className="h-4 w-4" />
         </Button>
       </form>
       <div className="mt-6 flex items-center gap-2 text-xs text-muted">
         <ShieldCheck className="h-4 w-4 text-success" />
-        Ma'lumotlar shifrlangan aloqa orqali uzatiladi
+        {t("Ma'lumotlar shifrlangan aloqa orqali uzatiladi")}
       </div>
     </div>
   );
@@ -309,11 +314,12 @@ export function LandingPage() {
           <span className="text-lg font-semibold tracking-tight">Savdo</span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={cycle} className="rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-fg" aria-label="Mavzuni almashtirish">
+          <LangSwitcher />
+          <button onClick={cycle} className="rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-fg" aria-label={t("Mavzuni almashtirish")}>
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
           <a href="#login" className="rounded-lg px-3 py-2 text-sm font-medium text-brand hover:bg-brand-soft lg:hidden">
-            Kirish
+            {t("Kirish")}
           </a>
         </div>
       </header>
@@ -322,14 +328,13 @@ export function LandingPage() {
       <main className="relative z-10 mx-auto grid max-w-7xl gap-10 px-4 pb-16 pt-4 sm:px-6 lg:grid-cols-[1fr_400px] lg:gap-14 lg:pt-10">
         <section className="min-w-0">
           <div className="anim-slide-up inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 text-xs font-medium text-muted backdrop-blur">
-            <Zap className="h-3.5 w-3.5 text-brand" /> Do'koningiz uchun zamonaviy boshqaruv tizimi
+            <Zap className="h-3.5 w-3.5 text-brand" /> {t("Do'koningiz uchun zamonaviy boshqaruv tizimi")}
           </div>
           <h1 className="anim-slide-up mt-5 text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl" style={{ animationDelay: "80ms" }}>
-            Savdoni <span className="text-shimmer">aqlli</span> boshqaring —<br className="hidden sm:block" /> kassadan foydagacha
+            {t("Savdoni")} <span className="text-shimmer">{t("aqlli")}</span> {t("boshqaring —")}<br className="hidden sm:block" /> {t("kassadan foydagacha")}
           </h1>
           <p className="anim-slide-up mt-5 max-w-xl text-base text-muted sm:text-lg" style={{ animationDelay: "160ms" }}>
-            Sotuv, ombor, nasiya, xarajat va hisobotlar bitta tizimda. Real vaqtdagi raqamlar, haqiqiy foyda va
-            har bir savdo haqida Telegram xabari.
+            {t("Sotuv, ombor, nasiya, xarajat va hisobotlar bitta tizimda. Real vaqtdagi raqamlar, haqiqiy foyda va har bir savdo haqida Telegram xabari.")}
           </p>
 
           <div className="anim-slide-up mt-8 grid max-w-lg grid-cols-3 gap-4" style={{ animationDelay: "240ms" }}>
@@ -342,7 +347,7 @@ export function LandingPage() {
                 <p className="text-2xl font-bold sm:text-3xl">
                   <CountUp to={s.to} suffix={s.suffix} />
                 </p>
-                <p className="text-xs text-muted sm:text-sm">{s.label}</p>
+                <p className="text-xs text-muted sm:text-sm">{t(s.label)}</p>
               </div>
             ))}
           </div>
@@ -357,13 +362,13 @@ export function LandingPage() {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="anim-slide-up rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur" style={{ animationDelay: "400ms" }}>
               <Wallet className="h-5 w-5 text-brand" />
-              <p className="mt-2 text-sm font-medium">Dollar va so'm</p>
-              <p className="text-xs text-muted">Markaziy bank kursi har kuni</p>
+              <p className="mt-2 text-sm font-medium">{t("Dollar va so'm")}</p>
+              <p className="text-xs text-muted">{t("Markaziy bank kursi har kuni")}</p>
             </div>
             <div className="anim-slide-up rounded-2xl border border-border bg-surface/70 p-4 backdrop-blur" style={{ animationDelay: "500ms" }}>
               <ShieldCheck className="h-5 w-5 text-success" />
-              <p className="mt-2 text-sm font-medium">Rollar va audit</p>
-              <p className="text-xs text-muted">Kim nima qilgani yoziladi</p>
+              <p className="mt-2 text-sm font-medium">{t("Rollar va audit")}</p>
+              <p className="text-xs text-muted">{t("Kim nima qilgani yoziladi")}</p>
             </div>
           </div>
         </aside>
@@ -373,9 +378,9 @@ export function LandingPage() {
       <section className="relative z-10 border-t border-border/60 bg-surface/40 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
           <Reveal>
-            <h2 className="text-center text-3xl font-bold tracking-tight">Do'kon uchun kerak bo'lgan hamma narsa</h2>
+            <h2 className="text-center text-3xl font-bold tracking-tight">{t("Do'kon uchun kerak bo'lgan hamma narsa")}</h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-muted">
-              Qog'oz daftar va Excel jadvallardan voz keching — Savdo har bir so'mni hisobga oladi.
+              {t("Qog'oz daftar va Excel jadvallardan voz keching — Savdo har bir so'mni hisobga oladi.")}
             </p>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -385,8 +390,8 @@ export function LandingPage() {
                   <div className="grid h-11 w-11 place-items-center rounded-xl bg-brand-soft text-brand transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                     <f.icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-4 font-semibold">{f.title}</h3>
-                  <p className="mt-1 text-sm text-muted">{f.text}</p>
+                  <h3 className="mt-4 font-semibold">{t(f.title)}</h3>
+                  <p className="mt-1 text-sm text-muted">{t(f.text)}</p>
                 </div>
               </Reveal>
             ))}
@@ -395,7 +400,7 @@ export function LandingPage() {
       </section>
 
       <footer className="relative z-10 border-t border-border/60 py-6 text-center text-xs text-muted">
-        © {new Date().getFullYear()} Savdo — savdo va ombor boshqaruv tizimi
+        © {new Date().getFullYear()} Savdo — {t("savdo va ombor boshqaruv tizimi")}
       </footer>
     </div>
   );

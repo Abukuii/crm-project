@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { t } from "@/i18n";
 import { ApiError } from "@/lib/api";
 
 export interface Toast {
@@ -32,5 +33,5 @@ export const toast = {
   success: (text: string) => useToasts.getState().push("success", text),
   info: (text: string) => useToasts.getState().push("info", text),
   error: (err: unknown) =>
-    useToasts.getState().push("error", err instanceof ApiError ? err.message : String((err as Error)?.message ?? err)),
+    useToasts.getState().push("error", err instanceof ApiError ? t(err.message) : t(String((err as Error)?.message ?? err))),
 };

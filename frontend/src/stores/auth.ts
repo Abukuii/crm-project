@@ -1,9 +1,17 @@
 import { create } from "zustand";
 
 import type { AuthResponse, Me } from "@/api/types";
+import { useLang, type Lang } from "@/i18n";
 import { api, refreshAccess, tokenStore } from "@/lib/api";
 
 type Status = "loading" | "authenticated" | "anonymous";
+
+/** Foydalanuvchi bu brauzerda til tanlamagan bo'lsa — profilidagi til qo'llanadi. */
+function applyUserLang(user: Me) {
+  const { explicit } = useLang.getState();
+  const code = user.language as Lang | undefined;
+  if (!explicit && code && ["uz", "ru", "en"].includes(code)) useLang.setState({ lang: code });
+}
 
 interface AuthState {
   status: Status;
@@ -27,6 +35,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     }
     try {
       const user = await api<Me>("/auth/me/");
+      applyUserLang(user);
       set({ status: "authenticated", user });
     } catch {
       tokenStore.set(null);
@@ -40,6 +49,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       body: { username, password },
     }, false);
     tokenStore.set(data.access);
+    applyUserLang(data.user);
     set({ status: "authenticated", user: data.user });
   },
 
