@@ -1,13 +1,26 @@
-# Production (va staging) uchun. Ishga tushirish: infra/README.md ga qarang.
-name: qurilish-crm
+# Savdo — production (AWS EC2). O'rnatish va yangilanish: infra/README.md
+#
+# Server faylni o'zgartirmaydi: yangi versiya GitHub'dan avtomatik tortiladi
+# (infra/deploy/auto-update.sh), maxfiy sozlamalar faqat infra/.env da.
+name: savdo
+
+x-logging: &logging
+  # Kichik serverda disk to'lib qolmasligi uchun loglar aylantiriladi
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
 
 x-backend: &backend
   build: ../backend
-  image: ${IMAGE_PREFIX:-qurilish-crm}/api:${IMAGE_TAG:-latest}
+  image: savdo/api:${IMAGE_TAG:-latest}
   restart: unless-stopped
+  logging: *logging
   env_file: .env
   environment:
     DJANGO_SETTINGS_MODULE: config.settings.prod
+    DJANGO_ALLOWED_HOSTS: ${APP_DOMAIN},www.${APP_DOMAIN}
+    DJANGO_CSRF_TRUSTED_ORIGINS: https://${APP_DOMAIN},https://www.${APP_DOMAIN}
     DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     REDIS_URL: redis://redis:6379/0
   depends_on:
@@ -20,6 +33,7 @@ services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    logging: *logging
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -30,12 +44,13 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    logging: *logging
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - redisdata:/data
     healthcheck:
@@ -44,6 +59,7 @@ services:
       timeout: 3s
       retries: 5
 
+  # Har yangilanishda bir marta: migratsiyalar (keyin to'xtaydi)
   migrate:
     <<: *backend
     restart: "no"
@@ -51,14 +67,17 @@ services:
 
   api:
     <<: *backend
+    command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000",
+              "--workers", "${GUNICORN_WORKERS:-3}", "--timeout", "60", "--access-logfile", "-"]
     depends_on:
       migrate:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health/').status==200 else 1)"]
-      interval: 30s
+      interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 20s
 
   worker:
     <<: *backend
@@ -76,16 +95,18 @@ services:
 
   web:
     build: ../frontend
-    image: ${IMAGE_PREFIX:-qurilish-crm}/web:${IMAGE_TAG:-latest}
+    image: savdo/web:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    logging: *logging
     environment:
       APP_DOMAIN: ${APP_DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL}
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"  # HTTP/3
     volumes:
-      - caddydata:/data
+      - caddydata:/data  # SSL sertifikatlar (o'chirmang!)
       - caddyconfig:/config
     depends_on:
       api:

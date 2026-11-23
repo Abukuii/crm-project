@@ -1,0 +1,10 @@
+[Unit]
+Description=Savdo: har kuni 03:00 da zaxira nusxa
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

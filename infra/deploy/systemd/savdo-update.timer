@@ -1,0 +1,11 @@
+[Unit]
+Description=Savdo: har 2 daqiqada yangilanishni tekshirish
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=2min
+RandomizedDelaySec=15s
+Persistent=true
+
+[Install]
+WantedBy=timers.target

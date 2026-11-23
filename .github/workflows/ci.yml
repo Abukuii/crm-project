@@ -67,3 +67,24 @@ jobs:
           git diff --exit-code src/api/schema.d.ts
       - run: npm test
       - run: npm run build
+
+  # Testlar yashil bo'lsa — commit "production" branch'iga ko'chiriladi.
+  # Server (infra/deploy/auto-update.sh) faqat shu branch'ni kuzatadi va o'zi tortib oladi.
+  promote:
+    name: Production'ga chiqarish
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: promote-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: main → production
+        run: |
+          git push origin "HEAD:refs/heads/production" --force
+          echo "Production: $(git rev-parse --short HEAD) — server 2 daqiqa ichida yangilanadi" >> "$GITHUB_STEP_SUMMARY"

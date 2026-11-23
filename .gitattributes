@@ -1,0 +1,7 @@
+# Server skriptlari va konfiguratsiyalar Linux'da ishlaydi — har doim LF
+*.sh        text eol=lf
+*.service   text eol=lf
+*.timer     text eol=lf
+Caddyfile   text eol=lf
+Dockerfile  text eol=lf
+*.yml       text eol=lf

@@ -1,0 +1,13 @@
+[Unit]
+Description=Savdo: GitHub'dan avtomatik yangilanish
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+Environment=APP_DIR=/opt/savdo
+ExecStart=/opt/savdo/infra/deploy/auto-update.sh
+# Qurish uzoq davom etishi mumkin (kichik serverda frontend build)
+TimeoutStartSec=30min
+Nice=10
