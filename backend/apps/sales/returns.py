@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from django.db import transaction
 from django.db.models import Sum
+from django.utils import timezone
 
 from apps.catalog.units import check_fraction
 from apps.core import audit
@@ -28,7 +29,7 @@ class ReturnItem:
 
 def returned_qty_by_line(sale: Sale) -> dict[int, Decimal]:
     return dict(
-        SaleReturnLine.objects.filter(sale_line__sale=sale)
+        SaleReturnLine.objects.filter(sale_line__sale=sale, sale_return__status=SaleReturn.POSTED)
         .values_list("sale_line_id").annotate(s=Sum("qty")).values_list("sale_line_id", "s")
     )  # fmt: skip
 
@@ -106,4 +107,50 @@ def create_return(*, tenant, user, sale: Sale, items: list[ReturnItem], refund_m
     audit.record(action="sale.return", entity="sale", entity_id=sale.pk, tenant=tenant, user=user,
                  request=request,
                  after={"return": ret.number, "total": total, "method": refund_method})  # fmt: skip
+    return ret
+
+
+@transaction.atomic
+def cancel_return(
+    *, tenant, user, sale_return: SaleReturn, reason: str = "", request=None
+) -> SaleReturn:
+    """Qaytarishni bekor qilish (xato qaytarish): tovar yana ombordan chiqadi,
+    pul kassaga qaytadi (joriy smenada hisoblanadi), qarzdan ayirilgan bo'lsa — qarz tiklanadi."""
+    ret = (
+        SaleReturn.objects.select_for_update()
+        .select_related("sale__warehouse")
+        .get(pk=sale_return.pk, tenant=tenant)
+    )
+    sale = Sale.objects.select_for_update().get(pk=ret.sale_id)
+    if ret.status != SaleReturn.POSTED:
+        raise DomainError("Qaytarish allaqachon bekor qilingan", code="return_already_cancelled")
+    if not user.can_access_branch(sale.warehouse.branch_id):
+        raise DomainError("Bu omborga ruxsat yo'q", code="branch_forbidden", status_code=403)
+
+    lines = list(ret.lines.select_related("sale_line"))
+    # Tovar qaytarishdagi aniq tannarx bilan chiqariladi; omborda yetmasa — InsufficientStock
+    post_moves(
+        tenant=tenant, warehouse=sale.warehouse, doc_type=DOC_TYPE, doc_id=ret.pk, user=user,
+        note=f"Qaytarish #{ret.number} bekor qilindi", allow_negative=False,
+        lines=[MoveLine(r.sale_line.product_id, -r.base_qty, r.unit_cost) for r in lines],
+    )  # fmt: skip
+
+    if ret.refund_method == SaleReturn.DEBT:
+        receivable = Receivable.objects.select_for_update().filter(sale=sale).first()
+        if receivable is None:
+            raise DomainError("Savdoning qarz yozuvi topilmadi", code="no_receivable")
+        receivable.amount += ret.total
+        if receivable.status == Receivable.CLOSED and receivable.paid < receivable.amount:
+            receivable.status = Receivable.OPEN
+        receivable.save(update_fields=["amount", "status", "updated_at"])
+
+    ret.status = SaleReturn.CANCELLED
+    ret.cancelled_at = timezone.now()
+    ret.cancelled_by = user
+    ret.cancel_reason = reason
+    ret.cancel_shift = current_shift(user)
+    ret.save()
+    audit.record(action="sale.return_cancel", entity="sale", entity_id=sale.pk, tenant=tenant,
+                 user=user, request=request,
+                 after={"return": ret.number, "total": ret.total, "reason": reason})  # fmt: skip
     return ret

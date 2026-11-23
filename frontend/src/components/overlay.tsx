@@ -1,5 +1,5 @@
 import { CheckCircle2, Info, X, XCircle } from "lucide-react";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { t } from "@/i18n";
@@ -141,5 +141,65 @@ export function ConfirmButton({
     >
       {children}
     </button>
+  );
+}
+
+/** Sabab so'rab tasdiqlash oynasi (window.prompt o'rniga). */
+export function ReasonDialog({
+  open,
+  title,
+  message,
+  confirmLabel,
+  loading,
+  onConfirm,
+  onClose,
+}: {
+  open: boolean;
+  title: ReactNode;
+  message: ReactNode;
+  confirmLabel: ReactNode;
+  loading?: boolean;
+  onConfirm: (reason: string) => void;
+  onClose: () => void;
+}) {
+  const [reason, setReason] = useState("");
+  useEffect(() => {
+    if (open) setReason("");
+  }, [open]);
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      size="sm"
+      title={title}
+      footer={
+        <>
+          <button className="h-10 rounded-lg border border-border px-4 text-sm hover:bg-surface-2" onClick={onClose}>
+            {t("Bekor")}
+          </button>
+          <button
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-danger px-4 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60"
+            disabled={loading}
+            onClick={() => onConfirm(reason.trim())}
+          >
+            {confirmLabel}
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <p className="text-sm text-muted">{message}</p>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium">{t("Sabab")}</span>
+          <input
+            autoFocus
+            className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-sm focus:border-brand focus:outline-none"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !loading && onConfirm(reason.trim())}
+          />
+        </label>
+      </div>
+    </Modal>
   );
 }

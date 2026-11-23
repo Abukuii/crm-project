@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.catalog.models import PriceType, Product, Unit
+from apps.core.money import q_money, q_qty
 from apps.core.serializers import TenantRelatedField
 from apps.inventory.models import Warehouse
 
@@ -82,7 +83,8 @@ class SaleLineSerializer(serializers.ModelSerializer):
                   "price", "discount", "total", "cost_total", "returned_qty"]  # fmt: skip
 
     def get_returned_qty(self, obj) -> str:
-        return str(sum((r.qty for r in obj.returned.all()), D0))
+        active = (r.qty for r in obj.returned.all() if r.sale_return.status == "posted")
+        return str(q_qty(sum(active, D0)))
 
 
 class SalePaymentSerializer(serializers.ModelSerializer):
@@ -115,7 +117,7 @@ class SaleSerializer(serializers.ModelSerializer):
                   "shift_number"]  # fmt: skip
 
     def get_returned_total(self, obj) -> str:
-        return str(sum((r.total for r in obj.returns.all()), D0))
+        return str(q_money(sum((r.total for r in obj.returns.all() if r.status == "posted"), D0)))
 
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_returns(self, obj) -> list[dict]:
@@ -125,7 +127,9 @@ class SaleSerializer(serializers.ModelSerializer):
         return obj.cashier.get_full_name() or obj.cashier.username
 
     def get_profit(self, obj) -> str:
-        returned = sum((r.total - r.cost_total for r in obj.returns.all()), D0)
+        returned = sum(
+            (r.total - r.cost_total for r in obj.returns.all() if r.status == "posted"), D0
+        )
         return str(obj.total - obj.cost_total - returned)
 
     def to_representation(self, instance):
@@ -209,11 +213,17 @@ class PosProductSerializer(serializers.Serializer):
 # ── Qaytarish ────────────────────────────────────────────────────────────────
 class SaleReturnBriefSerializer(serializers.ModelSerializer):
     created_by_name = serializers.SerializerMethodField()
+    cancelled_by_name = serializers.SerializerMethodField()
 
     class Meta:
         model = SaleReturn
         fields = ["id", "number", "date", "refund_method", "total", "reason", "created_by_name",
-                  "created_at"]  # fmt: skip
+                  "created_at", "status", "cancelled_at", "cancel_reason",
+                  "cancelled_by_name"]  # fmt: skip
+
+    def get_cancelled_by_name(self, obj) -> str | None:
+        u = obj.cancelled_by
+        return (u.get_full_name() or u.username) if u else None
 
     def get_created_by_name(self, obj) -> str | None:
         u = obj.created_by
@@ -283,6 +293,11 @@ class ShiftReportSerializer(serializers.Serializer):
     returns_count = serializers.IntegerField()
     returns_total = serializers.DecimalField(**_M)
     refunds_by_method = serializers.DictField(child=serializers.DecimalField(**_M))
+    returns_cancelled_count = serializers.IntegerField(required=False)
+    returns_cancelled_total = serializers.DecimalField(**_M, required=False)
+    cancelled_refunds_by_method = serializers.DictField(
+        child=serializers.DecimalField(**_M), required=False
+    )
     net_revenue = serializers.DecimalField(**_M)
     debt_payments = serializers.DictField(child=serializers.DecimalField(**_M))
     cash_in = serializers.DecimalField(**_M)

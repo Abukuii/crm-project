@@ -221,6 +221,8 @@ class CashMovement(TenantModel):
 class SaleReturn(TenantModel):
     """Qaytarish (to'liq yoki qisman). Tovar omborga sotilgan tannarxida qaytadi."""
 
+    POSTED, CANCELLED = "posted", "cancelled"
+    STATUS_CHOICES = [(POSTED, "O'tkazilgan"), (CANCELLED, "Bekor qilingan")]
     CASH, CARD, TRANSFER, DEBT = "cash", "card", "transfer", "debt"
     REFUND_CHOICES = [(CASH, "Naqd"), (CARD, "Plastik karta"), (TRANSFER, "O'tkazma"),
                       (DEBT, "Qarzdan ayirish")]  # fmt: skip
@@ -237,6 +239,16 @@ class SaleReturn(TenantModel):
     reason = models.CharField(max_length=300, blank=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=POSTED, db_index=True)
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+    cancel_reason = models.CharField(max_length=300, blank=True)
+    # Bekor qilingan paytdagi smena: naqd qaytarish bekor bo'lsa pul shu smena kassasiga qaytadi
+    cancel_shift = models.ForeignKey(
+        Shift, on_delete=models.PROTECT, null=True, blank=True, related_name="cancelled_returns"
     )
 
     class Meta:

@@ -15,8 +15,17 @@ from apps.currency.services import RateNotFound, get_rate
 from apps.inventory.models import StockBalance, Warehouse
 
 from . import services
-from .models import Customer, Receivable, Sale, SaleLine, SalePayment, SaleReturn, Shift
-from .returns import ReturnItem, create_return
+from .models import (
+    Customer,
+    Receivable,
+    Sale,
+    SaleLine,
+    SalePayment,
+    SaleReturn,
+    SaleReturnLine,
+    Shift,
+)
+from .returns import ReturnItem, cancel_return, create_return
 from .serializers import (
     CancelSerializer,
     CashMoveSerializer,
@@ -128,7 +137,8 @@ class SaleViewSet(
     serializer_class = SaleSerializer
     read_perm = "sales.create"
     write_perm = "sales.create"
-    action_perms = {"cancel": "sales.refund", "returns": "sales.refund", "summary": "sales.create",
+    action_perms = {"cancel": "sales.refund", "returns": "sales.refund",
+                    "cancel_return": "sales.refund", "summary": "sales.create",
                     "pos_catalog": "sales.create"}  # fmt: skip
     filterset_fields = ["status", "customer", "cashier", "warehouse"]
     ordering_fields = ["created_at", "total", "number"]
@@ -155,11 +165,16 @@ class SaleViewSet(
             Prefetch(
                 "lines",
                 queryset=SaleLine.objects.select_related("product", "unit").prefetch_related(
-                    "returned"
+                    Prefetch(
+                        "returned", queryset=SaleReturnLine.objects.select_related("sale_return")
+                    )
                 ),
             ),
             "payments",
-            Prefetch("returns", queryset=SaleReturn.objects.select_related("created_by")),
+            Prefetch(
+                "returns",
+                queryset=SaleReturn.objects.select_related("created_by", "cancelled_by"),
+            ),
         )
 
     def list(self, request, *args, **kwargs):
@@ -220,6 +235,21 @@ class SaleViewSet(
         sale = self._detailed(Sale.objects.filter(pk=pk)).get()
         return Response(self.get_serializer(sale).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(request=CancelSerializer, responses=SaleSerializer)
+    @action(detail=True, methods=["post"], url_path=r"returns/(?P<return_id>\d+)/cancel")
+    def cancel_return(self, request, pk=None, return_id=None):
+        """Qaytarishni bekor qilish (xato qilingan qaytarish)."""
+        sale = self.get_object()
+        ret = SaleReturn.objects.filter(pk=return_id, sale=sale).first()
+        if ret is None:
+            raise DomainError("Qaytarish topilmadi", code="not_found", status_code=404)
+        serializer = CancelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cancel_return(tenant=self.tenant, user=request.user, sale_return=ret,
+                      reason=serializer.validated_data.get("reason", ""), request=request)  # fmt: skip
+        sale = self._detailed(Sale.objects.filter(pk=sale.pk)).get()
+        return Response(self.get_serializer(sale).data)
+
     @extend_schema(
         parameters=[OpenApiParameter("date_from", str), OpenApiParameter("date_to", str)],
         responses=SalesSummarySerializer,
@@ -236,9 +266,9 @@ class SaleViewSet(
             .values_list("method").annotate(s=Sum("amount")).values_list("method", "s")
         )  # fmt: skip
         total = agg["total"] or ZERO
-        ret = SaleReturn.objects.filter(sale__in=qs.values("pk")).aggregate(
-            total=Sum("total"), cost=Sum("cost_total")
-        )
+        ret = SaleReturn.objects.filter(
+            sale__in=qs.values("pk"), status=SaleReturn.POSTED
+        ).aggregate(total=Sum("total"), cost=Sum("cost_total"))
         returns = ret["total"] or ZERO
         profit = None
         if request.user.has_perm_code("cost.view"):

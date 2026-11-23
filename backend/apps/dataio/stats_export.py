@@ -80,7 +80,9 @@ def stats_workbook(tenant, user, date_from: date, date_to: date, lang: str = "uz
     agg = posted.aggregate(n=Count("id"), total=Sum("total"), cost=Sum("cost_total"),
                            discount=Sum("discount_total"))  # fmt: skip
     gross_revenue = agg["total"] or ZERO
-    ret_qs = SaleReturn.objects.filter(tenant=tenant, date__gte=date_from, date__lte=date_to)
+    ret_qs = SaleReturn.objects.filter(
+        tenant=tenant, date__gte=date_from, date__lte=date_to, status=SaleReturn.POSTED
+    )
     if branch_ids is not None:
         ret_qs = ret_qs.filter(sale__warehouse__branch_id__in=branch_ids)
     ret = ret_qs.aggregate(total=Sum("total"), cost=Sum("cost_total"))

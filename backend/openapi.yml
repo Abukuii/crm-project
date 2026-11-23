@@ -3607,6 +3607,45 @@ paths:
               schema:
                 $ref: '#/components/schemas/Sale'
           description: ''
+  /api/v1/sales/sales/{id}/returns/{return_id}/cancel/:
+    post:
+      operationId: v1_sales_sales_returns_cancel_create
+      description: Qaytarishni bekor qilish (xato qilingan qaytarish).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sale.
+        required: true
+      - in: path
+        name: return_id
+        schema:
+          type: string
+          pattern: ^\d+$
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
   /api/v1/sales/sales/pos-catalog/:
     get:
       operationId: v1_sales_sales_pos_catalog_list
@@ -6843,6 +6882,18 @@ components:
           format: decimal
           pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
         refunds_by_method:
+          type: object
+          additionalProperties:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        returns_cancelled_count:
+          type: integer
+        returns_cancelled_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        cancelled_refunds_by_method:
           type: object
           additionalProperties:
             type: string

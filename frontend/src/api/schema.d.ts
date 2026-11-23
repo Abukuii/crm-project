@@ -1420,6 +1420,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sales/sales/{id}/returns/{return_id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Qaytarishni bekor qilish (xato qilingan qaytarish). */
+        post: operations["v1_sales_sales_returns_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sales/sales/pos-catalog/": {
         parameters: {
             query?: never;
@@ -2839,6 +2856,12 @@ export interface components {
             /** Format: decimal */
             returns_total: string;
             refunds_by_method: {
+                [key: string]: string;
+            };
+            returns_cancelled_count?: number;
+            /** Format: decimal */
+            returns_cancelled_total?: string;
+            cancelled_refunds_by_method?: {
                 [key: string]: string;
             };
             /** Format: decimal */
@@ -6075,6 +6098,35 @@ export interface operations {
                 "application/json": components["schemas"]["ReturnCreateRequest"];
                 "application/x-www-form-urlencoded": components["schemas"]["ReturnCreateRequest"];
                 "multipart/form-data": components["schemas"]["ReturnCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sale"];
+                };
+            };
+        };
+    };
+    v1_sales_sales_returns_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this sale. */
+                id: number;
+                return_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CancelRequest"];
+                "multipart/form-data": components["schemas"]["CancelRequest"];
             };
         };
         responses: {

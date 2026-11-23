@@ -1,13 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Download, Printer, Receipt as ReceiptIcon, Search, Undo2 } from "lucide-react";
+import { Ban, Download, Printer, Receipt as ReceiptIcon, RotateCcw, Search, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { t } from "@/i18n";
 import { PAYMENT_LABELS, type Page, type Sale, type SalesSummary } from "@/api/types";
-import { Drawer, Modal } from "@/components/overlay";
+import { Drawer, Modal, ReasonDialog } from "@/components/overlay";
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Pager, Select, Skeleton, Table, Td, Th } from "@/components/ui";
 import { useDebounced } from "@/hooks/useDebounced";
 import { api, apiDownload } from "@/lib/api";
+import { cn } from "@/lib/cn";
 import { formatMoney, formatNumber } from "@/lib/format";
 import { formatDateTime, isoDate } from "@/lib/queries";
 import { Receipt } from "@/pages/PosPage";
@@ -26,6 +27,10 @@ interface ReturnBrief {
   reason: string;
   created_by_name: string | null;
   created_at: string;
+  status: "posted" | "cancelled";
+  cancelled_at: string | null;
+  cancel_reason: string;
+  cancelled_by_name: string | null;
 }
 
 function ReturnModal({ sale, onClose, onDone }: { sale: Sale; onClose: () => void; onDone: (s: Sale) => void }) {
@@ -115,6 +120,19 @@ export function SalesPage() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Sale | null>(null);
   const [returning, setReturning] = useState(false);
+  const cancelReturn = useMutation({
+    mutationFn: ({ ret, reason }: { ret: ReturnBrief; reason: string }) =>
+      api<Sale>(`/sales/sales/${selected!.id}/returns/${ret.id}/cancel/`, { method: "POST", body: { reason } }),
+    onSuccess: (sale) => {
+      toast.success(t("Qaytarish bekor qilindi"));
+      setConfirm(null);
+      setSelected(sale);
+      void qc.invalidateQueries({ queryKey: ["sales"] });
+      void qc.invalidateQueries({ queryKey: ["sales-summary"] });
+      void qc.invalidateQueries({ queryKey: ["shift"] });
+    },
+    onError: toast.error,
+  });
   const search = useDebounced(filters.search);
   const query = { ...filters, search, page, page_size: SIZE };
 
@@ -128,19 +146,18 @@ export function SalesPage() {
     queryFn: () => api<SalesSummary>("/sales/sales/summary/", { query: { ...filters, search } }),
   });
 
+  const [confirm, setConfirm] = useState<null | { kind: "sale" } | { kind: "return"; ret: ReturnBrief }>(null);
   const cancel = useMutation({
-    mutationFn: (sale: Sale) => {
-      const reason = window.prompt(t("Savdo #{n} bekor qilinadi, tovar omborga qaytadi. Sabab:", { n: sale.number }));
-      if (reason === null) return Promise.reject(new Error("cancelled-by-user"));
-      return api<Sale>(`/sales/sales/${sale.id}/cancel/`, { method: "POST", body: { reason } });
-    },
+    mutationFn: ({ sale, reason }: { sale: Sale; reason: string }) =>
+      api<Sale>(`/sales/sales/${sale.id}/cancel/`, { method: "POST", body: { reason } }),
     onSuccess: (sale) => {
       toast.success(t("Savdo #{n} bekor qilindi", { n: sale.number }));
+      setConfirm(null);
       setSelected(sale);
       void qc.invalidateQueries({ queryKey: ["sales"] });
       void qc.invalidateQueries({ queryKey: ["sales-summary"] });
     },
-    onError: (e) => (e as Error).message !== "cancelled-by-user" && toast.error(e),
+    onError: toast.error,
   });
 
   const set = (patch: Partial<typeof filters>) => (setFilters({ ...filters, ...patch }), setPage(1));
@@ -238,8 +255,8 @@ export function SalesPage() {
                   <Undo2 className="h-4 w-4" /> {t("Qaytarish")}
                 </Button>
               )}
-              {can("sales.refund") && selected.status === "posted" && !(selected.returns as unknown as ReturnBrief[]).length && (
-                <Button variant="danger" loading={cancel.isPending} onClick={() => cancel.mutate(selected)}>
+              {can("sales.refund") && selected.status === "posted" && !(selected.returns as unknown as ReturnBrief[]).some((r) => r.status === "posted") && (
+                <Button variant="danger" onClick={() => setConfirm({ kind: "sale" })}>
                   <Ban className="h-4 w-4" /> {t("Bekor qilish")}
                 </Button>
               )}
@@ -266,13 +283,40 @@ export function SalesPage() {
             {(selected.returns as unknown as ReturnBrief[]).length > 0 && (
               <div className="rounded-xl border border-danger/30 bg-danger/5 p-3 text-sm">
                 <p className="mb-2 font-semibold text-danger">{t("Qaytarishlar")}: {formatMoney(selected.returned_total)}</p>
-                <ul className="space-y-1">
-                  {(selected.returns as unknown as ReturnBrief[]).map((r) => (
-                    <li key={r.id} className="flex justify-between gap-2">
-                      <span className="text-muted">#{r.number} · {formatDateTime(r.created_at)} · {t(REFUND_LABELS[r.refund_method] ?? r.refund_method)}{r.reason && ` · ${r.reason}`}</span>
-                      <span className="num font-medium">−{formatMoney(r.total)}</span>
-                    </li>
-                  ))}
+                <ul className="space-y-2">
+                  {(selected.returns as unknown as ReturnBrief[]).map((r) => {
+                    const cancelled = r.status === "cancelled";
+                    return (
+                      <li key={r.id} className={cn("flex items-start justify-between gap-2", cancelled && "opacity-60")}>
+                        <div className="min-w-0">
+                          <p className={cn("text-muted", cancelled && "line-through")}>
+                            #{r.number} · {formatDateTime(r.created_at)} · {t(REFUND_LABELS[r.refund_method] ?? r.refund_method)}
+                            {r.reason && ` · ${r.reason}`}
+                          </p>
+                          {cancelled && (
+                            <p className="text-xs text-muted">
+                              <Badge tone="neutral">{t("bekor qilingan")}</Badge> {formatDateTime(r.cancelled_at)} · {r.cancelled_by_name}
+                              {r.cancel_reason && ` · ${r.cancel_reason}`}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <span className={cn("num font-medium", cancelled && "line-through")}>−{formatMoney(r.total)}</span>
+                          {!cancelled && can("sales.refund") && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setConfirm({ kind: "return", ret: r })}
+                              title={t("Qaytarishni bekor qilish")}
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                              <span className="hidden sm:inline">{t("Bekor qilish")}</span>
+                            </Button>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
@@ -280,6 +324,27 @@ export function SalesPage() {
           </div>
         )}
       </Drawer>
+      <ReasonDialog
+        open={!!confirm && !!selected}
+        onClose={() => setConfirm(null)}
+        loading={cancel.isPending || cancelReturn.isPending}
+        title={
+          confirm?.kind === "return"
+            ? t("Qaytarishni bekor qilish")
+            : t("Savdo #{n}", { n: selected?.number })
+        }
+        message={
+          confirm?.kind === "return"
+            ? t("Qaytarish #{n} bekor qilinadi: tovar yana ombordan chiqadi, pul kassaga qaytadi.", { n: confirm.ret.number })
+            : t("Savdo bekor qilinadi, tovar omborga qaytadi.")
+        }
+        confirmLabel={t("Bekor qilish")}
+        onConfirm={(reason) =>
+          confirm?.kind === "return"
+            ? cancelReturn.mutate({ ret: confirm.ret, reason })
+            : selected && cancel.mutate({ sale: selected, reason })
+        }
+      />
       {returning && selected && (
         <ReturnModal
           sale={selected}

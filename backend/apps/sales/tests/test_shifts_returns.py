@@ -191,3 +191,100 @@ class TestReturns:
         )
         s = owner_api.get(f"{SALES}summary/").json()
         assert (s["total"], s["returns"], s["profit"]) == ("116000.00", "58000.00", "9000.00")
+
+
+def _return(api, sale, qty="1", method="cash"):
+    r = api.post(f"{SALES}{sale['id']}/returns/",
+                 {"items": [{"line": sale["lines"][0]["id"], "qty": qty}], "refund_method": method},
+                 format="json")  # fmt: skip
+    assert r.status_code == 201, r.json()
+    return r.json()["returns"][0]["id"]
+
+
+class TestCancelReturn:
+    def test_cancel_takes_goods_back_and_frees_qty(self, owner_api, stock):
+        sale = _sell(owner_api, stock, qty="3")
+        rid = _return(owner_api, sale, qty="2")
+        assert _bal(stock, stock.cement) == D("99")
+        r = owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/", {"reason": "Xato"},
+                           format="json")  # fmt: skip
+        assert r.status_code == 200, r.json()
+        body = r.json()
+        assert body["returns"][0]["status"] == "cancelled"
+        assert body["returns"][0]["cancel_reason"] == "Xato"
+        assert body["returned_total"] == "0.00"
+        assert body["lines"][0]["returned_qty"] == "0.000"
+        assert body["profit"] == "27000.00"  # foyda yana to'liq
+        assert _bal(stock, stock.cement) == D("97")
+        # Endi yana qaytarish mumkin (to'liq 3 dona)
+        _return(owner_api, sale, qty="3")
+
+    def test_cannot_cancel_twice(self, owner_api, stock):
+        sale = _sell(owner_api, stock, qty="1")
+        rid = _return(owner_api, sale)
+        owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        r = owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        assert r.json()["error"]["code"] == "return_already_cancelled"
+
+    def test_cancel_restores_debt_and_reopens(self, owner_api, stock):
+        cust = Customer.objects.create(tenant=stock.tenant, name="Usta")
+        sale = _sell(owner_api, stock, qty="1", payments=[{"method": "credit", "amount": "58000"}],
+                     customer=cust.pk)  # fmt: skip
+        rid = _return(owner_api, sale, method="debt")
+        rec = Receivable.objects.get(sale_id=sale["id"])
+        assert (rec.amount, rec.status) == (D("0"), "closed")
+        owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        rec.refresh_from_db()
+        assert (rec.amount, rec.status) == (D("58000"), "open")
+
+    def test_cash_comes_back_in_later_shift(self, owner_api, stock):
+        shift1 = _open(owner_api, stock, cash="0")
+        sale = _sell(owner_api, stock, qty="1")
+        rid = _return(owner_api, sale)
+        z1 = owner_api.post(f"{SHIFTS}{shift1['id']}/close/", {"counted_cash": "0"},
+                            format="json").json()  # fmt: skip
+        assert z1["expected_cash"] == "0.00"  # 58 000 sotildi va qaytarildi
+
+        shift2 = _open(owner_api, stock, cash="0")
+        owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        x2 = owner_api.get(f"{SHIFTS}{shift2['id']}/report/").json()
+        assert x2["returns_cancelled_total"] == "58000.00"
+        assert x2["expected_cash"] == "58000.00"
+        # Birinchi smenaning Z-hisoboti o'zgarmaydi
+        assert owner_api.get(f"{SHIFTS}{shift1['id']}/report/").json()["expected_cash"] == "0.00"
+
+    def test_same_shift_return_and_cancel_net_zero(self, owner_api, stock):
+        shift = _open(owner_api, stock, cash="0")
+        sale = _sell(owner_api, stock, qty="1")
+        rid = _return(owner_api, sale)
+        owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        x = owner_api.get(f"{SHIFTS}{shift['id']}/report/").json()
+        assert (x["net_revenue"], x["expected_cash"]) == ("58000.00", "58000.00")
+
+    def test_cancel_blocked_if_goods_already_sold(self, owner_api, stock):
+        from apps.inventory.services import MoveLine, post_moves
+
+        sale = _sell(owner_api, stock, qty="1")
+        rid = _return(owner_api, sale)
+        post_moves(tenant=stock.tenant, warehouse=stock.wh, doc_type="t", doc_id=1,
+                   lines=[MoveLine(stock.cement.pk, -_bal(stock, stock.cement))])  # fmt: skip
+        r = owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        assert r.status_code == 409 and r.json()["error"]["code"] == "insufficient_stock"
+
+    def test_reports_ignore_cancelled_return_and_sale_cancel_allowed(self, owner_api, stock):
+        sale = _sell(owner_api, stock, qty="2")
+        rid = _return(owner_api, sale)
+        owner_api.post(f"{SALES}{sale['id']}/returns/{rid}/cancel/")
+        d = owner_api.get("/api/v1/reports/dashboard/").json()["today"]
+        assert (d["revenue"], d["returns"]) == ("116000.00", "0.00")
+        # Amaldagi qaytarish qolmagani uchun savdoni bekor qilish mumkin
+        assert owner_api.post(f"{SALES}{sale['id']}/cancel/").json()["status"] == "cancelled"
+
+    def test_return_of_other_sale_not_found_and_perm(self, api, owner_api, make_user, stock):
+        a = _sell(owner_api, stock, qty="1")
+        b = _sell(owner_api, stock, qty="1")
+        rid = _return(owner_api, a)
+        assert owner_api.post(f"{SALES}{b['id']}/returns/{rid}/cancel/").status_code == 404
+        cashier = make_user("Kassir")
+        cashier.branches.add(stock.branch)
+        assert api(cashier).post(f"{SALES}{a['id']}/returns/{rid}/cancel/").status_code == 403

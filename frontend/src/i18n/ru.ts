@@ -252,7 +252,6 @@ export const ru: Record<string, string> = {
   "Savat bo'sh": "Корзина пуста",
   "Savdo": "Продажи",
   "Savdo #{n}": "Продажа №{n}",
-  "Savdo #{n} bekor qilinadi, tovar omborga qaytadi. Sabab:": "Продажа №{n} будет отменена, товар вернётся на склад. Причина:",
   "Savdo #{n} bekor qilindi": "Продажа №{n} отменена",
   "Savdo #{n} yakunlandi": "Продажа №{n} завершена",
   "Savdo #{n} — {sum}": "Продажа №{n} — {sum}",
@@ -466,6 +465,16 @@ export const ru: Record<string, string> = {
   "Bu savdo bo'yicha ochiq qarz yo'q": "По этой продаже нет открытого долга",
   "Qaytariladigan tovar tanlanmagan": "Не выбраны товары для возврата",
   "Bekor qilingan savdodan qaytarib bo'lmaydi": "Нельзя вернуть отменённую продажу",
+
+  "bekor qilingan": "отменён",
+  "Qaytarishni bekor qilish": "Отменить возврат",
+  "Qaytarish bekor qilindi": "Возврат отменён",
+  "Bekor qilingan qaytarishlar": "Отменённые возвраты",
+  "Qaytarish allaqachon bekor qilingan": "Возврат уже отменён",
+  "Qaytarish topilmadi": "Возврат не найден",
+
+  "Qaytarish #{n} bekor qilinadi: tovar yana ombordan chiqadi, pul kassaga qaytadi.": "Возврат №{n} будет отменён: товар снова спишется со склада, деньги вернутся в кассу.",
+  "Savdo bekor qilinadi, tovar omborga qaytadi.": "Продажа будет отменена, товар вернётся на склад.",
 
   // ── Tizim rollari ──
   "Egasi": "Владелец",

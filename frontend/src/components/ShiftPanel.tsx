@@ -54,6 +54,12 @@ export function ShiftReportView({ report, final }: { report: ShiftReport; final:
           {methods(report.refunds_by_method, REFUND_LABELS)}
         </>
       )}
+      {(report.returns_cancelled_count ?? 0) > 0 && (
+        <>
+          {row(t("Bekor qilingan qaytarishlar"), report.returns_cancelled_total, false, "text-success")}
+          {methods(report.cancelled_refunds_by_method ?? {}, REFUND_LABELS)}
+        </>
+      )}
       {row(t("Sof savdo"), report.net_revenue, true)}
       {Object.keys(report.debt_payments).length > 0 && (
         <>

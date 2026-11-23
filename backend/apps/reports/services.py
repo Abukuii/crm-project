@@ -26,7 +26,9 @@ def _period(tenant, start, end, branch_ids, with_cost: bool) -> dict:
     agg = sales.aggregate(n=Count("id"), total=Sum("total"), cost=Sum("cost_total"),
                           discount=Sum("discount_total"))  # fmt: skip
     # Qaytarishlar qaytarilgan sanasi bo'yicha ayiriladi (sof tushum)
-    ret_qs = SaleReturn.objects.filter(tenant=tenant, date__gte=start, date__lte=end)
+    ret_qs = SaleReturn.objects.filter(
+        tenant=tenant, date__gte=start, date__lte=end, status=SaleReturn.POSTED
+    )
     if branch_ids is not None:
         ret_qs = ret_qs.filter(sale__warehouse__branch_id__in=branch_ids)
     ret = ret_qs.aggregate(total=Sum("total"), cost=Sum("cost_total"))

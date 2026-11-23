@@ -249,7 +249,7 @@ def cancel_sale(*, tenant, user, sale: Sale, reason: str = "", request=None) -> 
     sale = Sale.objects.select_for_update().get(pk=sale.pk, tenant=tenant)
     if sale.status != Sale.POSTED:
         raise DomainError("Savdo allaqachon bekor qilingan", code="already_cancelled")
-    if sale.returns.exists():
+    if sale.returns.filter(status="posted").exists():
         raise DomainError(
             "Bu savdodan qaytarish qilingan — bekor qilib bo'lmaydi", code="sale_has_returns"
         )

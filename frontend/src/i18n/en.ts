@@ -252,7 +252,6 @@ export const en: Record<string, string> = {
   "Savat bo'sh": "Cart is empty",
   "Savdo": "Sales",
   "Savdo #{n}": "Sale #{n}",
-  "Savdo #{n} bekor qilinadi, tovar omborga qaytadi. Sabab:": "Sale #{n} will be cancelled and goods returned to stock. Reason:",
   "Savdo #{n} bekor qilindi": "Sale #{n} cancelled",
   "Savdo #{n} yakunlandi": "Sale #{n} completed",
   "Savdo #{n} — {sum}": "Sale #{n} — {sum}",
@@ -466,6 +465,16 @@ export const en: Record<string, string> = {
   "Bu savdo bo'yicha ochiq qarz yo'q": "This sale has no open debt",
   "Qaytariladigan tovar tanlanmagan": "No items selected to return",
   "Bekor qilingan savdodan qaytarib bo'lmaydi": "A cancelled sale cannot be returned",
+
+  "bekor qilingan": "cancelled",
+  "Qaytarishni bekor qilish": "Cancel return",
+  "Qaytarish bekor qilindi": "Return cancelled",
+  "Bekor qilingan qaytarishlar": "Cancelled returns",
+  "Qaytarish allaqachon bekor qilingan": "The return is already cancelled",
+  "Qaytarish topilmadi": "Return not found",
+
+  "Qaytarish #{n} bekor qilinadi: tovar yana ombordan chiqadi, pul kassaga qaytadi.": "Return #{n} will be cancelled: goods leave stock again and the money goes back to the drawer.",
+  "Savdo bekor qilinadi, tovar omborga qaytadi.": "The sale will be cancelled and the goods returned to stock.",
 
   // ── Tizim rollari ──
   "Egasi": "Owner",
