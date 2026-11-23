@@ -18,6 +18,7 @@ class PeriodSerializer(serializers.Serializer):
     discount = serializers.DecimalField(**M)
     avg_check = serializers.DecimalField(**M)
     expenses = serializers.DecimalField(**M)
+    returns = serializers.DecimalField(**M)
     gross_profit = serializers.DecimalField(**M, required=False)
     net_profit = serializers.DecimalField(**M, required=False)
 

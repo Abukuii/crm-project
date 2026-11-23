@@ -18,6 +18,7 @@ import { PurchasesPage } from "@/pages/PurchasesPage";
 import { RemindersPage } from "@/pages/RemindersPage";
 import { SalesPage } from "@/pages/SalesPage";
 import { ProfilePage, SettingsPage } from "@/pages/SettingsPage";
+import { ShiftsPage } from "@/pages/ShiftsPage";
 import { StockPage } from "@/pages/StockPage";
 import { SuppliersPage } from "@/pages/SuppliersPage";
 import { UsersPage } from "@/pages/UsersPage";
@@ -76,6 +77,7 @@ function App() {
       >
         <Route index element={<DashboardPage />} />
         <Route path="pos" element={<Perm perm="sales.create"><PosPage /></Perm>} />
+        <Route path="shifts" element={<Perm perm="sales.create"><ShiftsPage /></Perm>} />
         <Route path="sales" element={<Perm perm="sales.create"><SalesPage /></Perm>} />
         <Route path="customers" element={<Perm perm="customers.view"><CustomersPage /></Perm>} />
         <Route path="products" element={<Perm perm="catalog.view"><ProductsPage /></Perm>} />

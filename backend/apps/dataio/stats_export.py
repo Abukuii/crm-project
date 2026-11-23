@@ -9,7 +9,7 @@ from django.utils import timezone
 from apps.core.money import q_money
 from apps.finance.models import Expense
 from apps.inventory.models import StockBalance
-from apps.sales.models import CustomerPayment, Receivable, Sale, SaleLine, SalePayment
+from apps.sales.models import CustomerPayment, Receivable, Sale, SaleLine, SalePayment, SaleReturn
 
 from .excel import Sheet, build_sheets
 
@@ -36,6 +36,8 @@ TR: dict[str, dict[str, str]] = {
         "Qarz": "Долг", "Muddati o'tgan": "Просрочено", "Jami": "Итого",
         "Naqd": "Наличные", "Plastik karta": "Карта", "O'tkazma": "Перевод", "Nasiya": "Долг",
         "Statistika": "Статистика",
+        "Qaytarishlar": "Возвраты",
+        "Sof savdo": "Чистые продажи",
     },
     "en": {
         "Umumiy": "Summary", "Kunlar": "By day", "Mahsulotlar": "Products",
@@ -55,6 +57,8 @@ TR: dict[str, dict[str, str]] = {
         "Qarz": "Debt", "Muddati o'tgan": "Overdue", "Jami": "Total",
         "Naqd": "Cash", "Plastik karta": "Card", "O'tkazma": "Transfer", "Nasiya": "Credit",
         "Statistika": "Statistics",
+        "Qaytarishlar": "Returns",
+        "Sof savdo": "Net sales",
     },
 }  # fmt: skip
 
@@ -75,8 +79,14 @@ def stats_workbook(tenant, user, date_from: date, date_to: date, lang: str = "uz
 
     agg = posted.aggregate(n=Count("id"), total=Sum("total"), cost=Sum("cost_total"),
                            discount=Sum("discount_total"))  # fmt: skip
-    revenue = agg["total"] or ZERO
-    cost = agg["cost"] or ZERO
+    gross_revenue = agg["total"] or ZERO
+    ret_qs = SaleReturn.objects.filter(tenant=tenant, date__gte=date_from, date__lte=date_to)
+    if branch_ids is not None:
+        ret_qs = ret_qs.filter(sale__warehouse__branch_id__in=branch_ids)
+    ret = ret_qs.aggregate(total=Sum("total"), cost=Sum("cost_total"))
+    returns_total = ret["total"] or ZERO
+    revenue = gross_revenue - returns_total  # sof savdo
+    cost = (agg["cost"] or ZERO) - (ret["cost"] or ZERO)
     exp_total = expenses.aggregate(s=Sum("amount"))["s"] or ZERO
     by_method = dict(
         SalePayment.objects.filter(sale__in=posted).values_list("method")
@@ -105,8 +115,10 @@ def stats_workbook(tenant, user, date_from: date, date_to: date, lang: str = "uz
     # 1. Umumiy
     summary = [
         [t("Cheklar soni"), agg["n"]],
-        [t("Savdo summasi"), q_money(revenue)],
-        [t("O'rtacha chek"), q_money(revenue / agg["n"]) if agg["n"] else ZERO],
+        [t("Savdo summasi"), q_money(gross_revenue)],
+        [t("Qaytarishlar"), q_money(returns_total)],
+        [t("Sof savdo"), q_money(revenue)],
+        [t("O'rtacha chek"), q_money(gross_revenue / agg["n"]) if agg["n"] else ZERO],
         [t("Chegirmalar"), q_money(agg["discount"] or ZERO)],
     ]
     if with_cost:
@@ -154,7 +166,9 @@ def stats_workbook(tenant, user, date_from: date, date_to: date, lang: str = "uz
         day_head += [t("Tannarx"), t("Foyda")]
     day_head.append(t("Xarajatlar"))
     footer = (
-        [t("Jami"), agg["n"], revenue] + ([cost, revenue - cost] if with_cost else []) + [exp_total]
+        [t("Jami"), agg["n"], gross_revenue]
+        + ([agg["cost"] or ZERO, gross_revenue - (agg["cost"] or ZERO)] if with_cost else [])
+        + [exp_total]
     )
     sheets.append(Sheet(t("Kunlar"), day_head, day_rows, [14, 10, 18, 18, 18, 16], footer=footer))
 

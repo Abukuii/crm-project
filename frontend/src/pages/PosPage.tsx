@@ -6,6 +6,7 @@ import { create } from "zustand";
 import { t } from "@/i18n";
 import { PAYMENT_LABELS, type Customer, type Page, type PosProduct, type Sale } from "@/api/types";
 import { Modal } from "@/components/overlay";
+import { ShiftPanel } from "@/components/ShiftPanel";
 import { Badge, Button, Card, EmptyState, Input, Select } from "@/components/ui";
 import { useDebounced } from "@/hooks/useDebounced";
 import { api } from "@/lib/api";
@@ -480,6 +481,7 @@ export function PosPage() {
       toast.success(t("Savdo #{n} — {sum}", { n: sale.number, sum: formatMoney(sale.total) }));
       void qc.invalidateQueries({ queryKey: ["pos-catalog"] });
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
+      void qc.invalidateQueries({ queryKey: ["shift"] });
     },
     onError: toast.error,
   });
@@ -511,6 +513,7 @@ export function PosPage() {
     <div className="mx-auto grid max-w-[1600px] gap-4 lg:h-[calc(100dvh-7.5rem)] lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_420px]">
       {/* Katalog: faqat qidiruvda, qator ko'rinishida */}
       <section className="flex min-h-0 min-w-0 flex-col gap-3">
+        <ShiftPanel warehouseId={warehouseId} />
         <div className="flex flex-wrap gap-2">
           <div className="relative min-w-60 flex-1">
             <Input

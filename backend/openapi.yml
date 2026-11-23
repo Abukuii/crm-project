@@ -3573,6 +3573,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/Sale'
           description: ''
+  /api/v1/sales/sales/{id}/returns/:
+    post:
+      operationId: v1_sales_sales_returns_create
+      description: Qisman yoki to'liq qaytarish.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this sale.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sale'
+          description: ''
   /api/v1/sales/sales/pos-catalog/:
     get:
       operationId: v1_sales_sales_pos_catalog_list
@@ -3658,6 +3692,238 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SalesSummary'
+          description: ''
+  /api/v1/sales/shifts/:
+    get:
+      operationId: v1_sales_shifts_list
+      description: Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini
+        ko'radi.
+      parameters:
+      - in: query
+        name: cashier
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - closed
+          - open
+        description: |-
+          * `open` - Ochiq
+          * `closed` - Yopilgan
+      - in: query
+        name: warehouse
+        schema:
+          type: integer
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedShiftList'
+          description: ''
+  /api/v1/sales/shifts/{id}/:
+    get:
+      operationId: v1_sales_shifts_retrieve
+      description: Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini
+        ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+          description: ''
+  /api/v1/sales/shifts/{id}/cash/:
+    get:
+      operationId: v1_sales_shifts_cash_retrieve
+      description: Kassaga naqd kiritish / chiqarish (GET — ro'yxat).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashMove'
+          description: ''
+    post:
+      operationId: v1_sales_shifts_cash_create
+      description: Kassaga naqd kiritish / chiqarish (GET — ro'yxat).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashMoveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashMoveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashMoveRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashMove'
+          description: ''
+  /api/v1/sales/shifts/{id}/close/:
+    post:
+      operationId: v1_sales_shifts_close_create
+      description: Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini
+        ko'radi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftCloseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShiftCloseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShiftCloseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftReport'
+          description: ''
+  /api/v1/sales/shifts/{id}/report/:
+    get:
+      operationId: v1_sales_shifts_report_retrieve
+      description: Ochiq smena — X-hisobot (joriy); yopilgan smena — Z-hisobot (yopilgandagi
+        holat).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this shift.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftReport'
+          description: ''
+  /api/v1/sales/shifts/current/:
+    get:
+      operationId: v1_sales_shifts_current_retrieve
+      description: Joriy ochiq smena (yo'q bo'lsa 204).
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+          description: ''
+  /api/v1/sales/shifts/open/:
+    post:
+      operationId: v1_sales_shifts_open_create
+      description: Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini
+        ko'radi.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftOpenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ShiftOpenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ShiftOpenRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
           description: ''
   /api/v1/tenancy/branches/:
     get:
@@ -3993,6 +4259,53 @@ components:
         reason:
           type: string
           maxLength: 300
+    CashMove:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/CashMoveKindEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        note:
+          type: string
+          maxLength: 300
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - id
+      - kind
+    CashMoveKindEnum:
+      enum:
+      - in
+      - out
+      type: string
+      description: |-
+        * `in` - Kirim
+        * `out` - Chiqim
+    CashMoveRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/CashMoveKindEnum'
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        note:
+          type: string
+          maxLength: 300
+      required:
+      - amount
+      - kind
     Category:
       type: object
       properties:
@@ -4854,6 +5167,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Sale'
+    PaginatedShiftList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Shift'
     PaginatedStockBalanceList:
       type: object
       required:
@@ -5320,6 +5656,10 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        returns:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
         gross_profit:
           type: string
           format: decimal
@@ -5332,6 +5672,7 @@ components:
       - avg_check
       - discount
       - expenses
+      - returns
       - revenue
       - sales_count
     PermissionItem:
@@ -5948,6 +6289,18 @@ components:
       - id
       - number
       - total
+    RefundMethodEnum:
+      enum:
+      - cash
+      - card
+      - transfer
+      - debt
+      type: string
+      description: |-
+        * `cash` - Naqd
+        * `card` - Plastik karta
+        * `transfer` - O'tkazma
+        * `debt` - Qarzdan ayirish
     Reminder:
       type: object
       properties:
@@ -5995,6 +6348,33 @@ components:
           type: boolean
       required:
       - text
+    ReturnCreateRequest:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnItemRequest'
+        refund_method:
+          $ref: '#/components/schemas/RefundMethodEnum'
+        reason:
+          type: string
+          maxLength: 300
+      required:
+      - items
+      - refund_method
+    ReturnItemRequest:
+      type: object
+      properties:
+        line:
+          type: integer
+        qty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,11}(?:\.\d{0,3})?$
+      required:
+      - line
+      - qty
     Role:
       type: object
       properties:
@@ -6137,6 +6517,19 @@ components:
         cancel_reason:
           type: string
           maxLength: 300
+        returns:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          readOnly: true
+        returned_total:
+          type: string
+          readOnly: true
+        shift_number:
+          type: integer
+          readOnly: true
+          nullable: true
       required:
       - cashier
       - cashier_name
@@ -6148,6 +6541,9 @@ components:
       - number
       - payments
       - profit
+      - returned_total
+      - returns
+      - shift_number
       - warehouse
       - warehouse_name
     SaleCreateRequest:
@@ -6240,11 +6636,15 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        returned_qty:
+          type: string
+          readOnly: true
       required:
       - id
       - product
       - product_name
       - qty
+      - returned_qty
       - unit
       - unit_short
     SalePayment:
@@ -6291,6 +6691,10 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        returns:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
         profit:
           type: string
           format: decimal
@@ -6307,7 +6711,200 @@ components:
       - count
       - discount
       - profit
+      - returns
       - total
+    Shift:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        number:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ShiftStatusEnum'
+          default: open
+        warehouse:
+          type: integer
+        warehouse_name:
+          type: string
+          readOnly: true
+        cashier:
+          type: integer
+        cashier_name:
+          type: string
+          readOnly: true
+        opened_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        opening_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        expected_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        counted_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        difference:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+          nullable: true
+        note:
+          type: string
+          maxLength: 300
+      required:
+      - cashier
+      - cashier_name
+      - id
+      - number
+      - warehouse
+      - warehouse_name
+    ShiftCloseRequest:
+      type: object
+      properties:
+        counted_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        note:
+          type: string
+          maxLength: 300
+      required:
+      - counted_cash
+    ShiftOpenRequest:
+      type: object
+      properties:
+        warehouse:
+          type: integer
+        opening_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        note:
+          type: string
+          maxLength: 300
+      required:
+      - opening_cash
+      - warehouse
+    ShiftReport:
+      type: object
+      properties:
+        shift:
+          type: integer
+        cashier:
+          type: string
+        opened_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        opening_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        sales_count:
+          type: integer
+        sales_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        discount_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        cancelled_count:
+          type: integer
+        by_method:
+          type: object
+          additionalProperties:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        returns_count:
+          type: integer
+        returns_total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        refunds_by_method:
+          type: object
+          additionalProperties:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        net_revenue:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        debt_payments:
+          type: object
+          additionalProperties:
+            type: string
+            format: decimal
+            pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        cash_in:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        cash_out:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        expected_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        counted_cash:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+        difference:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,16}(?:\.\d{0,2})?$
+      required:
+      - by_method
+      - cancelled_count
+      - cash_in
+      - cash_out
+      - cashier
+      - closed_at
+      - debt_payments
+      - discount_total
+      - expected_cash
+      - net_revenue
+      - opened_at
+      - opening_cash
+      - refunds_by_method
+      - returns_count
+      - returns_total
+      - sales_count
+      - sales_total
+      - shift
+    ShiftStatusEnum:
+      enum:
+      - open
+      - closed
+      type: string
+      description: |-
+        * `open` - Ochiq
+        * `closed` - Yopilgan
     SourceEnum:
       enum:
       - cbu

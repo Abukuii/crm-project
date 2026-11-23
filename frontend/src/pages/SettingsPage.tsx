@@ -10,13 +10,13 @@ import { useAuth } from "@/stores/auth";
 import { useTheme, type Theme } from "@/stores/theme";
 import { toast } from "@/stores/toast";
 
-type Settings = { negative_stock: string; rate_source: string; telegram_chat_id: string; telegram_notify_sales: boolean };
+type Settings = { negative_stock: string; rate_source: string; telegram_chat_id: string; telegram_notify_sales: boolean; require_shift: boolean };
 
 export function SettingsPage() {
   const qc = useQueryClient();
   const tenant = useQuery({ queryKey: ["tenant"], queryFn: () => api<Tenant>("/tenancy/current/") });
   const [info, setInfo] = useState({ name: "", inn: "", phone: "", address: "" });
-  const [s, setS] = useState<Settings>({ negative_stock: "forbid", rate_source: "cbu", telegram_chat_id: "", telegram_notify_sales: true });
+  const [s, setS] = useState<Settings>({ negative_stock: "forbid", rate_source: "cbu", telegram_chat_id: "", telegram_notify_sales: true, require_shift: false });
 
   useEffect(() => {
     if (!tenant.data) return;
@@ -60,6 +60,13 @@ export function SettingsPage() {
             <option value="manual">{t("Do'kon kursi (qo'lda)")}</option>
           </Select>
         </div>
+        <label className="flex items-start gap-2 text-sm">
+          <input type="checkbox" className="mt-0.5" checked={s.require_shift} onChange={(e) => setS({ ...s, require_shift: e.target.checked })} />
+          <span>
+            {t("Smena ochilmasa sotishni taqiqlash")}
+            <span className="block text-xs text-muted">{t("Kassir avval smenani ochadi, kun oxirida Z-hisobot bilan yopadi")}</span>
+          </span>
+        </label>
       </Card>
       <Card className="space-y-3 p-5">
         <h2 className="flex items-center gap-2 font-semibold"><Send className="h-4 w-4 text-brand" /> {t("Telegram xabarlari")}</h2>

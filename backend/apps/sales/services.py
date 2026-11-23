@@ -130,6 +130,11 @@ def create_sale(
         raise DomainError("Savat bo'sh", code="empty_cart")
     if customer is not None and customer.is_archived:
         raise DomainError("Mijoz arxivlangan", code="customer_archived")
+    from .shifts import current_shift
+
+    shift = current_shift(user)
+    if shift is None and tenant.get_setting("require_shift"):
+        raise DomainError("Avval smenani oching", code="shift_required", status_code=409)
 
     products = [i.product for i in items]
     for p in products:
@@ -200,7 +205,7 @@ def create_sale(
     sale = Sale.objects.create(
         tenant=tenant, number=next_number(tenant, "sale"), client_uuid=client_uuid,
         warehouse=warehouse, cashier=user, customer=customer, price_type=price_type, rate=rate,
-        subtotal=subtotal, discount_total=discount_total, total=total, note=note,
+        subtotal=subtotal, discount_total=discount_total, total=total, note=note, shift=shift,
     )  # fmt: skip
     moves = post_moves(
         tenant=tenant, warehouse=warehouse, doc_type=DOC_TYPE, doc_id=sale.pk, user=user,
@@ -244,6 +249,10 @@ def cancel_sale(*, tenant, user, sale: Sale, reason: str = "", request=None) -> 
     sale = Sale.objects.select_for_update().get(pk=sale.pk, tenant=tenant)
     if sale.status != Sale.POSTED:
         raise DomainError("Savdo allaqachon bekor qilingan", code="already_cancelled")
+    if sale.returns.exists():
+        raise DomainError(
+            "Bu savdodan qaytarish qilingan — bekor qilib bo'lmaydi", code="sale_has_returns"
+        )
     receivable = Receivable.objects.select_for_update().filter(sale=sale).first()
     if receivable is not None and receivable.paid > ZERO:
         raise DomainError(
@@ -296,9 +305,11 @@ def receive_payment(
         raise DomainError(f"To'lov qarzdan ko'p. Qarz: {q_money(debt)}", code="overpayment",
                           details={"debt": str(q_money(debt))})  # fmt: skip
 
+    from .shifts import current_shift
+
     payment = CustomerPayment.objects.create(
         tenant=tenant, customer=customer, amount=amount, method=method, note=note,
-        created_by=user,
+        created_by=user, shift=current_shift(user),
     )  # fmt: skip
     left = amount
     for r in open_items:

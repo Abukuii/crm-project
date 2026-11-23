@@ -66,6 +66,9 @@ class Sale(TenantModel):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
     )
     cancel_reason = models.CharField(max_length=300, blank=True)
+    shift = models.ForeignKey(
+        "Shift", on_delete=models.PROTECT, null=True, blank=True, related_name="sales"
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -143,6 +146,9 @@ class CustomerPayment(TenantModel):
     method = models.CharField(max_length=10, choices=METHOD_CHOICES, default="cash")
     date = models.DateField(default=timezone.localdate)
     note = models.CharField(max_length=300, blank=True)
+    shift = models.ForeignKey(
+        "Shift", on_delete=models.PROTECT, null=True, blank=True, related_name="debt_payments"
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
     )
@@ -157,3 +163,94 @@ class PaymentAllocation(TenantModel):
     )
     receivable = models.ForeignKey(Receivable, on_delete=models.PROTECT, related_name="allocations")
     amount = MoneyField()
+
+
+class Shift(TenantModel):
+    """Kassa smenasi: ochilishdagi naqd → savdolar/to'lovlar/qaytarishlar → yopilishda sanalgan naqd."""
+
+    OPEN, CLOSED = "open", "closed"
+    STATUS_CHOICES = [(OPEN, "Ochiq"), (CLOSED, "Yopilgan")]
+
+    number = models.PositiveIntegerField()
+    warehouse = models.ForeignKey("inventory.Warehouse", on_delete=models.PROTECT, related_name="+")
+    cashier = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="shifts"
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=OPEN, db_index=True)
+    opened_at = models.DateTimeField(default=timezone.now)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    opening_cash = MoneyField()
+    expected_cash = MoneyField(null=True, blank=True, default=None)  # yopilganda hisoblanadi
+    counted_cash = MoneyField(null=True, blank=True, default=None)  # kassir sanagan
+    difference = MoneyField(null=True, blank=True, default=None)  # sanalgan − kutilgan
+    report = models.JSONField(null=True, blank=True)  # Z-hisobot (yopilgandagi holat)
+    note = models.CharField(max_length=300, blank=True)
+
+    class Meta:
+        ordering = ["-opened_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "number"], name="uniq_shift_number"),
+            # Bir kassirda bir vaqtda faqat bitta ochiq smena
+            models.UniqueConstraint(
+                fields=["cashier"], condition=Q(status="open"), name="uniq_open_shift_per_cashier"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"Smena #{self.number}"
+
+
+class CashMovement(TenantModel):
+    """Smena davomida kassaga naqd kiritish (+) yoki chiqarish (−): inkassatsiya, mayda xarajat."""
+
+    IN, OUT = "in", "out"
+    KIND_CHOICES = [(IN, "Kirim"), (OUT, "Chiqim")]
+
+    shift = models.ForeignKey(Shift, on_delete=models.PROTECT, related_name="cash_movements")
+    kind = models.CharField(max_length=3, choices=KIND_CHOICES)
+    amount = MoneyField()
+    note = models.CharField(max_length=300, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class SaleReturn(TenantModel):
+    """Qaytarish (to'liq yoki qisman). Tovar omborga sotilgan tannarxida qaytadi."""
+
+    CASH, CARD, TRANSFER, DEBT = "cash", "card", "transfer", "debt"
+    REFUND_CHOICES = [(CASH, "Naqd"), (CARD, "Plastik karta"), (TRANSFER, "O'tkazma"),
+                      (DEBT, "Qarzdan ayirish")]  # fmt: skip
+
+    number = models.PositiveIntegerField()
+    sale = models.ForeignKey(Sale, on_delete=models.PROTECT, related_name="returns")
+    shift = models.ForeignKey(
+        Shift, on_delete=models.PROTECT, null=True, blank=True, related_name="returns"
+    )
+    date = models.DateField(default=timezone.localdate, db_index=True)
+    refund_method = models.CharField(max_length=10, choices=REFUND_CHOICES)
+    total = MoneyField()
+    cost_total = MoneyField()
+    reason = models.CharField(max_length=300, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+"
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "number"], name="uniq_return_number")
+        ]
+
+
+class SaleReturnLine(TenantModel):
+    sale_return = models.ForeignKey(SaleReturn, on_delete=models.CASCADE, related_name="lines")
+    sale_line = models.ForeignKey(SaleLine, on_delete=models.PROTECT, related_name="returned")
+    qty = QtyField()  # savdo qatori birligida
+    base_qty = QtyField()
+    amount = MoneyField()
+    unit_cost = PriceField()
+    cost_total = MoneyField()

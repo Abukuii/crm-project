@@ -1,12 +1,23 @@
 from decimal import Decimal
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.catalog.models import PriceType, Product, Unit
 from apps.core.serializers import TenantRelatedField
 from apps.inventory.models import Warehouse
 
-from .models import Customer, CustomerPayment, Receivable, Sale, SaleLine, SalePayment
+from .models import (
+    CashMovement,
+    Customer,
+    CustomerPayment,
+    Receivable,
+    Sale,
+    SaleLine,
+    SalePayment,
+    SaleReturn,
+    Shift,
+)
 
 D0 = Decimal("0")
 
@@ -63,11 +74,15 @@ class SaleCreateSerializer(serializers.Serializer):
 class SaleLineSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
     unit_short = serializers.CharField(source="unit.short", read_only=True)
+    returned_qty = serializers.SerializerMethodField()
 
     class Meta:
         model = SaleLine
         fields = ["id", "product", "product_name", "unit", "unit_short", "qty", "list_price",
-                  "price", "discount", "total", "cost_total"]  # fmt: skip
+                  "price", "discount", "total", "cost_total", "returned_qty"]  # fmt: skip
+
+    def get_returned_qty(self, obj) -> str:
+        return str(sum((r.qty for r in obj.returned.all()), D0))
 
 
 class SalePaymentSerializer(serializers.ModelSerializer):
@@ -86,19 +101,32 @@ class SaleSerializer(serializers.ModelSerializer):
     cashier_name = serializers.SerializerMethodField()
     warehouse_name = serializers.CharField(source="warehouse.name", read_only=True)
     profit = serializers.SerializerMethodField()
+    returns = serializers.SerializerMethodField()
+    returned_total = serializers.SerializerMethodField()
+    shift_number = serializers.IntegerField(source="shift.number", read_only=True, default=None,
+                                            allow_null=True)  # fmt: skip
 
     class Meta:
         model = Sale
         fields = ["id", "number", "date", "created_at", "status", "warehouse", "warehouse_name",
                   "cashier", "cashier_name", "customer", "customer_name", "customer_phone",
                   "subtotal", "discount_total", "total", "cost_total", "profit", "note", "lines",
-                  "payments", "cancelled_at", "cancel_reason"]  # fmt: skip
+                  "payments", "cancelled_at", "cancel_reason", "returns", "returned_total",
+                  "shift_number"]  # fmt: skip
+
+    def get_returned_total(self, obj) -> str:
+        return str(sum((r.total for r in obj.returns.all()), D0))
+
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
+    def get_returns(self, obj) -> list[dict]:
+        return SaleReturnBriefSerializer(obj.returns.all(), many=True).data
 
     def get_cashier_name(self, obj) -> str:
         return obj.cashier.get_full_name() or obj.cashier.username
 
     def get_profit(self, obj) -> str:
-        return str(obj.total - obj.cost_total)
+        returned = sum((r.total - r.cost_total for r in obj.returns.all()), D0)
+        return str(obj.total - obj.cost_total - returned)
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -119,6 +147,7 @@ class SalesSummarySerializer(serializers.Serializer):
     count = serializers.IntegerField()
     total = serializers.DecimalField(max_digits=18, decimal_places=2)
     discount = serializers.DecimalField(max_digits=18, decimal_places=2)
+    returns = serializers.DecimalField(max_digits=18, decimal_places=2)
     profit = serializers.DecimalField(max_digits=18, decimal_places=2, allow_null=True)
     by_method = serializers.DictField(
         child=serializers.DecimalField(max_digits=18, decimal_places=2)
@@ -175,3 +204,89 @@ class PosProductSerializer(serializers.Serializer):
     allow_fraction = serializers.BooleanField()
     stock = serializers.DecimalField(max_digits=14, decimal_places=3)
     units = PosUnitSerializer(many=True)  # birinchisi — asosiy birlik
+
+
+# ── Qaytarish ────────────────────────────────────────────────────────────────
+class SaleReturnBriefSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SaleReturn
+        fields = ["id", "number", "date", "refund_method", "total", "reason", "created_by_name",
+                  "created_at"]  # fmt: skip
+
+    def get_created_by_name(self, obj) -> str | None:
+        u = obj.created_by
+        return (u.get_full_name() or u.username) if u else None
+
+
+class ReturnItemSerializer(serializers.Serializer):
+    line = serializers.IntegerField()
+    qty = serializers.DecimalField(max_digits=14, decimal_places=3, min_value=Decimal("0.001"))
+
+
+class ReturnCreateSerializer(serializers.Serializer):
+    items = ReturnItemSerializer(many=True)
+    refund_method = serializers.ChoiceField(choices=SaleReturn.REFUND_CHOICES)
+    reason = serializers.CharField(max_length=300, required=False, allow_blank=True)
+
+
+# ── Smena ────────────────────────────────────────────────────────────────────
+class ShiftSerializer(serializers.ModelSerializer):
+    cashier_name = serializers.SerializerMethodField()
+    warehouse_name = serializers.CharField(source="warehouse.name", read_only=True)
+
+    class Meta:
+        model = Shift
+        fields = ["id", "number", "status", "warehouse", "warehouse_name", "cashier",
+                  "cashier_name", "opened_at", "closed_at", "opening_cash", "expected_cash",
+                  "counted_cash", "difference", "note"]  # fmt: skip
+
+    def get_cashier_name(self, obj) -> str:
+        return obj.cashier.get_full_name() or obj.cashier.username
+
+
+class ShiftOpenSerializer(serializers.Serializer):
+    warehouse = TenantRelatedField(queryset=Warehouse.objects.select_related("branch"))
+    opening_cash = serializers.DecimalField(max_digits=18, decimal_places=2, min_value=D0)
+    note = serializers.CharField(max_length=300, required=False, allow_blank=True)
+
+
+class CashMoveSerializer(serializers.ModelSerializer):
+    amount = serializers.DecimalField(max_digits=18, decimal_places=2, min_value=Decimal("0.01"))
+
+    class Meta:
+        model = CashMovement
+        fields = ["id", "kind", "amount", "note", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class ShiftCloseSerializer(serializers.Serializer):
+    counted_cash = serializers.DecimalField(max_digits=18, decimal_places=2, min_value=D0)
+    note = serializers.CharField(max_length=300, required=False, allow_blank=True)
+
+
+_M = {"max_digits": 18, "decimal_places": 2}
+
+
+class ShiftReportSerializer(serializers.Serializer):
+    shift = serializers.IntegerField()
+    cashier = serializers.CharField()
+    opened_at = serializers.DateTimeField()
+    closed_at = serializers.DateTimeField(allow_null=True)
+    opening_cash = serializers.DecimalField(**_M)
+    sales_count = serializers.IntegerField()
+    sales_total = serializers.DecimalField(**_M)
+    discount_total = serializers.DecimalField(**_M)
+    cancelled_count = serializers.IntegerField()
+    by_method = serializers.DictField(child=serializers.DecimalField(**_M))
+    returns_count = serializers.IntegerField()
+    returns_total = serializers.DecimalField(**_M)
+    refunds_by_method = serializers.DictField(child=serializers.DecimalField(**_M))
+    net_revenue = serializers.DecimalField(**_M)
+    debt_payments = serializers.DictField(child=serializers.DecimalField(**_M))
+    cash_in = serializers.DecimalField(**_M)
+    cash_out = serializers.DecimalField(**_M)
+    expected_cash = serializers.DecimalField(**_M)
+    counted_cash = serializers.DecimalField(**_M, required=False)
+    difference = serializers.DecimalField(**_M, required=False)

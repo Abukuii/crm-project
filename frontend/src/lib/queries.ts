@@ -9,7 +9,7 @@ import type {
   Unit,
   Warehouse,
 } from "@/api/types";
-import { locale } from "@/i18n";
+import { locale, useLang } from "@/i18n";
 import { api } from "@/lib/api";
 
 const LONG = 5 * 60_000;
@@ -56,7 +56,13 @@ export function monthStart(): string {
 
 export function formatDateTime(value: string | null | undefined): string {
   if (!value) return "—";
-  return new Date(value).toLocaleString(locale(), { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const d = new Date(value);
+  // Ba'zi brauzerlar uz-Latn uchun ISO ko'rinish beradi — o'zbekchada qo'lda formatlaymiz
+  if (useLang.getState().lang === "uz") {
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  return d.toLocaleString(locale(), { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 export function formatDate(value: string | null | undefined): string {

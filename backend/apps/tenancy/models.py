@@ -13,6 +13,8 @@ SETTING_DEFAULTS: dict = {
     # Telegram: savdo xabarlari yuboriladigan guruh/kanal ID'si
     "telegram_chat_id": "",
     "telegram_notify_sales": True,
+    # True — kassada smena ochilmasa sotish mumkin emas
+    "require_shift": False,
 }
 
 

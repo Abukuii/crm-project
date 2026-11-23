@@ -15,17 +15,25 @@ from apps.currency.services import RateNotFound, get_rate
 from apps.inventory.models import StockBalance, Warehouse
 
 from . import services
-from .models import Customer, Receivable, Sale, SaleLine, SalePayment
+from .models import Customer, Receivable, Sale, SaleLine, SalePayment, SaleReturn, Shift
+from .returns import ReturnItem, create_return
 from .serializers import (
     CancelSerializer,
+    CashMoveSerializer,
     CustomerPaymentSerializer,
     CustomerSerializer,
     PosProductSerializer,
     ReceivableSerializer,
+    ReturnCreateSerializer,
     SaleCreateSerializer,
     SaleSerializer,
     SalesSummarySerializer,
+    ShiftCloseSerializer,
+    ShiftOpenSerializer,
+    ShiftReportSerializer,
+    ShiftSerializer,
 )
+from .shifts import add_cash_movement, close_shift, current_shift, open_shift, shift_report
 
 ZERO = Decimal("0")
 
@@ -120,7 +128,7 @@ class SaleViewSet(
     serializer_class = SaleSerializer
     read_perm = "sales.create"
     write_perm = "sales.create"
-    action_perms = {"cancel": "sales.refund", "summary": "sales.create",
+    action_perms = {"cancel": "sales.refund", "returns": "sales.refund", "summary": "sales.create",
                     "pos_catalog": "sales.create"}  # fmt: skip
     filterset_fields = ["status", "customer", "cashier", "warehouse"]
     ordering_fields = ["created_at", "total", "number"]
@@ -143,9 +151,15 @@ class SaleViewSet(
         return services.sales_for_user(qs, self.request.user)
 
     def _detailed(self, qs):
-        return qs.select_related("customer", "cashier", "warehouse").prefetch_related(
-            Prefetch("lines", queryset=SaleLine.objects.select_related("product", "unit")),
+        return qs.select_related("customer", "cashier", "warehouse", "shift").prefetch_related(
+            Prefetch(
+                "lines",
+                queryset=SaleLine.objects.select_related("product", "unit").prefetch_related(
+                    "returned"
+                ),
+            ),
             "payments",
+            Prefetch("returns", queryset=SaleReturn.objects.select_related("created_by")),
         )
 
     def list(self, request, *args, **kwargs):
@@ -191,6 +205,21 @@ class SaleViewSet(
             self.get_serializer(self._detailed(Sale.objects.filter(pk=sale.pk)).get()).data
         )
 
+    @extend_schema(request=ReturnCreateSerializer, responses=SaleSerializer)
+    @action(detail=True, methods=["post"])
+    def returns(self, request, pk=None):
+        """Qisman yoki to'liq qaytarish."""
+        serializer = ReturnCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        create_return(
+            tenant=self.tenant, user=request.user, sale=self.get_object(),
+            items=[ReturnItem(i["line"], i["qty"]) for i in data["items"]],
+            refund_method=data["refund_method"], reason=data.get("reason", ""), request=request,
+        )  # fmt: skip
+        sale = self._detailed(Sale.objects.filter(pk=pk)).get()
+        return Response(self.get_serializer(sale).data, status=status.HTTP_201_CREATED)
+
     @extend_schema(
         parameters=[OpenApiParameter("date_from", str), OpenApiParameter("date_to", str)],
         responses=SalesSummarySerializer,
@@ -207,10 +236,16 @@ class SaleViewSet(
             .values_list("method").annotate(s=Sum("amount")).values_list("method", "s")
         )  # fmt: skip
         total = agg["total"] or ZERO
-        profit = total - (agg["cost"] or ZERO) if request.user.has_perm_code("cost.view") else None
+        ret = SaleReturn.objects.filter(sale__in=qs.values("pk")).aggregate(
+            total=Sum("total"), cost=Sum("cost_total")
+        )
+        returns = ret["total"] or ZERO
+        profit = None
+        if request.user.has_perm_code("cost.view"):
+            profit = total - (agg["cost"] or ZERO) - (returns - (ret["cost"] or ZERO))
         return Response(SalesSummarySerializer({
             "count": agg["count"], "total": total, "discount": agg["discount"] or ZERO,
-            "profit": profit, "by_method": by_method,
+            "returns": returns, "profit": profit, "by_method": by_method,
         }).data)  # fmt: skip
 
     @extend_schema(
@@ -280,3 +315,80 @@ class SaleViewSet(
                 "stock": stock.get(p.pk, ZERO), "units": units,
             })  # fmt: skip
         return Response(PosProductSerializer(result, many=True).data)
+
+
+class ShiftViewSet(TenantScopedMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin,
+                   viewsets.GenericViewSet):  # fmt: skip
+    """Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini ko'radi."""
+
+    queryset = Shift.objects.select_related("cashier", "warehouse")
+    serializer_class = ShiftSerializer
+    read_perm = "sales.create"
+    write_perm = "sales.create"
+    filterset_fields = ["status", "cashier", "warehouse"]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if getattr(self, "swagger_fake_view", False):
+            return qs
+        user = self.request.user
+        allowed = user.allowed_branch_ids()
+        if allowed is not None:
+            qs = qs.filter(warehouse__branch_id__in=allowed)
+        return qs if user.has_perm_code("reports.view") else qs.filter(cashier=user)
+
+    @extend_schema(responses=ShiftSerializer)
+    @action(detail=False, methods=["get"])
+    def current(self, request):
+        """Joriy ochiq smena (yo'q bo'lsa 204)."""
+        shift = current_shift(request.user)
+        if shift is None:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(ShiftSerializer(shift).data)
+
+    @extend_schema(request=ShiftOpenSerializer, responses=ShiftSerializer)
+    @action(detail=False, methods=["post"], url_path="open")
+    def open_shift(self, request):
+        serializer = ShiftOpenSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        shift = open_shift(tenant=self.tenant, user=request.user, warehouse=data["warehouse"],
+                           opening_cash=data["opening_cash"], note=data.get("note", ""),
+                           request=request)  # fmt: skip
+        return Response(ShiftSerializer(shift).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(request=CashMoveSerializer, responses=CashMoveSerializer)
+    @action(detail=True, methods=["get", "post"])
+    def cash(self, request, pk=None):
+        """Kassaga naqd kiritish / chiqarish (GET — ro'yxat)."""
+        shift = self.get_object()
+        if request.method == "GET":
+            return Response(CashMoveSerializer(shift.cash_movements.all(), many=True).data)
+        serializer = CashMoveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        move = add_cash_movement(
+            tenant=self.tenant, user=request.user, shift=shift,
+            kind=serializer.validated_data["kind"], amount=serializer.validated_data["amount"],
+            note=serializer.validated_data.get("note", ""), request=request,
+        )  # fmt: skip
+        return Response(CashMoveSerializer(move).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(responses=ShiftReportSerializer)
+    @action(detail=True, methods=["get"])
+    def report(self, request, pk=None):
+        """Ochiq smena — X-hisobot (joriy); yopilgan smena — Z-hisobot (yopilgandagi holat)."""
+        shift = self.get_object()
+        data = (
+            shift.report if shift.status == Shift.CLOSED and shift.report else shift_report(shift)
+        )
+        return Response(ShiftReportSerializer(data).data)
+
+    @extend_schema(request=ShiftCloseSerializer, responses=ShiftReportSerializer)
+    @action(detail=True, methods=["post"])
+    def close(self, request, pk=None):
+        serializer = ShiftCloseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        shift = close_shift(tenant=self.tenant, user=request.user, shift=self.get_object(),
+                            counted_cash=serializer.validated_data["counted_cash"],
+                            note=serializer.validated_data.get("note", ""), request=request)  # fmt: skip
+        return Response(ShiftReportSerializer(shift.report).data)

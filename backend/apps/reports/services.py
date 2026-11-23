@@ -9,7 +9,7 @@ from django.utils import timezone
 from apps.core.money import q_money
 from apps.finance.models import Expense
 from apps.inventory.models import StockBalance
-from apps.sales.models import Receivable, Sale, SaleLine, SalePayment
+from apps.sales.models import Receivable, Sale, SaleLine, SalePayment, SaleReturn
 
 ZERO = Decimal("0")
 
@@ -25,7 +25,14 @@ def _period(tenant, start, end, branch_ids, with_cost: bool) -> dict:
     sales = _sales(tenant, start, end, branch_ids)
     agg = sales.aggregate(n=Count("id"), total=Sum("total"), cost=Sum("cost_total"),
                           discount=Sum("discount_total"))  # fmt: skip
-    total = agg["total"] or ZERO
+    # Qaytarishlar qaytarilgan sanasi bo'yicha ayiriladi (sof tushum)
+    ret_qs = SaleReturn.objects.filter(tenant=tenant, date__gte=start, date__lte=end)
+    if branch_ids is not None:
+        ret_qs = ret_qs.filter(sale__warehouse__branch_id__in=branch_ids)
+    ret = ret_qs.aggregate(total=Sum("total"), cost=Sum("cost_total"))
+    returns = ret["total"] or ZERO
+    total = (agg["total"] or ZERO) - returns
+    cost = (agg["cost"] or ZERO) - (ret["cost"] or ZERO)
     exp_qs = Expense.objects.filter(tenant=tenant, date__gte=start, date__lte=end)
     if branch_ids is not None:
         exp_qs = exp_qs.filter(branch_id__in=branch_ids)
@@ -36,9 +43,10 @@ def _period(tenant, start, end, branch_ids, with_cost: bool) -> dict:
         "discount": q_money(agg["discount"] or ZERO),
         "avg_check": q_money(total / agg["n"]) if agg["n"] else ZERO,
         "expenses": q_money(expenses),
+        "returns": q_money(returns),
     }
     if with_cost:
-        gross = total - (agg["cost"] or ZERO)
+        gross = total - cost
         data["gross_profit"] = q_money(gross)
         data["net_profit"] = q_money(gross - expenses)
     return data

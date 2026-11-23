@@ -1403,6 +1403,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sales/sales/{id}/returns/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Qisman yoki to'liq qaytarish. */
+        post: operations["v1_sales_sales_returns_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/sales/sales/pos-catalog/": {
         parameters: {
             query?: never;
@@ -1431,6 +1448,126 @@ export interface paths {
         get: operations["v1_sales_sales_summary_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini ko'radi. */
+        get: operations["v1_sales_shifts_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini ko'radi. */
+        get: operations["v1_sales_shifts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/{id}/cash/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Kassaga naqd kiritish / chiqarish (GET — ro'yxat). */
+        get: operations["v1_sales_shifts_cash_retrieve"];
+        put?: never;
+        /** @description Kassaga naqd kiritish / chiqarish (GET — ro'yxat). */
+        post: operations["v1_sales_shifts_cash_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/{id}/close/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini ko'radi. */
+        post: operations["v1_sales_shifts_close_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/{id}/report/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Ochiq smena — X-hisobot (joriy); yopilgan smena — Z-hisobot (yopilgandagi holat). */
+        get: operations["v1_sales_shifts_report_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Joriy ochiq smena (yo'q bo'lsa 204). */
+        get: operations["v1_sales_shifts_current_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sales/shifts/open/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Kassa smenalari. Hisobot ruxsati bo'lmagan xodim faqat o'z smenalarini ko'radi. */
+        post: operations["v1_sales_shifts_open_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1562,6 +1699,27 @@ export interface components {
         };
         CancelRequest: {
             reason?: string;
+        };
+        CashMove: {
+            readonly id: number;
+            kind: components["schemas"]["CashMoveKindEnum"];
+            /** Format: decimal */
+            amount: string;
+            note?: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `in` - Kirim
+         *     * `out` - Chiqim
+         * @enum {string}
+         */
+        CashMoveKindEnum: "in" | "out";
+        CashMoveRequest: {
+            kind: components["schemas"]["CashMoveKindEnum"];
+            /** Format: decimal */
+            amount: string;
+            note?: string;
         };
         Category: {
             readonly id: number;
@@ -1963,6 +2121,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Sale"][];
         };
+        PaginatedShiftList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Shift"][];
+        };
         PaginatedStockBalanceList: {
             /** @example 123 */
             count: number;
@@ -2192,6 +2365,8 @@ export interface components {
             avg_check: string;
             /** Format: decimal */
             expenses: string;
+            /** Format: decimal */
+            returns: string;
             /** Format: decimal */
             gross_profit?: string;
             /** Format: decimal */
@@ -2433,6 +2608,14 @@ export interface components {
             total: string;
             customer: string | null;
         };
+        /**
+         * @description * `cash` - Naqd
+         *     * `card` - Plastik karta
+         *     * `transfer` - O'tkazma
+         *     * `debt` - Qarzdan ayirish
+         * @enum {string}
+         */
+        RefundMethodEnum: "cash" | "card" | "transfer" | "debt";
         Reminder: {
             readonly id: number;
             /** Matn */
@@ -2452,6 +2635,16 @@ export interface components {
             /** Format: date */
             due_date?: string | null;
             is_done?: boolean;
+        };
+        ReturnCreateRequest: {
+            items: components["schemas"]["ReturnItemRequest"][];
+            refund_method: components["schemas"]["RefundMethodEnum"];
+            reason?: string;
+        };
+        ReturnItemRequest: {
+            line: number;
+            /** Format: decimal */
+            qty: string;
         };
         Role: {
             readonly id: number;
@@ -2512,6 +2705,11 @@ export interface components {
             /** Format: date-time */
             cancelled_at?: string | null;
             cancel_reason?: string;
+            readonly returns: {
+                [key: string]: unknown;
+            }[];
+            readonly returned_total: string;
+            readonly shift_number: number | null;
         };
         SaleCreateRequest: {
             /** Format: uuid */
@@ -2550,6 +2748,7 @@ export interface components {
             total?: string;
             /** Format: decimal */
             cost_total?: string;
+            readonly returned_qty: string;
         };
         SalePayment: {
             method: components["schemas"]["SalePaymentMethodEnum"];
@@ -2577,11 +2776,93 @@ export interface components {
             /** Format: decimal */
             discount: string;
             /** Format: decimal */
+            returns: string;
+            /** Format: decimal */
             profit: string | null;
             by_method: {
                 [key: string]: string;
             };
         };
+        Shift: {
+            readonly id: number;
+            number: number;
+            /** @default open */
+            status: components["schemas"]["ShiftStatusEnum"];
+            warehouse: number;
+            readonly warehouse_name: string;
+            cashier: number;
+            readonly cashier_name: string;
+            /** Format: date-time */
+            opened_at?: string;
+            /** Format: date-time */
+            closed_at?: string | null;
+            /** Format: decimal */
+            opening_cash?: string;
+            /** Format: decimal */
+            expected_cash?: string | null;
+            /** Format: decimal */
+            counted_cash?: string | null;
+            /** Format: decimal */
+            difference?: string | null;
+            note?: string;
+        };
+        ShiftCloseRequest: {
+            /** Format: decimal */
+            counted_cash: string;
+            note?: string;
+        };
+        ShiftOpenRequest: {
+            warehouse: number;
+            /** Format: decimal */
+            opening_cash: string;
+            note?: string;
+        };
+        ShiftReport: {
+            shift: number;
+            cashier: string;
+            /** Format: date-time */
+            opened_at: string;
+            /** Format: date-time */
+            closed_at: string | null;
+            /** Format: decimal */
+            opening_cash: string;
+            sales_count: number;
+            /** Format: decimal */
+            sales_total: string;
+            /** Format: decimal */
+            discount_total: string;
+            cancelled_count: number;
+            by_method: {
+                [key: string]: string;
+            };
+            returns_count: number;
+            /** Format: decimal */
+            returns_total: string;
+            refunds_by_method: {
+                [key: string]: string;
+            };
+            /** Format: decimal */
+            net_revenue: string;
+            debt_payments: {
+                [key: string]: string;
+            };
+            /** Format: decimal */
+            cash_in: string;
+            /** Format: decimal */
+            cash_out: string;
+            /** Format: decimal */
+            expected_cash: string;
+            /** Format: decimal */
+            counted_cash?: string;
+            /** Format: decimal */
+            difference?: string;
+        };
+        /**
+         * @description * `open` - Ochiq
+         *     * `closed` - Yopilgan
+         * @enum {string}
+         */
+        ShiftStatusEnum: "open" | "closed";
         /**
          * @description * `cbu` - Markaziy bank
          *     * `manual` - Qo'lda
@@ -5779,6 +6060,34 @@ export interface operations {
             };
         };
     };
+    v1_sales_sales_returns_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this sale. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReturnCreateRequest"];
+                "multipart/form-data": components["schemas"]["ReturnCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sale"];
+                };
+            };
+        };
+    };
     v1_sales_sales_pos_catalog_list: {
         parameters: {
             query: {
@@ -5832,6 +6141,205 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SalesSummary"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_list: {
+        parameters: {
+            query?: {
+                cashier?: number;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /**
+                 * @description * `open` - Ochiq
+                 *     * `closed` - Yopilgan
+                 */
+                status?: "closed" | "open";
+                warehouse?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedShiftList"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this shift. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shift"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_cash_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this shift. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashMove"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_cash_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this shift. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CashMoveRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CashMoveRequest"];
+                "multipart/form-data": components["schemas"]["CashMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashMove"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_close_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this shift. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShiftCloseRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ShiftCloseRequest"];
+                "multipart/form-data": components["schemas"]["ShiftCloseRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftReport"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_report_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this shift. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftReport"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_current_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shift"];
+                };
+            };
+        };
+    };
+    v1_sales_shifts_open_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShiftOpenRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ShiftOpenRequest"];
+                "multipart/form-data": components["schemas"]["ShiftOpenRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Shift"];
                 };
             };
         };

@@ -33,6 +33,9 @@ export type Reminder = S["Reminder"];
 export type User = S["User"];
 export type Role = S["Role"];
 export type ImportResult = S["ImportResult"];
+export type Shift = S["Shift"];
+export type ShiftReport = S["ShiftReport"];
+export type CashMove = S["CashMove"];
 
 export interface Page<T> {
   count: number;

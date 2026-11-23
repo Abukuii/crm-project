@@ -1,10 +1,10 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Ban, Download, Printer, Receipt as ReceiptIcon, Search } from "lucide-react";
+import { Ban, Download, Printer, Receipt as ReceiptIcon, Search, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { t } from "@/i18n";
 import { PAYMENT_LABELS, type Page, type Sale, type SalesSummary } from "@/api/types";
-import { Drawer } from "@/components/overlay";
+import { Drawer, Modal } from "@/components/overlay";
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Pager, Select, Skeleton, Table, Td, Th } from "@/components/ui";
 import { useDebounced } from "@/hooks/useDebounced";
 import { api, apiDownload } from "@/lib/api";
@@ -16,12 +16,105 @@ import { toast } from "@/stores/toast";
 
 const SIZE = 30;
 
+const REFUND_LABELS: Record<string, string> = { ...PAYMENT_LABELS, debt: "Qarzdan ayirish" };
+
+interface ReturnBrief {
+  id: number;
+  number: number;
+  refund_method: string;
+  total: string;
+  reason: string;
+  created_by_name: string | null;
+  created_at: string;
+}
+
+function ReturnModal({ sale, onClose, onDone }: { sale: Sale; onClose: () => void; onDone: (s: Sale) => void }) {
+  const left = (l: Sale["lines"][number]) => Number(l.qty) - Number(l.returned_qty);
+  const lines = sale.lines.filter((l) => left(l) > 0);
+  const [qty, setQty] = useState<Record<number, string>>({});
+  const hasCredit = sale.payments.some((p) => p.method === "credit");
+  const [method, setMethod] = useState(hasCredit ? "debt" : "cash");
+  const [reason, setReason] = useState("");
+  const total = lines.reduce((s, l) => s + Number(qty[l.id] || 0) * Number(l.price), 0);
+  const invalid = lines.some((l) => Number(qty[l.id] || 0) > left(l) || Number(qty[l.id] || 0) < 0);
+
+  const submit = useMutation({
+    mutationFn: () =>
+      api<Sale>(`/sales/sales/${sale.id}/returns/`, {
+        method: "POST",
+        body: {
+          items: lines.filter((l) => Number(qty[l.id]) > 0).map((l) => ({ line: l.id, qty: qty[l.id] })),
+          refund_method: method,
+          reason,
+        },
+      }),
+    onSuccess: (s) => (toast.success(t("Qaytarish saqlandi — tovar omborga qaytdi")), onDone(s)),
+    onError: toast.error,
+  });
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      title={t("Qaytarish — savdo #{n}", { n: sale.number })}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>{t("Bekor")}</Button>
+          <Button variant="danger" loading={submit.isPending} disabled={total <= 0 || invalid} onClick={() => submit.mutate()}>
+            <Undo2 className="h-4 w-4" /> {t("Qaytarish")} · {formatMoney(total)}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="overflow-hidden rounded-xl border border-border">
+          <Table head={<tr><Th>{t("Mahsulot")}</Th><Th right>{t("Sotilgan")}</Th><Th right>{t("Qaytarish mumkin")}</Th><Th right>{t("Qaytariladi")}</Th></tr>}>
+            {lines.map((l) => (
+              <tr key={l.id}>
+                <Td>{l.product_name}<p className="text-xs text-muted">{formatMoney(l.price)} / {l.unit_short}</p></Td>
+                <Td right>{formatNumber(l.qty, 3)} {l.unit_short}</Td>
+                <Td right>{formatNumber(left(l), 3)}</Td>
+                <Td right>
+                  <div className="flex items-center justify-end gap-1">
+                    <input
+                      className="h-8 w-20 rounded-lg border border-border bg-surface px-2 text-right text-sm num focus:border-brand focus:outline-none"
+                      inputMode="decimal"
+                      value={qty[l.id] ?? ""}
+                      placeholder="0"
+                      onChange={(e) => setQty({ ...qty, [l.id]: e.target.value.replace(",", ".") })}
+                      aria-label={t("Qaytariladigan miqdor")}
+                    />
+                    <button className="text-xs text-brand hover:underline" onClick={() => setQty({ ...qty, [l.id]: String(left(l)) })}>
+                      {t("hammasi")}
+                    </button>
+                  </div>
+                </Td>
+              </tr>
+            ))}
+          </Table>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Select label={t("Pul qanday qaytariladi")} value={method} onChange={(e) => setMethod(e.target.value)}>
+            {Object.entries(REFUND_LABELS)
+              .filter(([k]) => k !== "credit" && (k !== "debt" || hasCredit))
+              .map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
+          </Select>
+          <Input label={t("Sabab")} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("Masalan: singan, rangi mos kelmadi")} />
+        </div>
+        {invalid && <p className="text-sm text-danger">{t("Miqdor qaytarish mumkin bo'lganidan ko'p")}</p>}
+      </div>
+    </Modal>
+  );
+}
+
 export function SalesPage() {
   const { can, user } = useAuth();
   const qc = useQueryClient();
   const [filters, setFilters] = useState({ date_from: isoDate(), date_to: isoDate(), method: "", status: "", search: "" });
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Sale | null>(null);
+  const [returning, setReturning] = useState(false);
   const search = useDebounced(filters.search);
   const query = { ...filters, search, page, page_size: SIZE };
 
@@ -87,6 +180,7 @@ export function SalesPage() {
           { label: t("Cheklar"), value: summary.data ? formatNumber(summary.data.count) : null },
           { label: t("Savdo summasi"), value: summary.data ? formatMoney(summary.data.total) : null },
           { label: t("Chegirmalar"), value: summary.data ? formatMoney(summary.data.discount) : null },
+          ...(summary.data && Number(summary.data.returns) > 0 ? [{ label: t("Qaytarishlar"), value: formatMoney(summary.data.returns) }] : []),
           ...(summary.data?.profit != null ? [{ label: t("Yalpi foyda"), value: formatMoney(summary.data.profit) }] : []),
         ].map((k) => (
           <Card key={k.label} className="p-4">
@@ -139,7 +233,12 @@ export function SalesPage() {
           selected && (
             <>
               <Button variant="secondary" onClick={() => window.print()}><Printer className="h-4 w-4" /> {t("Chek")}</Button>
-              {can("sales.refund") && selected.status === "posted" && (
+              {can("sales.refund") && selected.status === "posted" && selected.lines.some((l) => Number(l.qty) > Number(l.returned_qty)) && (
+                <Button variant="secondary" onClick={() => setReturning(true)}>
+                  <Undo2 className="h-4 w-4" /> {t("Qaytarish")}
+                </Button>
+              )}
+              {can("sales.refund") && selected.status === "posted" && !(selected.returns as unknown as ReturnBrief[]).length && (
                 <Button variant="danger" loading={cancel.isPending} onClick={() => cancel.mutate(selected)}>
                   <Ban className="h-4 w-4" /> {t("Bekor qilish")}
                 </Button>
@@ -164,10 +263,36 @@ export function SalesPage() {
                 <div><dt className="text-muted">{t("Foyda")}</dt><dd className="font-semibold text-success num">{formatMoney(selected.profit)}</dd></div>
               )}
             </dl>
+            {(selected.returns as unknown as ReturnBrief[]).length > 0 && (
+              <div className="rounded-xl border border-danger/30 bg-danger/5 p-3 text-sm">
+                <p className="mb-2 font-semibold text-danger">{t("Qaytarishlar")}: {formatMoney(selected.returned_total)}</p>
+                <ul className="space-y-1">
+                  {(selected.returns as unknown as ReturnBrief[]).map((r) => (
+                    <li key={r.id} className="flex justify-between gap-2">
+                      <span className="text-muted">#{r.number} · {formatDateTime(r.created_at)} · {t(REFUND_LABELS[r.refund_method] ?? r.refund_method)}{r.reason && ` · ${r.reason}`}</span>
+                      <span className="num font-medium">−{formatMoney(r.total)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <Card className="p-4"><Receipt sale={selected} tenantName={user?.tenant?.name} /></Card>
           </div>
         )}
       </Drawer>
+      {returning && selected && (
+        <ReturnModal
+          sale={selected}
+          onClose={() => setReturning(false)}
+          onDone={(s) => {
+            setReturning(false);
+            setSelected(s);
+            void qc.invalidateQueries({ queryKey: ["sales"] });
+            void qc.invalidateQueries({ queryKey: ["sales-summary"] });
+            void qc.invalidateQueries({ queryKey: ["shift"] });
+          }}
+        />
+      )}
     </div>
   );
 }
