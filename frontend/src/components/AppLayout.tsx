@@ -125,9 +125,7 @@ export function AppLayout() {
         )}
       >
         <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-400 font-bold text-white">
-            S
-          </div>
+          <img src="/savdo-icon.svg" width="32" height="32" alt={collapsed ? "Savdo" : ""} className="shrink-0" />
           {!collapsed && (
             <div className="min-w-0 leading-tight">
               <p className="font-semibold">Savdo</p>
@@ -157,6 +155,7 @@ export function AppLayout() {
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileOpen(true)} aria-label={t("Menyu")}>
             <Menu className="h-5 w-5" />
           </Button>
+          <img src="/savdo-icon.svg" width="28" height="28" alt="Savdo" className="shrink-0 md:hidden" />
           <div className="flex-1" />
           {can("reports.view") && (
             <NavLink to="/" className="hidden items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-muted hover:bg-surface-2 sm:flex">

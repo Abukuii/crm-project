@@ -308,9 +308,7 @@ export function LandingPage() {
       {/* Yuqori panel */}
       <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6">
         <div className="flex items-center gap-2.5">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 text-lg font-bold text-white shadow-lg shadow-orange-500/30">
-            S
-          </div>
+          <img src="/savdo-icon.svg" width="36" height="36" alt="" className="rounded-lg shadow-lg shadow-orange-500/30" />
           <span className="text-lg font-semibold tracking-tight">Savdo</span>
         </div>
         <div className="flex items-center gap-2">
