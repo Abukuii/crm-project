@@ -15,6 +15,9 @@ SETTING_DEFAULTS: dict = {
     "telegram_notify_sales": True,
     # True — kassada smena ochilmasa sotish mumkin emas
     "require_shift": False,
+    # Brauzer/telefon bildirishnomalari
+    "push_notify_sales": True,
+    "push_notify_low_stock": True,
 }
 
 

@@ -61,6 +61,20 @@ birinchi ishga tushirish.
 Repozitoriy → **Settings → Actions → General → Workflow permissions** → **Read and write permissions**.
 (CI `production` branch'ini yangilashi uchun kerak.) Shundan keyin `main` ga har bir push o'zi deploy bo'ladi.
 
+## 3.1. Push bildirishnomalar (PWA)
+
+Yangi server `setup-server.sh` orqali ko'tarilsa, VAPID kalitlari o'zi yaratiladi. Allaqachon
+ishlayotgan serverda esa bir marta qo'lda qo'shiladi:
+
+```bash
+cd /opt/savdo/infra
+sudo docker compose run --rm api python manage.py generate_vapid_keys --env | sudo tee -a .env
+sudo docker compose up -d
+```
+
+Shundan keyin xodim saytga kirib **Profil → Bildirishnomalar → Yoqish** tugmasini bosadi.
+Kalitlarni keyinchalik almashtirmang: eski obunalar ishlamay qoladi va hamma qaytadan yoqishi kerak.
+
 ## 4. Eski savdolarim.uz ma'lumotlarini ko'chirish
 
 Eski serverda (eski `crm_project2` papkasida):

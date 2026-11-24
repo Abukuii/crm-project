@@ -194,6 +194,11 @@ CACHES = {
 CBU_RATES_URL = env("CBU_RATES_URL", default="https://cbu.uz/uz/arkhiv-kursov-valyut/json/")
 CBU_CURRENCIES = env.list("CBU_CURRENCIES", default=["USD", "EUR", "RUB"])
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+# Push bildirishnomalari (VAPID). Bo'sh bo'lsa — push o'chiq.
+# Kalit yaratish: python manage.py generate_vapid_keys --env
+VAPID_PUBLIC_KEY = env("VAPID_PUBLIC_KEY", default="")
+VAPID_PRIVATE_KEY = env("VAPID_PRIVATE_KEY", default="")
+VAPID_SUBJECT = env("VAPID_SUBJECT", default="mailto:admin@savdolarim.uz")
 # Excel import cheklovlari
 IMPORT_MAX_ROWS = env.int("IMPORT_MAX_ROWS", default=5000)
 IMPORT_MAX_BYTES = env.int("IMPORT_MAX_BYTES", default=5 * 1024 * 1024)

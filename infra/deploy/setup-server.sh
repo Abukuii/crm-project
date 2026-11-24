@@ -115,6 +115,22 @@ systemctl enable --now savdo-update.timer savdo-backup.timer >/dev/null
 log "Birinchi ishga tushirish (build bir necha daqiqa oladi)"
 APP_DIR="$APP_DIR" infra/deploy/auto-update.sh --force
 
+# ── 7. Push bildirishnomalari uchun VAPID kalitlari ───────────────────────────
+if ! grep -qE '^VAPID_PRIVATE_KEY=.+' "$ENV"; then
+  log "Push bildirishnomalari uchun kalitlar yaratilmoqda"
+  if keys="$(docker compose --project-directory "$APP_DIR/infra" run --rm -T api        python manage.py generate_vapid_keys --env --subject "mailto:$EMAIL" 2>/dev/null)"; then
+    # Bo'sh VAPID_* qatorlarini yangilari bilan almashtiramiz
+    grep -v '^VAPID_' "$ENV" > "$ENV.tmp"
+    printf '%s
+' "$keys" >> "$ENV.tmp"
+    mv "$ENV.tmp" "$ENV"
+    chmod 600 "$ENV"
+    APP_DIR="$APP_DIR" "$APP_DIR/infra/deploy/auto-update.sh" --force >/dev/null
+  else
+    echo "Ogohlantirish: VAPID kalitlari yaratilmadi — bildirishnomalarsiz davom etamiz"
+  fi
+fi
+
 cat <<EOF
 
 ✅ Savdo ishga tushdi: https://$DOMAIN

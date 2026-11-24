@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { AppLayout } from "@/components/AppLayout";
+import { PwaPrompts } from "@/components/Pwa";
 import { ApiError } from "@/lib/api";
 import { CustomersPage } from "@/pages/CustomersPage";
 import { DashboardPage } from "@/pages/DashboardPage";
@@ -65,7 +66,9 @@ function App() {
   }, [bootstrap]);
 
   return (
-    <Routes key={lang}>
+    <>
+      <PwaPrompts />
+      <Routes key={lang}>
       <Route path="/welcome" element={status === "loading" ? <Spinner /> : <LandingPage />} />
       <Route path="/login" element={<Navigate to="/welcome" replace />} />
       <Route
@@ -91,7 +94,8 @@ function App() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<PlaceholderPage title="Sahifa topilmadi" />} />
       </Route>
-    </Routes>
+      </Routes>
+    </>
   );
 }
 
