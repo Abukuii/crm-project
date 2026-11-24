@@ -212,10 +212,15 @@ def create_sale(
         note=f"Savdo #{sale.number}",
         lines=[MoveLine(ln.product.pk, -ln.base_qty) for ln in lines],
     )  # fmt: skip
+    # Minimal qoldiqdan pastga "tushgan" tovarlar (faqat kesib o'tgan payti — har savdoda emas)
+    low_stock: set[int] = set()
     for ln, move in zip(lines, moves, strict=True):
         ln.sale = sale
         ln.unit_cost = move.unit_cost
         ln.cost_total = q_money(move.unit_cost * ln.base_qty)
+        min_stock = ln.product.min_stock
+        if min_stock > ZERO and move.qty_after <= min_stock < move.qty_after - move.qty:
+            low_stock.add(ln.product.pk)
     SaleLine.objects.bulk_create(lines)
     sale.cost_total = q_money(sum((ln.cost_total for ln in lines), ZERO))
     sale.save(update_fields=["cost_total", "updated_at"])
@@ -233,14 +238,17 @@ def create_sale(
         action="sale.create", entity="sale", entity_id=sale.pk, tenant=tenant, user=user,
         request=request, after={"number": sale.number, "total": total, "discount": discount_total},
     )  # fmt: skip
-    transaction.on_commit(lambda: _notify(sale.pk))
+    transaction.on_commit(lambda: _notify(sale.pk, tenant.pk, sorted(low_stock), warehouse.name))
     return sale
 
 
-def _notify(sale_id: int) -> None:
-    from apps.notifications.tasks import notify_sale
+def _notify(sale_id: int, tenant_id: int, low_stock: list[int], warehouse: str) -> None:
+    from apps.notifications.tasks import notify_sale, push_low_stock, push_sale
 
     notify_sale.delay(sale_id)
+    push_sale.delay(sale_id)
+    if low_stock:
+        push_low_stock.delay(tenant_id, low_stock, warehouse)
 
 
 @transaction.atomic

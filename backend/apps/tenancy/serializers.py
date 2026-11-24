@@ -32,6 +32,9 @@ class TenantSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("negative_stock: forbid yoki allow")
         if value.get("rate_source", "cbu") not in ("cbu", "manual"):
             raise serializers.ValidationError("rate_source: cbu yoki manual")
+        for key in ("push_notify_sales", "push_notify_low_stock"):
+            if not isinstance(value.get(key, True), bool):
+                raise serializers.ValidationError(f"{key}: true/false")
         if not isinstance(value.get("require_shift", False), bool):
             raise serializers.ValidationError("require_shift: true/false")
         if not isinstance(value.get("telegram_notify_sales", True), bool):

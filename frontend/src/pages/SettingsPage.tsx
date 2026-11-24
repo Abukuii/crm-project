@@ -1,22 +1,39 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Building2, Send } from "lucide-react";
+import { Bell, Building2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { t } from "@/i18n";
 import type { Me, Tenant } from "@/api/types";
+import { PushCard } from "@/components/PushCard";
 import { Button, Card, Input, PageHeader, Select } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAuth } from "@/stores/auth";
 import { useTheme, type Theme } from "@/stores/theme";
 import { toast } from "@/stores/toast";
 
-type Settings = { negative_stock: string; rate_source: string; telegram_chat_id: string; telegram_notify_sales: boolean; require_shift: boolean };
+type Settings = {
+  negative_stock: string;
+  rate_source: string;
+  telegram_chat_id: string;
+  telegram_notify_sales: boolean;
+  require_shift: boolean;
+  push_notify_sales: boolean;
+  push_notify_low_stock: boolean;
+};
 
 export function SettingsPage() {
   const qc = useQueryClient();
   const tenant = useQuery({ queryKey: ["tenant"], queryFn: () => api<Tenant>("/tenancy/current/") });
   const [info, setInfo] = useState({ name: "", inn: "", phone: "", address: "" });
-  const [s, setS] = useState<Settings>({ negative_stock: "forbid", rate_source: "cbu", telegram_chat_id: "", telegram_notify_sales: true, require_shift: false });
+  const [s, setS] = useState<Settings>({
+    negative_stock: "forbid",
+    rate_source: "cbu",
+    telegram_chat_id: "",
+    telegram_notify_sales: true,
+    require_shift: false,
+    push_notify_sales: true,
+    push_notify_low_stock: true,
+  });
 
   useEffect(() => {
     if (!tenant.data) return;
@@ -77,6 +94,30 @@ export function SettingsPage() {
           {t("Har bir savdo haqida xabar yuborish")}
         </label>
       </Card>
+      <Card className="space-y-3 p-5">
+        <h2 className="flex items-center gap-2 font-semibold">
+          <Bell className="h-4 w-4 text-brand" /> {t("Push bildirishnomalar")}
+        </h2>
+        <p className="text-sm text-muted">
+          {t("Xodimlar bildirishnomalarni o'z profilida yoqadi. Bu yerda qaysi hodisalar yuborilishini tanlaysiz.")}
+        </p>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={s.push_notify_sales}
+            onChange={(e) => setS({ ...s, push_notify_sales: e.target.checked })}
+          />
+          {t("Yangi savdo haqida push yuborish")}
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={s.push_notify_low_stock}
+            onChange={(e) => setS({ ...s, push_notify_low_stock: e.target.checked })}
+          />
+          {t("Tovar tugaganda push yuborish")}
+        </label>
+      </Card>
     </div>
   );
 }
@@ -93,6 +134,7 @@ export function ProfilePage() {
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <PageHeader title={t("Profil")} subtitle={`${user?.username} · ${user?.roles.map((r) => t(r.name)).join(", ")}`} />
+      <PushCard />
       <Card className="space-y-3 p-5">
         <div className="grid gap-3 sm:grid-cols-2">
           <Input label={t("Ism")} value={f.first_name} onChange={(e) => setF({ ...f, first_name: e.target.value })} />

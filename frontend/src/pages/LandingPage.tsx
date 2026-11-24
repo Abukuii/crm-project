@@ -22,6 +22,7 @@ import { Navigate, useLocation } from "react-router-dom";
 
 import { t, weekdayShort } from "@/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
+import { InstallButton } from "@/components/Pwa";
 import { ContactInfo } from "@/components/ContactInfo";
 import { Button, Input } from "@/components/ui";
 import { ApiError } from "@/lib/api";
@@ -313,6 +314,7 @@ export function LandingPage() {
           <span className="text-lg font-semibold tracking-tight">Savdo</span>
         </div>
         <div className="flex items-center gap-2">
+          <InstallButton />
           <LangSwitcher />
           <button onClick={cycle} className="rounded-lg p-2 text-muted hover:bg-surface-2 hover:text-fg" aria-label={t("Mavzuni almashtirish")}>
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

@@ -15,3 +15,4 @@ whitenoise>=6.8
 gunicorn>=23.0
 openpyxl>=3.1
 packaging>=24.0  # kombu (Celery Redis transport) talab qiladi
+pywebpush>=2.0  # push bildirishnomalari (VAPID)

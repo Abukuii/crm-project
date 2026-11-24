@@ -1071,6 +1071,72 @@ export interface paths {
         patch: operations["v1_notes_reminders_partial_update"];
         trace?: never;
     };
+    "/api/v1/notifications/push/config/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Push yoqilganmi va brauzer obuna bo'lishi uchun kerakli ochiq kalit. */
+        get: operations["v1_notifications_push_config_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/push/subscribe/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_notifications_push_subscribe_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/push/test/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description O'ziga sinov bildirishnomasi yuboradi. */
+        post: operations["v1_notifications_push_test_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/push/unsubscribe/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_notifications_push_unsubscribe_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/purchasing/purchases/": {
         parameters: {
             query?: never;
@@ -2592,6 +2658,18 @@ export interface components {
          * @enum {string}
          */
         PurchaseStatusEnum: "draft" | "posted" | "cancelled";
+        PushConfig: {
+            enabled: boolean;
+            public_key: string | null;
+            devices: number;
+        };
+        PushKeysRequest: {
+            p256dh: string;
+            auth: string;
+        };
+        PushTestResult: {
+            sent: number;
+        };
         Receivable: {
             readonly id: number;
             sale: number;
@@ -2960,6 +3038,11 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        SubscribeRequest: {
+            /** Format: uri */
+            endpoint: string;
+            keys: components["schemas"]["PushKeysRequest"];
+        };
         Supplier: {
             readonly id: number;
             /** Nomi */
@@ -3061,6 +3144,10 @@ export interface components {
             allow_fraction?: boolean;
             /** Soliq birlik kodi */
             code?: string;
+        };
+        UnsubscribeRequest: {
+            /** Format: uri */
+            endpoint: string;
         };
         User: {
             readonly id: number;
@@ -5313,6 +5400,93 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Reminder"];
                 };
+            };
+        };
+    };
+    v1_notifications_push_config_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushConfig"];
+                };
+            };
+        };
+    };
+    v1_notifications_push_subscribe_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscribeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SubscribeRequest"];
+                "multipart/form-data": components["schemas"]["SubscribeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushConfig"];
+                };
+            };
+        };
+    };
+    v1_notifications_push_test_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushTestResult"];
+                };
+            };
+        };
+    };
+    v1_notifications_push_unsubscribe_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UnsubscribeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["UnsubscribeRequest"];
+                "multipart/form-data": components["schemas"]["UnsubscribeRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

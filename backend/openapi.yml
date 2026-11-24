@@ -2612,6 +2612,84 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/notifications/push/config/:
+    get:
+      operationId: v1_notifications_push_config_retrieve
+      description: Push yoqilganmi va brauzer obuna bo'lishi uchun kerakli ochiq kalit.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushConfig'
+          description: ''
+  /api/v1/notifications/push/subscribe/:
+    post:
+      operationId: v1_notifications_push_subscribe_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushConfig'
+          description: ''
+  /api/v1/notifications/push/test/:
+    post:
+      operationId: v1_notifications_push_test_create
+      description: O'ziga sinov bildirishnomasi yuboradi.
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushTestResult'
+          description: ''
+  /api/v1/notifications/push/unsubscribe/:
+    post:
+      operationId: v1_notifications_push_unsubscribe_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnsubscribeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UnsubscribeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UnsubscribeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/purchasing/purchases/:
     get:
       operationId: v1_purchasing_purchases_list
@@ -6251,6 +6329,41 @@ components:
         * `draft` - Qoralama
         * `posted` - O'tkazilgan
         * `cancelled` - Bekor qilingan
+    PushConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        public_key:
+          type: string
+          nullable: true
+        devices:
+          type: integer
+      required:
+      - devices
+      - enabled
+      - public_key
+    PushKeysRequest:
+      type: object
+      properties:
+        p256dh:
+          type: string
+          minLength: 1
+          maxLength: 255
+        auth:
+          type: string
+          minLength: 1
+          maxLength: 255
+      required:
+      - auth
+      - p256dh
+    PushTestResult:
+      type: object
+      properties:
+        sent:
+          type: integer
+      required:
+      - sent
     Receivable:
       type: object
       properties:
@@ -7152,6 +7265,19 @@ components:
       - unit_cost
       - warehouse
       - warehouse_name
+    SubscribeRequest:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 512
+        keys:
+          $ref: '#/components/schemas/PushKeysRequest'
+      required:
+      - endpoint
+      - keys
     Supplier:
       type: object
       properties:
@@ -7398,6 +7524,16 @@ components:
       required:
       - name
       - short
+    UnsubscribeRequest:
+      type: object
+      properties:
+        endpoint:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 512
+      required:
+      - endpoint
     User:
       type: object
       properties:

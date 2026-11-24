@@ -17,6 +17,7 @@ api_v1 = [
     path("notes/", include("apps.reminders.views")),
     path("reports/", include("apps.reports.views")),
     path("dataio/", include("apps.dataio.urls")),
+    path("notifications/", include("apps.notifications.urls")),
 ]
 
 urlpatterns = [

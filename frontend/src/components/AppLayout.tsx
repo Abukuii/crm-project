@@ -22,15 +22,17 @@ import {
   Wallet,
   type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
 import { t } from "@/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
+import { InstallButton } from "@/components/Pwa";
 import { ContactInfo } from "@/components/ContactInfo";
 import { Toaster } from "@/components/overlay";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { syncPushSubscription } from "@/lib/push";
 import { useAuth } from "@/stores/auth";
 import { useTheme } from "@/stores/theme";
 
@@ -77,6 +79,10 @@ const THEME_LABEL = { system: "Tizim mavzusi", light: "Yorug' mavzu", dark: "Tun
 
 export function AppLayout() {
   const { user, logout, can } = useAuth();
+  // Obuna "jim" yo'qolmasligi uchun har safar ochilganda server bilan solishtiriladi
+  useEffect(() => {
+    void syncPushSubscription();
+  }, []);
   const { theme, cycle } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -163,6 +169,7 @@ export function AppLayout() {
               <BarChart3 className="h-3.5 w-3.5" /> {t("Hisobot")}
             </NavLink>
           )}
+          <InstallButton className="hidden sm:inline-flex" />
           <LangSwitcher />
           <Button variant="ghost" size="icon" onClick={cycle} title={t(THEME_LABEL[theme])} aria-label={t(THEME_LABEL[theme])}>
             <ThemeIcon className="h-4 w-4" />
